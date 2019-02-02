@@ -11,5 +11,12 @@
 * Set up sphinx
 
 ### Implementation
-* Load data from CSV
-* Standard way of passing parameters to algorithms
+* Allow different priors to be chosen for Sums and others
+* Allow user to choose iteration modes:
+  * (FIXED, n)
+  * (CONVERGENCE, norm, delta)
+* Decide what should happen if a source makes no claims (also if a varirable is
+  not commented on by any sources)
+  * Raise error?
+  * Print warning?
+  * Give 0/NaN/None trust/belief score?
