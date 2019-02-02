@@ -1,7 +1,3 @@
-import numpy as np
-import numpy.ma as ma
-
-
 class SourceVariableMatrix:
     """
     A matrix containing data about variables and the values they take according

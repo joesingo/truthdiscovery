@@ -1,8 +1,8 @@
-from truthdiscovery.input import SourceVariableMatrix, SourceClaimMatrix
-
 import numpy as np
 import numpy.ma as ma
 import pytest
+
+from truthdiscovery.input import SourceVariableMatrix, SourceClaimMatrix
 
 
 class TestVariablesMatrix:
@@ -30,14 +30,14 @@ class TestVariablesMatrix:
 class TestSourceClaimMatrix:
     def test_create(self):
         var_mat = SourceVariableMatrix(ma.masked_values([
-            [7,   4,  7], [5,   1, -1], [-1,  2,  4], [7,  -1,  2],
-            [-1,  1,  2]
+            [7, 4, 7], [5, 1, -1], [-1, 2, 4], [7, -1, 2],
+            [-1, 1, 2]
         ], -1))
 
     def test_expected_value(self):
         var_mat = SourceVariableMatrix(ma.masked_values([
-            [7,   4,  7], [5,   1, -1], [-1,  2,  4], [7,  -1,  2],
-            [-1,  1,  2]
+            [7, 4, 7], [5, 1, -1], [-1, 2, 4], [7, -1, 2],
+            [-1, 1, 2]
         ], -1))
         expected_claim_mat = np.array([
             [1, 1, 1, 0, 0, 0, 0, 0],
@@ -52,13 +52,13 @@ class TestSourceClaimMatrix:
 
     def test_claim_var_val_mapping(self):
         var_mat = SourceVariableMatrix(ma.masked_values([
-            # X   Y   Z
-            [7,   4,  7],
-            [5,   1, -1],
-            [-1,  2,  4],
-            [7,  -1,  2],
-            [-1,  1,  2]
-        ], -1))
+            # X Y  Z
+            [7, 4, 7],
+            [5, 1, 0],
+            [0, 2, 4],
+            [7, 0, 2],
+            [0, 1, 2]
+        ], 0))
         claim_mat = SourceClaimMatrix(var_mat)
 
         test_data = (
@@ -79,8 +79,8 @@ class TestSourceClaimMatrix:
 
     def test_num_sources_claims(self):
         var_mat = SourceVariableMatrix(ma.masked_values([
-            [7,   4,  7], [5,   1, -1], [-1,  2,  4], [7,  -1,  2],
-            [-1,  1,  2]
+            [7, 4, 7], [5, 1, -1], [-1, 2, 4], [7, -1, 2],
+            [-1, 1, 2]
         ], -1))
         claim_mat = SourceClaimMatrix(var_mat)
         assert claim_mat.num_sources() == 5

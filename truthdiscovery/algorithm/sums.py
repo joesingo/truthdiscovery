@@ -1,7 +1,7 @@
-from truthdiscovery.algorithm import BaseAlgorithm
-from truthdiscovery.input import SourceClaimMatrix
-
 import numpy as np
+
+from truthdiscovery.algorithm.base import BaseAlgorithm
+from truthdiscovery.input import SourceClaimMatrix
 
 
 class Sums(BaseAlgorithm):
