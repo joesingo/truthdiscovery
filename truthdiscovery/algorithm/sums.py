@@ -6,6 +6,12 @@ from truthdiscovery.output import Result
 
 
 class Sums(BaseAlgorithm):
+    """
+    Sums, or Hubs and Authorities, algorithm.
+
+    Described by Kleinberg for web pages, and adapted to truth-discovery by
+    Pasternack and Roth
+    """
     def __init__(self, num_iterations):
         self.num_iterations = num_iterations
 

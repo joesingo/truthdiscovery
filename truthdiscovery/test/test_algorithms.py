@@ -2,7 +2,7 @@ import numpy as np
 import numpy.ma as ma
 import pytest
 
-from truthdiscovery.algorithm import BaseAlgorithm, Sums
+from truthdiscovery.algorithm import BaseAlgorithm, MajorityVoting, Sums
 from truthdiscovery.input import SourceVariableMatrix
 
 
@@ -14,6 +14,13 @@ class BaseTest:
             [1, 8, 0],
             [0, 0, 7]
         ], 0))
+
+
+class TestBase(BaseTest):
+    def test_run_base_fail(self, data):
+        alg = BaseAlgorithm()
+        with pytest.raises(NotImplementedError):
+            alg.run(data)
 
 
 class TestSums(BaseTest):
@@ -38,8 +45,13 @@ class TestSums(BaseTest):
         assert np.isclose(results.belief[2][7], 0.87938524)
 
 
-class TestBase(BaseTest):
-    def test_run_base_fail(self, data):
-        alg = BaseAlgorithm()
-        with pytest.raises(NotImplementedError):
-            alg.run(data)
+class TestVoting(BaseTest):
+    def test_basic(self, data):
+        voting = MajorityVoting()
+        results = voting.run(data)
+        assert results.trust == [1, 1, 1]
+        assert results.belief == [
+            {1: 2},
+            {9: 1, 8: 1},
+            {7: 2}
+        ]
