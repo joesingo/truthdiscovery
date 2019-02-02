@@ -7,7 +7,6 @@
 ## Coding
 
 ### Admin
-* Decide on license
 * Decide on coding style, and save config for pycodestyle/pylint
 * Set up sphinx
 
