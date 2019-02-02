@@ -26,6 +26,29 @@ class TestVariablesMatrix:
             arr = np.zeros((3, 3, 3))
             m = SourceVariableMatrix(arr)
 
+    def test_from_csv(self, tmpdir):
+        filepath = tmpdir.join("data.csv")
+        csv_file = filepath.write("\n".join([
+            "1,,3,2,6",
+            ",9,2,2,5",
+            "3,9,,,1",
+            "1,9,5,3,4",
+            "5,1,3,1,1"
+        ]))
+
+        data = SourceVariableMatrix.from_csv(str(filepath))
+        expected_matrix = ma.masked_values([
+            [1, 0, 3, 2, 6],
+            [0, 9, 2, 2, 5],
+            [3, 9, 0, 0, 1],
+            [1, 9, 5, 3, 4],
+            [5, 1, 3, 1, 1]
+        ], 0)
+        assert data.num_sources() == 5
+        assert data.num_variables() == 5
+        assert (data.mat.mask == expected_matrix.mask).all()
+        assert (data.mat == expected_matrix).all()
+
 
 class TestSourceClaimMatrix:
     def test_create(self):

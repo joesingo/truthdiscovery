@@ -1,3 +1,6 @@
+import numpy as np
+
+
 class SourceVariableMatrix:
     """
     A matrix containing data about variables and the values they take according
@@ -33,3 +36,10 @@ class SourceVariableMatrix:
         :return: the number of variables
         """
         return self.mat.shape[1]
+
+    @classmethod
+    def from_csv(cls, path):
+        """
+        Load a matrix from a CSV file
+        """
+        return cls(np.genfromtxt(path, delimiter=",", usemask=True))
