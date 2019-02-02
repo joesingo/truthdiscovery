@@ -12,11 +12,9 @@ Claim = namedtuple("Claim", ["var", "val"])
 
 class SourceClaimMatrix:
     """
-    A matrix containing data about which sources make which claims. A source
-    either asserts a given claim is true, or does not.
-
-    Let s_1, ..., s_m be the sources and c_1, ..., c_n be the claims. Then
-    entry (i, j) is 1 if s_i makes claim c_j, and 0 otherwise.
+    A matrix containing data about which sources make which claims. Entries are
+    0 or 1 to indicate whether a source (row) makes a claim (column) or not,
+    i.e.  this is the adjacency matrix of the source/claims graph.
     """
 
     def __init__(self, sv_matrix):
