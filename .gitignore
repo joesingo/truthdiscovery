@@ -1,3 +1,9 @@
-*.pyc
-*.swp
 *.swo
+*.swp
+*.pyc
+*.aux
+*.dvi
+*.log
+*.out
+*.blg
+*.bbl
