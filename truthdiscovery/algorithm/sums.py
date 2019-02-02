@@ -2,6 +2,7 @@ import numpy as np
 
 from truthdiscovery.algorithm.base import BaseAlgorithm
 from truthdiscovery.input import SourceClaimMatrix
+from truthdiscovery.output import Result
 
 
 class Sums(BaseAlgorithm):
@@ -28,18 +29,13 @@ class Sums(BaseAlgorithm):
             trust = trust / max(trust)
             belief = belief / max(belief)
 
-        # TODO: return output
-        for source, trust in enumerate(trust):
-            print("source {} has trust {:.4f}".format(source, trust))
-
-        var_beliefs = {}
-        for claim, belief in enumerate(belief):
+        # Convert belief in claims to belief for each variable taking its
+        # claimed values
+        var_belief = [None] * data.num_variables()
+        for claim, belief_score in enumerate(belief):
             var, val = sc_mat.get_claim(claim)
-            if var not in var_beliefs:
-                var_beliefs[var] = []
-            var_beliefs[var].append((val, belief))
+            if var_belief[var] is None:
+                var_belief[var] = {}
+            var_belief[var][val] = belief_score
 
-        for var, beliefs in var_beliefs.items():
-            print("var {}:".format(var))
-            for val, belief in beliefs:
-                print(" = {}: belief {:.4f}".format(val, belief))
+        return Result(trust=list(trust), belief=var_belief)
