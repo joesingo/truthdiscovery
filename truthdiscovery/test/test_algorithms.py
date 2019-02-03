@@ -5,8 +5,13 @@ import numpy.ma as ma
 import pytest
 
 from truthdiscovery.algorithm import (
-    AverageLog, BaseAlgorithm, BaseIterativeAlgorithm, MajorityVoting, Sums,
-    PriorBelief
+    AverageLog,
+    BaseAlgorithm,
+    BaseIterativeAlgorithm,
+    Investment,
+    MajorityVoting,
+    PriorBelief,
+    Sums
 )
 from truthdiscovery.input import Dataset
 
@@ -45,6 +50,12 @@ class TestBaseIterative(BaseTest):
         alg = BaseIterativeAlgorithm(priors=PriorBelief.FIXED)
         got = alg.get_prior_beliefs(data)
         expected = [0.5, 0.5, 0.5, 0.5]
+        assert np.array_equal(got, expected)
+
+    def test_voted_priors(self, data):
+        alg = BaseIterativeAlgorithm(priors=PriorBelief.VOTED)
+        got = alg.get_prior_beliefs(data)
+        expected = [1, 0.5, 0.5, 1]
         assert np.array_equal(got, expected)
 
     def test_invalid_priors(self, data):
@@ -124,3 +135,79 @@ class TestAverageLog(BaseTest):
         avlog = AverageLog()
         with pytest.raises(ValueError):
             avlog.run(new_data)
+
+
+class TestInvestment(BaseTest):
+    def test_basic(self):
+        data = Dataset(ma.masked_values([
+            [1, 0, 9],
+            [0, 9, 0],
+            [1, 1, 1],
+            [9, 1, 9]
+        ], 9))
+
+        # TODO: find example that converges nicely: this one results in all
+        # sources bar one having trust 0, which causes division by zero error
+        num_iterations = 20
+        g = 1.4
+        inv = Investment(num_iterations=num_iterations, g=g)
+        results = inv.run(data)
+
+        b = [
+            2 / 3,
+            1 / 3,
+            2 / 3,
+            1 / 3,
+            1 / 2,
+            1 / 2
+        ]
+        t = [1, 1, 1, 1]
+        old_t = t[:]
+
+
+        for _ in range(num_iterations):
+            t[0] = (old_t[0] / 2) * (
+                b[0] / ((old_t[0] / 2) + (old_t[2] / 3)) +
+                b[3] / (old_t[0] / 2)
+            )
+            t[1] = (old_t[1] / 2) * (
+                b[1] / (old_t[1] / 2) +
+                b[5] / (old_t[1] / 2)
+            )
+            t[2] = (old_t[2] / 3) * (
+                b[0] / ((old_t[0] / 2) + (old_t[2] / 3)) +
+                b[2] / ((old_t[2] / 3) + old_t[3]) +
+                b[4] / (old_t[2] / 3)
+            )
+            t[3] = old_t[3] * (
+                b[2] / ((old_t[2] / 3) + old_t[3])
+            )
+
+            b[0] = ((t[0] / 2) + (t[2] / 3)) ** g
+            b[1] = (t[1] / 2) ** g
+            b[2] = ((t[2] / 3) + t[3]) ** g
+            b[3] = (t[0] / 2) ** g
+            b[4] = (t[2] / 3) ** g
+            b[5] = (t[1] / 2) ** g
+
+            max_t = max(t)
+            for i, val in enumerate(t):
+                t[i] = val / max_t
+            old_t = t[:]
+
+            max_b = max(b)
+            for j, val in enumerate(b):
+                b[j] = val / max_b
+
+        assert np.allclose(results.trust, t)
+
+        assert set(results.belief[0].keys()) == {0, 1}
+        assert set(results.belief[1].keys()) == {0, 1}
+        assert set(results.belief[2].keys()) == {0, 1}
+
+        assert np.isclose(results.belief[0][1], b[0])
+        assert np.isclose(results.belief[0][0], b[1])
+        assert np.isclose(results.belief[1][1], b[2])
+        assert np.isclose(results.belief[1][0], b[3])
+        assert np.isclose(results.belief[2][1], b[4])
+        assert np.isclose(results.belief[2][0], b[5])

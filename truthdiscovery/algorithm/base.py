@@ -9,6 +9,7 @@ class PriorBelief(Enum):
     algorithms
     """
     FIXED = 1
+    VOTED = 2
 
 
 class BaseAlgorithm:
@@ -54,6 +55,10 @@ class BaseIterativeAlgorithm(BaseAlgorithm):
         num_claims = data.num_claims
         if self.priors == PriorBelief.FIXED:
             return np.full((num_claims,), 0.5)
+
+        if self.priors == PriorBelief.VOTED:
+            source_counts = np.matmul(data.sc.T, np.ones((data.num_sources,)))
+            return source_counts / np.matmul(data.mut_ex, source_counts)
 
         raise ValueError(
             "Invalid prior belief type: '{}'".format(self.priors)

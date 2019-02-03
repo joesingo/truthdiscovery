@@ -77,6 +77,10 @@ something))
   returned to source s is the fraction according to how much s invested in c
   relative to c's other sources
 
+* Conjecture (that has not been fully thought out): trust and belief converge
+  such that there is a source with trust 1 and all other sources trust 0, and
+  a claim with belief 1 and all other claims have belief 0
+
 ## PooledInvestment
 (Pasternack and Roth: Knowing What to Believe (when you already know
 something))
