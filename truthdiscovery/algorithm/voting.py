@@ -12,9 +12,9 @@ class MajorityVoting(BaseAlgorithm):
     """
     def run(self, data):
         """
-        :param data: input data as a SourceVariableMatrix
+        :param data: input data as a Dataset object
         """
-        m = data.mat
+        m = data.sv
         var_belief = []
         for col in m.T:
             beliefs = {}
@@ -26,4 +26,4 @@ class MajorityVoting(BaseAlgorithm):
                 beliefs[val] += 1
             var_belief.append(beliefs)
 
-        return Result(trust=[1] * data.num_sources(), belief=var_belief)
+        return Result(trust=[1] * data.num_sources, belief=var_belief)

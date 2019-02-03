@@ -1,7 +1,6 @@
 import numpy as np
 
 from truthdiscovery.algorithm.base import BaseIterativeAlgorithm
-from truthdiscovery.input import SourceClaimMatrix
 from truthdiscovery.output import Result
 
 
@@ -14,20 +13,18 @@ class AverageLog(BaseIterativeAlgorithm):
     """
     def run(self, data):
         """
-        :param data: input data as a SourceVariableMatrix
+        :param data: input data as a Dataset object
         :return: the results as a Results tuple
         """
-        sc_mat = SourceClaimMatrix(data)
-
-        trust = np.zeros((data.num_sources(),))
-        belief = self.get_prior_beliefs(sc_mat)
+        trust = np.zeros((data.num_sources,))
+        belief = self.get_prior_beliefs(data)
 
         # Pre-compute the number of claims made by each source and log
         # weighting, since this is used in each iteration and does not change.
         # Note that the number of claims made by s_i is the sum of the i-th row
         # of the claims matrix, so we multiply by [1 ... 1].T to get the counts
         # for all sources in one operation
-        claim_counts = np.matmul(sc_mat.mat, np.ones((sc_mat.num_claims(),)))
+        claim_counts = np.matmul(data.sc, np.ones((data.num_claims,)))
 
         # TODO: decide how to handle this case better
         if np.any(claim_counts == 0):
@@ -37,8 +34,8 @@ class AverageLog(BaseIterativeAlgorithm):
 
         for _ in range(self.num_iterations):
             # Entry-wise multiplication
-            trust = weights * np.matmul(sc_mat.mat, belief)
-            belief = np.matmul(sc_mat.mat.T, trust)
+            trust = weights * np.matmul(data.sc, belief)
+            belief = np.matmul(data.sc.T, trust)
 
             # Normalise as with sums
             trust = trust / max(trust)
@@ -46,5 +43,5 @@ class AverageLog(BaseIterativeAlgorithm):
 
         return Result(
             trust=list(trust),
-            belief=self.get_variable_beliefs(data, sc_mat, belief)
+            belief=data.get_variable_value_beliefs(belief)
         )

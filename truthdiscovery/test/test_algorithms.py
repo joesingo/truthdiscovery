@@ -8,13 +8,13 @@ from truthdiscovery.algorithm import (
     AverageLog, BaseAlgorithm, BaseIterativeAlgorithm, MajorityVoting, Sums,
     PriorBelief
 )
-from truthdiscovery.input import SourceClaimMatrix, SourceVariableMatrix
+from truthdiscovery.input import Dataset
 
 
 class BaseTest:
     @pytest.fixture
     def data(self):
-        return SourceVariableMatrix(ma.masked_values([
+        return Dataset(ma.masked_values([
             [1, 9, 7],
             [1, 8, 0],
             [0, 0, 7]
@@ -42,17 +42,15 @@ class TestVoting(BaseTest):
 
 class TestBaseIterative(BaseTest):
     def test_fixed_priors(self, data):
-        sc_mat = SourceClaimMatrix(data)
         alg = BaseIterativeAlgorithm(priors=PriorBelief.FIXED)
-        got = alg.get_prior_beliefs(sc_mat)
+        got = alg.get_prior_beliefs(data)
         expected = [0.5, 0.5, 0.5, 0.5]
         assert np.array_equal(got, expected)
 
     def test_invalid_priors(self, data):
-        sc_mat = SourceClaimMatrix(data)
         alg = BaseIterativeAlgorithm(priors="hello")
         with pytest.raises(ValueError):
-            alg.get_prior_beliefs(sc_mat)
+            alg.get_prior_beliefs(data)
 
 
 class TestSums(BaseTest):
@@ -116,12 +114,12 @@ class TestAverageLog(BaseTest):
 
     def test_with_zero_rows(self, data):
         # Copy the data and add a new source who makes no claims
-        rows, cols = data.mat.shape
+        rows, cols = data.sv.shape
         new_shape = (rows + 1, cols)
         new_mat = ma.zeros(new_shape)
-        new_mat[0:rows, :] = data.mat
+        new_mat[0:rows, :] = data.sv
         new_mat[rows, :] = ma.masked
-        new_data = SourceVariableMatrix(new_mat)
+        new_data = Dataset(new_mat)
 
         avlog = AverageLog()
         with pytest.raises(ValueError):

@@ -18,31 +18,10 @@ class BaseAlgorithm:
     def run(self, data):
         """
         Run the algorithm on the given data
-        :param data: input data as a SourceVariableMatrix
+        :param data: input data as a Dataset object
         :return: the results as a Results tuple
         """
         raise NotImplementedError("Must be implemented in child classes")
-
-    @staticmethod
-    def get_variable_beliefs(sv_matrix, sc_matrix, belief):
-        """
-        Convert belief in claims to belief for each variable taking its claimed
-        values
-        :param sv_matrix: original data as a SourceVariableMatrix
-        :param sc_matrix: SourceClaimMatrix generated from `sv_matrix`, from
-                          which `belief` has been generated
-        :param belief:    numpy array of belief values for claims in
-                          `sc_matrix`
-        :return: a list of belief values for variables taking different values,
-                 in the format required for `Result`
-        """
-        var_belief = [None] * sv_matrix.num_variables()
-        for claim, belief_score in enumerate(belief):
-            var, val = sc_matrix.get_claim(claim)
-            if var_belief[var] is None:
-                var_belief[var] = {}
-            var_belief[var][val] = belief_score
-        return var_belief
 
 
 class BaseIterativeAlgorithm(BaseAlgorithm):
@@ -67,12 +46,12 @@ class BaseIterativeAlgorithm(BaseAlgorithm):
 
     def get_prior_beliefs(self, data):
         """
-        :param data: input data as a SourceClaimMatrix
+        :param data: input data as a Dataset object
         :return:     a numpy array of prior belief values for claims
         :raises ValueError: if self.prior is not an item from the `PriorBelief`
                             enumeration
         """
-        num_claims = data.num_claims()
+        num_claims = data.num_claims
         if self.priors == PriorBelief.FIXED:
             return np.full((num_claims,), 0.5)
 

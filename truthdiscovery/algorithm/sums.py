@@ -1,7 +1,6 @@
 import numpy as np
 
 from truthdiscovery.algorithm.base import BaseIterativeAlgorithm
-from truthdiscovery.input import SourceClaimMatrix
 from truthdiscovery.output import Result
 
 
@@ -14,18 +13,15 @@ class Sums(BaseIterativeAlgorithm):
     """
     def run(self, data):
         """
-        :param data: input data as a SourceVariableMatrix
+        :param data: input data as a Dataset object
         :return: the results as a Results tuple
         """
-        # Convert variables matrix to claims
-        sc_mat = SourceClaimMatrix(data)
-
-        trust = np.zeros((sc_mat.num_sources(),))
-        belief = self.get_prior_beliefs(sc_mat)
+        trust = np.zeros((data.num_sources,))
+        belief = self.get_prior_beliefs(data)
 
         for _ in range(self.num_iterations):
-            trust = np.matmul(sc_mat.mat, belief)
-            belief = np.matmul(sc_mat.mat.T, trust)
+            trust = np.matmul(data.sc, belief)
+            belief = np.matmul(data.sc.T, trust)
 
             # Trust and belief are normalised so that the largest entries in
             # each are 1; otherwise trust and belief scores grow without bound
@@ -34,5 +30,5 @@ class Sums(BaseIterativeAlgorithm):
 
         return Result(
             trust=list(trust),
-            belief=self.get_variable_beliefs(data, sc_mat, belief)
+            belief=data.get_variable_value_beliefs(belief)
         )
