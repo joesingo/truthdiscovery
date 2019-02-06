@@ -2,7 +2,7 @@ import numpy as np
 import numpy.ma as ma
 import pytest
 
-from truthdiscovery.input import Dataset, SupervisedDataset
+from truthdiscovery.input import Dataset, SupervisedDataset, SyntheticDataset
 from truthdiscovery.output import Result
 
 
@@ -206,3 +206,59 @@ class TestResult:
         for var_belief, exp in test_data:
             res = Result(trust, [var_belief])
             assert set(res.get_most_believed_values(0)) == exp
+
+
+class TestSyntheticDataset:
+    """
+    Test the SyntheticDataset class
+    """
+    def test_invalid_trust_vector_shape(self):
+        invalid_trust_scores = (
+            np.array([]),
+            np.array([
+                [0.5, 0.5],
+                [0.5, 0.5]
+            ])
+        )
+        for trust in invalid_trust_scores:
+            with pytest.raises(ValueError):
+                SyntheticDataset(trust, 10)
+
+    def test_trust_range_error(self):
+        invalid_trust_scores = (
+            np.array([-1, 0, 0]),
+            np.array([2, 0, 0]),
+            np.array([np.nan, 0, 0]),
+            np.array([0, 1.1, 0])
+        )
+        for trust in invalid_trust_scores:
+            with pytest.raises(ValueError):
+                SyntheticDataset(trust, 10)
+
+    def test_valid_trusts(self):
+        valid_trust_scores = (
+            np.array([0, 0, 0]),
+            np.array([1, 1, 1]),
+            np.array([1 / 3, 0.5, 0.4444444]),
+        )
+        for trust in valid_trust_scores:
+            try:
+                SyntheticDataset(trust, 10)
+            except ValueError:
+                assert False, "Unexpected error for trust = {}".format(trust)
+
+    def test_claim_probability(self):
+        trust = np.full((5,), 0.5)
+        prob0 = SyntheticDataset(trust, claim_probability=0)
+        prob1 = SyntheticDataset(trust, claim_probability=1)
+        # If claims made with p=0 then no claims should be made
+        assert prob0.sv.mask.all()
+        # If claims made with p=1 then all possible claims should be made
+        assert (~prob1.sv.mask).all()
+
+    def test_invalid_claim_probability(self):
+        invalid_probs = (-1, -0.5, -0.0000001, 1.0000001)
+        trust = np.full((5,), 0.5)
+        for prob in invalid_probs:
+            with pytest.raises(ValueError):
+                SyntheticDataset(trust, claim_probability=prob)

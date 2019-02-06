@@ -1,2 +1,3 @@
 from truthdiscovery.input.dataset import Dataset
 from truthdiscovery.input.supervised_dataset import SupervisedDataset
+from truthdiscovery.input.synthetic_dataset import SyntheticDataset
