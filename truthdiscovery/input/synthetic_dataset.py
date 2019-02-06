@@ -40,6 +40,6 @@ class SyntheticDataset(SupervisedDataset):
                         # Guess correctly
                         sv_mat[source, var] = true_value
                     else:
-                        sv_mat[source, var] = 1 if true_value == 0 else 1
+                        sv_mat[source, var] = (1 if true_value == 0 else 0)
 
         super().__init__(sv_mat, true_values, **kwargs)
