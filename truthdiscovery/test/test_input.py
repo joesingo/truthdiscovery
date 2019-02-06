@@ -2,7 +2,8 @@ import numpy as np
 import numpy.ma as ma
 import pytest
 
-from truthdiscovery.input import Dataset
+from truthdiscovery.input import Dataset, SupervisedDataset
+from truthdiscovery.output import Result
 
 
 class TestDataset:
@@ -114,3 +115,94 @@ class TestDataset:
         ])
         assert data.mut_ex.shape == expected_mut_ex_mat.shape
         assert (data.mut_ex == expected_mut_ex_mat).all()
+
+
+class TestSupervisedDataset:
+    @pytest.fixture
+    def matrix(self):
+        return ma.masked_values([
+            [1, 2, 3, 4],
+            [1, 0, 3, 4],
+            [0, 2, 3, 4]
+        ], 0)
+
+    def test_invalid_values_shape(self, matrix):
+        invalid_values = (
+            np.array([]),
+            np.array([0.5]),
+            np.array([0.5, 0.4]),
+            np.array([0.5, 0.4, 0.3]),
+            np.array([0.5, 0.4, 0.3, 0.2, 0.1]),
+            np.array([
+                [0.5, 0.5],
+                [0.5, 0.5]
+            ])
+        )
+        for values in invalid_values:
+            with pytest.raises(ValueError):
+                SupervisedDataset(matrix, values)
+
+    def test_valid_values(self, matrix):
+        valid_values = (
+            np.array([1, 2, 3, 4]),
+            np.array([-1, -2, -3, -4]),
+            ma.masked_values([1, 2, -1, 4], -1)
+        )
+        for values in valid_values:
+            try:
+                SupervisedDataset(matrix, values)
+            except ValueError:
+                assert False, "Unexpected error for values = {}".format(values)
+
+    def test_accuracy(self, matrix):
+        data = SupervisedDataset(matrix, ma.masked_values([5, 6, -1, 8], -1))
+        test_data = (
+            (2 / 3, [{5: 1.0, 15: 0.8, -10: 0.5},           # correct
+                     {1: 0.99, 2: 0.8},                     # wrong
+                     {7: 0.5, 6: 0.7, -10: 0.999},          # unknown
+                     {1: 0.1, 2: 0.1, 3: 0.1, 8: 0.101}]),  # correct
+
+            # Results where a variable has only one claimed value
+            (1 / 2, [{5: 1.0},                              # correct, only one
+                     {1: 0.99, 2: 0.8},                     # wrong
+                     {7: 0.5, 6: 0.7, -10: 0.999},          # unknown
+                     {1: 0.1, 2: 0.1, 3: 0.1, 8: 0.101}])   # correct
+        )
+
+        for expected_acc, belief in test_data:
+            res = Result(trust=[1.5, 0.5, 0.5], belief=belief)
+            got_acc = data.get_accuracy(res)
+            assert got_acc == expected_acc
+
+        # Results where there is a tie for most believed value
+        var_beliefs = [
+            {5: 0.8, 5000: 0.8, 4: 0.6},  # tie: either correct or incorrect
+            {6: 0.7, 1: 0.2},             # correct
+            {1: 0.5, 2: 0.4},             # unknown
+            {1: 0.5, 2: 0.4}              # wrong
+        ]
+        res = Result(trust=[1.5, 0.5, 0.5], belief=var_beliefs)
+        assert data.get_accuracy(res) in (1 / 3, 2 / 3)
+
+    def test_no_true_values_known(self, matrix):
+        data = SupervisedDataset(matrix, ma.masked_all((4,)))
+        res = Result(trust=[0.5] * 3, belief=[{4: 1}] * 4)
+        with pytest.raises(ValueError):
+            data.get_accuracy(res)
+
+
+class TestResult:
+    """
+    Test the Result class
+    """
+    def test_most_believed_values(self):
+        test_data = (
+            ({10: 0.5, 11: 0.7, 12: 0.7}, {11, 12}),
+            ({-1: 0.1, -2: 0.1, 3: 0.05}, {-1, -2}),
+            ({5: 0.9, 5000: 0.8}, {5}),
+            ({123.456: 0.0001}, {123.456})
+        )
+        trust = [0.5] * 10
+        for var_belief, exp in test_data:
+            res = Result(trust, [var_belief])
+            assert set(res.get_most_believed_values(0)) == exp

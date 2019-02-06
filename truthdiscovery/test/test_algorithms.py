@@ -164,7 +164,6 @@ class TestInvestment(BaseTest):
         t = [1, 1, 1, 1]
         old_t = t[:]
 
-
         for _ in range(num_iterations):
             t[0] = (old_t[0] / 2) * (
                 b[0] / ((old_t[0] / 2) + (old_t[2] / 3)) +
