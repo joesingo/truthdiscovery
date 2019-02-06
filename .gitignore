@@ -8,3 +8,4 @@
 *.blg
 *.bbl
 venv/*
+*.egg-info
