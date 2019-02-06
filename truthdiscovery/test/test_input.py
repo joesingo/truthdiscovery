@@ -249,16 +249,20 @@ class TestSyntheticDataset:
 
     def test_claim_probability(self):
         trust = np.full((5,), 0.5)
-        prob0 = SyntheticDataset(trust, claim_probability=0)
-        prob1 = SyntheticDataset(trust, claim_probability=1)
-        # If claims made with p=0 then no claims should be made
-        assert prob0.sv.mask.all()
+        prob = SyntheticDataset(trust, claim_probability=1)
         # If claims made with p=1 then all possible claims should be made
-        assert (~prob1.sv.mask).all()
+        assert (~prob.sv.mask).all()
 
     def test_invalid_claim_probability(self):
-        invalid_probs = (-1, -0.5, -0.0000001, 1.0000001)
+        invalid_probs = (0, -1, -0.5, -0.0000001, 1.0000001)
         trust = np.full((5,), 0.5)
         for prob in invalid_probs:
             with pytest.raises(ValueError):
                 SyntheticDataset(trust, claim_probability=prob)
+
+    def test_domain_size(self):
+        invalid_domain_sizes = (-1, 0, 1)
+        trust = np.full((5,), 0.5)
+        for ds in invalid_domain_sizes:
+            with pytest.raises(ValueError):
+                SyntheticDataset(trust, domain_size=ds)
