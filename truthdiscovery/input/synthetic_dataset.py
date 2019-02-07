@@ -41,21 +41,42 @@ class SyntheticDataset(SupervisedDataset):
         for var, true_value in enumerate(true_values):
             claim_made = False
             # Loop to ensure that at least one claim is made for this variable
-            while not claim_made:
-                for source, trust_val in enumerate(trust):
-                    if np.random.random_sample() <= claim_probability:
-                        claim_made = True
-                        # Source claims the correct value with probability
-                        # trust_val, and chooses an incorrect value uniformly
-                        # otherwise
-                        wrong_prob = (1 - trust_val) / (domain_size - 1)
-                        prob_dist = [wrong_prob] * domain_size
-                        prob_dist[int(true_value)] = trust_val
-                        # Draw claimed value from domain with above probability
-                        # distribution
-                        sv_mat[source, var] = np.random.choice(
-                            range(domain_size),
-                            p=prob_dist
-                        )
+            for source, trust_val in enumerate(trust):
+                if np.random.random_sample() <= claim_probability:
+                    claim_made = True
+                    sv_mat[source, var] = self.generate_claim(
+                        trust_val, true_value, domain_size
+                    )
+            # Make sure at least one source makes a claim about this variable
+            if not claim_made:
+                source = np.random.randint(0, len(trust))
+                sv_mat[source, var] = self.generate_claim(
+                    self.trust[source], true_value, domain_size
+                )
+
+        # Make sure all sources make at least one claim
+        for source, row in enumerate(sv_mat):
+            if row.mask.all():
+                var = np.random.randint(0, num_variables)
+                sv_mat[source, var] = self.generate_claim(
+                    self.trust[source], true_values[var], domain_size
+                )
 
         super().__init__(sv_mat, true_values, **kwargs)
+
+    @classmethod
+    def generate_claim(cls, trust_val, true_value, domain_size):
+        """
+        Generate a value for a source to claim for a variable
+        :param trust_val: trust value for the source in [0, 1]
+        :param true_value: the true value for the variable
+        :param domain_size: the number of possible values for the variable; the
+                            domain is {0, 1, ..., domain_size - 1}
+        """
+        # Source claims the correct value with probability trust_val, and
+        # chooses an incorrect value uniformly otherwise
+        wrong_prob = (1 - trust_val) / (domain_size - 1)
+        prob_dist = [wrong_prob] * domain_size
+        prob_dist[int(true_value)] = trust_val
+        # Draw claimed value from domain with above probability distribution
+        return np.random.choice(range(domain_size), p=prob_dist)
