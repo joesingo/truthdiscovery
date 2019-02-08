@@ -1,4 +1,6 @@
+import json
 import math
+from os import path
 
 import numpy as np
 import numpy.ma as ma
@@ -311,3 +313,65 @@ class TestPooledInvestment(BaseTest):
         assert np.isclose(results.belief[1][0], b[3])
         assert np.isclose(results.belief[2][1], b[4])
         assert np.isclose(results.belief[2][0], b[5])
+
+
+class TestOnLargeData:
+    """
+    The following are regression tests, to check that the output of each
+    algorithm on a (synthetic) dataset remains the same over time
+    """
+    @pytest.fixture
+    def data(self):
+        return Dataset.from_csv(self.get_filepath("data.csv"))
+
+    def get_filepath(self, name):
+        here = path.abspath(path.dirname(__file__))
+        return path.join(here, "regression", name)
+
+    def check_results(self, alg, data, exp_results_filename):
+        """
+        Helper method to check results of an algorithm
+        :param alg: algorithm instance
+        :param data: Dataset instance
+        :param exp_results_filename: filename of JSON file containing expected
+                                     results (name should be relative to
+                                     'truthdiscovery/test/regression' in the
+                                     repo)
+        """
+        res = alg.run(data)
+        with open(self.get_filepath(exp_results_filename)) as res_file:
+            exp_res = json.load(res_file)
+
+        trust_err = "Incorrect trust for {}".format(exp_results_filename)
+        assert res.trust == exp_res["trust"], trust_err
+
+        # JSON cannot have floats as keys, so we need to convert them before
+        # comparison with real results
+        exp_belief = [
+            {float(k): v for k, v in belief_dict.items()}
+            for belief_dict in exp_res["belief"]
+        ]
+        belief_err = "Incorrect belief for {}".format(exp_results_filename)
+        assert res.belief == exp_belief, belief_err
+
+    def test_sums(self, data):
+        sums = Sums()
+        self.check_results(sums, data, "sums_results.json")
+
+    def test_average_log(self, data):
+        average_log = AverageLog()
+        self.check_results(average_log, data, "average_log_results.json")
+
+    def test_investment(self, data):
+        investment = Investment()
+        self.check_results(investment, data, "investment_results.json")
+
+    def test_pooled_investment(self, data):
+        pooled_investment = PooledInvestment()
+        self.check_results(
+            pooled_investment, data, "pooled_investment_results.json"
+        )
+
+    def test_voting(self, data):
+        voting = MajorityVoting()
+        self.check_results(voting, data, "voting_results.json")
