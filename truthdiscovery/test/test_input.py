@@ -151,7 +151,7 @@ class TestSupervisedDataset:
         for values in valid_values:
             try:
                 SupervisedDataset(matrix, values)
-            except ValueError:
+            except ValueError:  # pragma: no cover
                 assert False, "Unexpected error for values = {}".format(values)
 
     def test_accuracy(self, matrix):
@@ -244,7 +244,7 @@ class TestSyntheticDataset:
         for trust in valid_trust_scores:
             try:
                 SyntheticDataset(trust, 10)
-            except ValueError:
+            except ValueError:  # pragma: no cover
                 assert False, "Unexpected error for trust = {}".format(trust)
 
     def test_claim_probability(self):

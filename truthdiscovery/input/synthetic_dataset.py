@@ -49,7 +49,7 @@ class SyntheticDataset(SupervisedDataset):
                         trust_val, true_value, domain_size
                     )
             # Make sure at least one source makes a claim about this variable
-            if not claim_made:
+            if not claim_made:  # pragma: no cover
                 source = np.random.randint(0, len(trust))
                 sv_mat[source, var] = self.generate_claim(
                     self.trust[source], true_value, domain_size
@@ -57,7 +57,7 @@ class SyntheticDataset(SupervisedDataset):
 
         # Make sure all sources make at least one claim
         for source, row in enumerate(sv_mat):
-            if row.mask.all():
+            if row.mask.all():  # pragma: no cover
                 var = np.random.randint(0, num_variables)
                 sv_mat[source, var] = self.generate_claim(
                     self.trust[source], true_values[var], domain_size
