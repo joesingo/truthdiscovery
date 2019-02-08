@@ -112,6 +112,67 @@ something))
   current predictions are 0.2, 1, -0.7 rep.; then we compute similarity of
   [1, -1, 1] and [0.2, 1, -0.7]
 
+## Latent Dirichlet Truth Discovery
+
+* Models each source as having *trustworthy* and *untrustworthy* components
+* Roughly, for each source there is a random variable with domain {0, 1}: if a
+  1 is sampled then the source makes a correct claim, and a false claim
+  otherwise. The probability that a 0 or 1 is drawn corresponds to the
+  untrustworthiness and trustworthiness respectively.
+* Uses complicated statistics...
+* Looks difficult to understand and implement
+
+## Truth discovery in data streams
+
+* Algorithm(s) for truth discovery for *data streams*, where values from
+  sources arrive continuously. Compare this to other algorithms which work on a
+  static database.
+* *One-pass* algorithm presented: don't need to look at a potentially huge
+  volume of data more than once (c.f iterative algorithms)
+* Claims to be particularly memory and time-efficient compared to other
+  algorithms
+* As with LDT, uses complicated statistics
+
+## Conflict Resolution on Heterogeneous Data
+
+* Aims to perform truth-discovery and calculate source reliability when *data
+  is heterogeneous*
+  * claims are multi-valued (city has a population, area, mayor...)
+  * different data types should be treated differently: categorical values are
+    either right or wrong, but continuous numerical values can be close to true
+    values, (e.g. true population is 100,512, claimed population is 100,500)
+* Formulated as an optimisation problem: min_{W, X} f(W, X) such that
+  delta(W) = 1
+
+  * W is vector of *source weights*
+  * X is matrix of 'true' values for each property of each object
+  * delta is a 'regularisation function': e.g. to constrain the range of
+    weights
+  * For each data type, have a loss function that measures how 'different'
+    values are
+  * f sums the loss between current true values in X for each property of each
+    object, and the values claimed by sources. Loss for each source is weighted
+    by its weight in W
+
+* An iterative algorithm is provided
+  * Initialise estimates for true values (use voting for categorical values,
+    or averaging for continuous numerical values)
+  * Alternately, until convergence:
+    * Consider truths X as fixed, and choose W to minimise f(W, X)
+    * Consider W as fixed and update X to minimise f(W, X)
+  * Methods for updating X for various data types are given in the paper
+
+* To be implemented in my framework, could still represent variable values
+  (object properties in the terminology of the paper) but specify different loss
+  functions for each variable
+
+* Authors also extend method to work with streaming data
+  * Uses source weights for previous data to estimate truths for new data
+  * Uses distance from newly estimated truths and source claims to update
+    source weights
+  * Hyperparameter controls the relative importance of historical data in
+    source weight updates
+
 # Overview
 
 Modelling truth-discovery problem as finding the values of variables X1...Xn
