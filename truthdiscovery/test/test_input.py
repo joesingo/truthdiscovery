@@ -126,6 +126,36 @@ class TestSupervisedDataset:
             [0, 2, 3, 4]
         ], 0)
 
+    def test_from_csv(self, tmpdir):
+        filepath = tmpdir.join("data.csv")
+        csv_file = filepath.write("\n".join([
+            "7,8,,100,",  # true values
+            "1,,3,2,6",
+            ",9,2,2,5",
+            "3,9,,,1",
+            "1,9,5,3,4",
+            "5,1,3,1,1"
+        ]))
+
+        data = SupervisedDataset.from_csv(str(filepath))
+        expected_matrix = ma.masked_values([
+            [1, 0, 3, 2, 6],
+            [0, 9, 2, 2, 5],
+            [3, 9, 0, 0, 1],
+            [1, 9, 5, 3, 4],
+            [5, 1, 3, 1, 1]
+        ], 0)
+        expected_values = ma.masked_values([
+            7, 8, 0, 100, 0
+        ], 0)
+        assert data.num_sources == 5
+        assert data.num_variables == 5
+        assert data.num_claims == 15
+        assert np.all(data.sv.mask == expected_matrix.mask)
+        assert np.all(data.sv == expected_matrix)
+        assert np.all(data.values.mask == expected_values.mask)
+        assert np.all(data.values == expected_values)
+
     def test_invalid_values_shape(self, matrix):
         invalid_values = (
             np.array([]),

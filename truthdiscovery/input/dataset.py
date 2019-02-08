@@ -102,7 +102,7 @@ class Dataset:
     def from_csv(cls, path):
         """
         Load a matrix from a CSV file
-        :param path: path on disc to a CSV file
+        :param path: path on disk to a CSV file
         :return: a Dataset object representing the matrix encoded by the CSV
         """
         return cls(np.genfromtxt(path, delimiter=",", usemask=True))

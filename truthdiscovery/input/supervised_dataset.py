@@ -63,3 +63,19 @@ class SupervisedDataset(Dataset):
                 "No known variables where more than one claimed value exists"
             )
         return count / total
+
+    @classmethod
+    def from_csv(cls, path):
+        """
+        Load a matrix from a CSV file along with true values. The format is the
+        same as for loading an unsupervised dataset, but the first row contains
+        the true values.
+
+        :param path: path on disk to a CSV file
+        :return:     a SupervisedDataset object representing the matrix encoded
+                     by the CSV
+        """
+        unsup = Dataset.from_csv(path)
+        true_values = unsup.sv[0, :]
+        sv_mat = unsup.sv[1:, :]
+        return cls(sv_mat, true_values)
