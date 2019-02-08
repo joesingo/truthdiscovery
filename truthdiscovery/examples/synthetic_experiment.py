@@ -12,6 +12,7 @@ from truthdiscovery.algorithm import (
     AverageLog,
     Investment,
     MajorityVoting,
+    PooledInvestment,
     Sums
 )
 
@@ -20,7 +21,7 @@ NUM_SOURCES = 100
 NUM_VARIABLES = 100
 CLAIM_PROBABILITY = 0.1
 DOMAIN_SIZE = 4
-REPETITIONS = 25
+REPETITIONS = 10
 
 
 def main():
@@ -41,7 +42,8 @@ def main():
         "voting": MajorityVoting(),
         "sums": Sums(),
         "average.log": AverageLog(),
-        "investment": Investment()
+        "investment": Investment(),
+        "Pooled Investment": PooledInvestment()
     })
 
     results = {}

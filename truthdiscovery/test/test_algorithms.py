@@ -10,6 +10,7 @@ from truthdiscovery.algorithm import (
     BaseIterativeAlgorithm,
     Investment,
     MajorityVoting,
+    PooledInvestment,
     PriorBelief,
     Sums
 )
@@ -57,6 +58,28 @@ class TestBaseIterative(BaseTest):
         got = alg.get_prior_beliefs(data)
         expected = [1, 0.5, 0.5, 1]
         assert np.array_equal(got, expected)
+
+        # Add a new value so that priors are different to voted...
+        mat2 = data.sv.copy()
+        mat2[2, 1] = 8
+        data2 = Dataset(mat2)
+        got2 = alg.get_prior_beliefs(data2)
+        expected2 = [1, 1 / 3, 2 / 3, 1]
+        assert np.array_equal(got2, expected2)
+
+    def test_uniform_priors(self, data):
+        alg = BaseIterativeAlgorithm(priors=PriorBelief.UNIFORM)
+        got = alg.get_prior_beliefs(data)
+        expected = [1, 0.5, 0.5, 1]
+        assert np.array_equal(got, expected)
+
+        # Same secondary test as for voted, but beliefs should not change here
+        mat2 = data.sv.copy()
+        mat2[2, 1] = 8
+        data2 = Dataset(mat2)
+        got2 = alg.get_prior_beliefs(data2)
+        expected2 = [1, 0.5, 0.5, 1]
+        assert np.array_equal(got2, expected2)
 
     def test_invalid_priors(self, data):
         alg = BaseIterativeAlgorithm(priors="hello")
@@ -188,6 +211,84 @@ class TestInvestment(BaseTest):
             b[3] = (t[0] / 2) ** g
             b[4] = (t[2] / 3) ** g
             b[5] = (t[1] / 2) ** g
+
+            max_t = max(t)
+            for i, val in enumerate(t):
+                t[i] = val / max_t
+            old_t = t[:]
+
+            max_b = max(b)
+            for j, val in enumerate(b):
+                b[j] = val / max_b
+
+        assert np.allclose(results.trust, t)
+
+        assert set(results.belief[0].keys()) == {0, 1}
+        assert set(results.belief[1].keys()) == {0, 1}
+        assert set(results.belief[2].keys()) == {0, 1}
+
+        assert np.isclose(results.belief[0][1], b[0])
+        assert np.isclose(results.belief[0][0], b[1])
+        assert np.isclose(results.belief[1][1], b[2])
+        assert np.isclose(results.belief[1][0], b[3])
+        assert np.isclose(results.belief[2][1], b[4])
+        assert np.isclose(results.belief[2][0], b[5])
+
+
+class TestPooledInvestment(BaseTest):
+    def test_basic(self):
+        # Same data as Investment above
+        data = Dataset(ma.masked_values([
+            [1, 0, 9],
+            [0, 9, 0],
+            [1, 1, 1],
+            [9, 1, 9]
+        ], 9))
+
+        num_iterations = 5
+        g = 1.4
+        pooled_inv = PooledInvestment(num_iterations=num_iterations, g=g)
+        results = pooled_inv.run(data)
+
+        b = [0.5] * 6
+        t = [1, 1, 1, 1]
+        old_t = t[:]
+
+        for _ in range(num_iterations):
+            # Note: trust update is the same as for investment
+            t[0] = (old_t[0] / 2) * (
+                b[0] / ((old_t[0] / 2) + (old_t[2] / 3)) +
+                b[3] / (old_t[0] / 2)
+            )
+            t[1] = (old_t[1] / 2) * (
+                b[1] / (old_t[1] / 2) +
+                b[5] / (old_t[1] / 2)
+            )
+            t[2] = (old_t[2] / 3) * (
+                b[0] / ((old_t[0] / 2) + (old_t[2] / 3)) +
+                b[2] / ((old_t[2] / 3) + old_t[3]) +
+                b[4] / (old_t[2] / 3)
+            )
+            t[3] = old_t[3] * (
+                b[2] / ((old_t[2] / 3) + old_t[3])
+            )
+
+            h = [
+                (t[0] / 2) + (t[2] / 3),
+                t[1] / 2,
+                (t[2] / 3) + t[3],
+                t[0] / 2,
+                t[2] / 3,
+                t[1] / 2,
+            ]
+            g_h = [x ** g for x in h]
+
+            b[0] = h[0] * g_h[0] / (g_h[0] + g_h[1])
+            b[1] = h[1] * g_h[1] / (g_h[0] + g_h[1])
+            b[2] = h[2] * g_h[2] / (g_h[2] + g_h[3])
+            b[3] = h[3] * g_h[3] / (g_h[2] + g_h[3])
+            b[4] = h[4] * g_h[4] / (g_h[4] + g_h[5])
+            b[5] = h[5] * g_h[5] / (g_h[4] + g_h[5])
 
             max_t = max(t)
             for i, val in enumerate(t):

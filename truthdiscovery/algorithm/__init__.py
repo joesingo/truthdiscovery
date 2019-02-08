@@ -5,5 +5,6 @@ from truthdiscovery.algorithm.base import (
     PriorBelief
 )
 from truthdiscovery.algorithm.investment import Investment
+from truthdiscovery.algorithm.pooled_investment import PooledInvestment
 from truthdiscovery.algorithm.sums import Sums
 from truthdiscovery.algorithm.voting import MajorityVoting

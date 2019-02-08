@@ -10,6 +10,7 @@ class PriorBelief(Enum):
     """
     FIXED = 1
     VOTED = 2
+    UNIFORM = 3
 
 
 class BaseAlgorithm:
@@ -47,18 +48,20 @@ class BaseIterativeAlgorithm(BaseAlgorithm):
 
     def get_prior_beliefs(self, data):
         """
-        :param data: input data as a Dataset object
-        :return:     a numpy array of prior belief values for claims
+        :param data:        input data as a Dataset object
+        :return:            a numpy array of prior belief values for claims
         :raises ValueError: if self.prior is not an item from the `PriorBelief`
                             enumeration
         """
-        num_claims = data.num_claims
         if self.priors == PriorBelief.FIXED:
-            return np.full((num_claims,), 0.5)
+            return np.full((data.num_claims,), 0.5)
 
         if self.priors == PriorBelief.VOTED:
             source_counts = np.matmul(data.sc.T, np.ones((data.num_sources,)))
             return source_counts / np.matmul(data.mut_ex, source_counts)
+
+        if self.priors == PriorBelief.UNIFORM:
+            return 1 / np.matmul(data.mut_ex, np.ones((data.num_claims,)))
 
         raise ValueError(
             "Invalid prior belief type: '{}'".format(self.priors)

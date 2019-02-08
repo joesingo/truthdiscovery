@@ -20,6 +20,7 @@ class SyntheticDataset(SupervisedDataset):
                                   about the value of a given variable
         :param domain_size: the number of possible values each variable
                             may take
+        :raises ValueError: if invalid parameters are given
         """
         if trust.ndim != 1:
             raise ValueError("Trust vector must be one dimensional")
