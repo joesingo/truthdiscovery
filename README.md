@@ -1,3 +1,51 @@
 # truthdiscovery
 
-This is a Python3 library that implements various truth-discovery algorithms.
+`truthdiscovery` is a Python3 library that implements various truth-discovery
+algorithms.
+
+A truth-discovery problem consists of
+
+* a number of *sources*
+* a number of *objects*
+* for each source, a set of *claims* made by the source, with each claim
+  relating to a distinct object
+
+An object may be associated with multiple (conflicting) claims from different
+sources, in which case it is not clear up front which is the true claim. It is
+typically assumed that there is only one true claim for each object.
+
+Truth-discovery addresses this by using the network of sources, claims and
+objects to determine the *trustworthiness* of sources, the *belief* in each
+claim, and the true claim for each object.
+
+The general principle for most algorithms is that trustworthy sources make
+believably claims, and believable claims are made my trustworthy sources.
+
+Most approaches are *unsupervised*, in that they do not use any prior knowledge
+for the trustworthiness of sources etc.
+
+## Supported algorithms
+* Majority voting (baseline algorithm)
+* Sums [1]
+* Average.Log [1]
+* Investment [1]
+* PooledInvestment [1]
+
+## Input
+
+In this library, objects are referred to as *variables*, and a claim for a
+variable `X` is a statement of the form `X = v` for some integer `v`.
+
+This allows the source/claim/object network to be conveniently encoded in a
+matrix, where rows correspond to sources, columns correspond to variables, and
+an entry at position `(i, j)` is the value that source `i` claims for variable
+`j` (the matrix may contain empty cells in cases where a source does not make a
+claim about a variable).
+
+## Usage
+
+TODO
+
+## References
+1. Pasternack, Jeff and Roth, Dan, [*"Knowing What to Believe (when You Already
+   Know Something)"*](http://dl.acm.org/citation.cfm?id=1873781.1873880)
