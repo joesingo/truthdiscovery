@@ -13,7 +13,8 @@ from truthdiscovery.algorithm import (
     Investment,
     MajorityVoting,
     PooledInvestment,
-    Sums
+    Sums,
+    TruthFinder
 )
 
 
@@ -43,7 +44,8 @@ def main():
         "sums": Sums(),
         "average.log": AverageLog(),
         "investment": Investment(),
-        "Pooled Investment": PooledInvestment()
+        "Pooled Investment": PooledInvestment(),
+        "TruthFinder": TruthFinder()
     })
 
     results = {}

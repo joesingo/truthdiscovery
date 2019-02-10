@@ -14,9 +14,10 @@ from truthdiscovery.algorithm import (
     MajorityVoting,
     PooledInvestment,
     PriorBelief,
-    Sums
+    Sums,
+    TruthFinder
 )
-from truthdiscovery.input import Dataset
+from truthdiscovery.input import ClaimImplicationDataset, Dataset
 
 
 class BaseTest:
@@ -315,6 +316,130 @@ class TestPooledInvestment(BaseTest):
         assert np.isclose(results.belief[2][0], b[5])
 
 
+class TestTruthFinder(BaseTest):
+    """
+    Test the TruthFinder algorithm
+    """
+    def test_basic(self, data):
+        def imp_func(var, val1, val2):
+            # Make sure implication is asymmetric
+            diff = val1 - val2
+            if diff > 0:
+                return np.exp(-0.5 * diff * diff)
+            return 0.4
+
+        imp_data = ClaimImplicationDataset(data.sv, imp_func)
+        n = 50
+        t_0 = 0.4
+        gamma = 0.5
+        ro = 0.25
+
+        trust = [t_0, t_0, t_0]
+        belief = [0] * 4
+
+        for _ in range(n):
+            tau = [
+                -np.log(1 - trust[0]),
+                -np.log(1 - trust[1]),
+                -np.log(1 - trust[2])
+            ]
+            sigma = [
+                tau[0] + tau[1],
+                tau[0],
+                tau[1],
+                tau[0] + tau[2]
+            ]
+            sigma_star = [
+                sigma[0],
+                sigma[1] + ro * sigma[2] * 0.4,
+                sigma[2] + ro * sigma[1] * np.exp(-0.5),
+                sigma[3]
+            ]
+            belief = [
+                1 / (1 + np.exp(-gamma * sigma_star[0])),
+                1 / (1 + np.exp(-gamma * sigma_star[1])),
+                1 / (1 + np.exp(-gamma * sigma_star[2])),
+                1 / (1 + np.exp(-gamma * sigma_star[3]))
+            ]
+            trust = [
+                (belief[0] + belief[1] + belief[3]) / 3,
+                (belief[0] + belief[2]) / 2,
+                belief[3]
+            ]
+
+        truthfinder = TruthFinder(
+            dampening_factor=gamma, influence_param=ro, initial_trust=t_0,
+            num_iterations=n
+        )
+        results = truthfinder.run(imp_data)
+
+        assert np.allclose(results.trust, trust)
+
+        assert set(results.belief[0].keys()) == {1}
+        assert set(results.belief[1].keys()) == {9, 8}
+        assert set(results.belief[2].keys()) == {7}
+
+        assert np.isclose(results.belief[0][1], belief[0])
+        assert np.isclose(results.belief[1][9], belief[1])
+        assert np.isclose(results.belief[1][8], belief[2])
+        assert np.isclose(results.belief[2][7], belief[3])
+
+    def test_no_implications(self, data):
+        """
+        Perform the same run as above, but do not bother with implications
+        between claims. This is to check that implications are ignored if a
+        normal Dataset object is passed in, instead of ClaimImplicationDataset
+        """
+        n = 50
+        t_0 = 0.4
+        gamma = 0.5
+        ro = 0.25
+
+        trust = [t_0, t_0, t_0]
+        belief = [0] * 4
+
+        for _ in range(n):
+            tau = [
+                -np.log(1 - trust[0]),
+                -np.log(1 - trust[1]),
+                -np.log(1 - trust[2])
+            ]
+            sigma = [
+                tau[0] + tau[1],
+                tau[0],
+                tau[1],
+                tau[0] + tau[2]
+            ]
+            belief = [
+                1 / (1 + np.exp(-gamma * sigma[0])),
+                1 / (1 + np.exp(-gamma * sigma[1])),
+                1 / (1 + np.exp(-gamma * sigma[2])),
+                1 / (1 + np.exp(-gamma * sigma[3]))
+            ]
+            trust = [
+                (belief[0] + belief[1] + belief[3]) / 3,
+                (belief[0] + belief[2]) / 2,
+                belief[3]
+            ]
+
+        truthfinder = TruthFinder(
+            dampening_factor=gamma, influence_param=ro, initial_trust=t_0,
+            num_iterations=n
+        )
+        results = truthfinder.run(data)
+
+        assert np.allclose(results.trust, trust)
+
+        assert set(results.belief[0].keys()) == {1}
+        assert set(results.belief[1].keys()) == {9, 8}
+        assert set(results.belief[2].keys()) == {7}
+
+        assert np.isclose(results.belief[0][1], belief[0])
+        assert np.isclose(results.belief[1][9], belief[1])
+        assert np.isclose(results.belief[1][8], belief[2])
+        assert np.isclose(results.belief[2][7], belief[3])
+
+
 class TestOnLargeData:
     """
     The following are regression tests, to check that the output of each
@@ -371,6 +496,12 @@ class TestOnLargeData:
         self.check_results(
             pooled_investment, data, "pooled_investment_results.json"
         )
+
+    # TODO: construct test data including claim implications, and load it
+    # from CSV
+    # def test_truthfinder(self, data):
+    #     truthfinder = TruthFinder()
+    #     self.check_results(truthfinder, data, "truthfinder_results.json")
 
     def test_voting(self, data):
         voting = MajorityVoting()

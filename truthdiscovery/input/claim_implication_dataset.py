@@ -28,6 +28,8 @@ class ClaimImplicationDataset(Dataset):
         super().__init__(sv_mat)
         self.imp = np.zeros((self.num_claims, self.num_claims))
         for j1, j2 in np.argwhere(self.mut_ex == 1):
+            if j1 == j2:
+                continue
             var, val1 = self.claims[j1]
             val2 = self.claims[j2].val
             # Note that claims j1 and j2 are for the same variable, since mut

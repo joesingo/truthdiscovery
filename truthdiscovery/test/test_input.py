@@ -320,6 +320,9 @@ class TestImplicationDataset:
                     return 0.85
                 elif (val1, val2) == (2, 1):
                     return -0.5
+                elif (val1, val2) == (1, 1):  # pragma: no cover
+                    # Note: this value should not be used
+                    return 10000000  # pragma: no cover
             elif var == 1:
                 if (val1, val2) == (2, 3):
                     return 1
