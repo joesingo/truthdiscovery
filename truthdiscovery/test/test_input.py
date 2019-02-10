@@ -2,7 +2,12 @@ import numpy as np
 import numpy.ma as ma
 import pytest
 
-from truthdiscovery.input import Dataset, SupervisedDataset, SyntheticDataset
+from truthdiscovery.input import (
+    ClaimImplicationDataset,
+    Dataset,
+    SupervisedDataset,
+    SyntheticDataset
+)
 from truthdiscovery.output import Result
 
 
@@ -296,3 +301,63 @@ class TestSyntheticDataset:
         for ds in invalid_domain_sizes:
             with pytest.raises(ValueError):
                 SyntheticDataset(trust, domain_size=ds)
+
+
+class TestImplicationDataset:
+    @pytest.fixture
+    def matrix(self):
+        return ma.masked_values([
+            [1, 2, 3, 4],
+            [2, 0, 4, 5],
+            [0, 3, 3, 5]
+        ], 0)
+
+    def test_implications(self, matrix):
+        # Test using manually crafted values
+        def imp_func(var, val1, val2):
+            if var == 0:
+                if (val1, val2) == (1, 2):
+                    return 0.85
+                elif (val1, val2) == (2, 1):
+                    return -0.5
+            elif var == 1:
+                if (val1, val2) == (2, 3):
+                    return 1
+                elif (val1, val2) == (3, 2):
+                    return 0.0001
+            elif var == 2:
+                if (val1, val2) == (3, 4):
+                    return -0.3
+                elif (val1, val2) == (4, 3):
+                    return None
+            elif var == 3:
+                if (val1, val2) == (4, 5):
+                    return 0.7
+                elif (val1, val2) == (5, 4):
+                    return -0.654
+
+        data = ClaimImplicationDataset(matrix, imp_func)
+        expected_imp = np.array([
+            [0, 0.85, 0, 0, 0, 0, 0, 0],
+            [-0.5, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0.0001, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, -0.3, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0.7],
+            [0, 0, 0, 0, 0, 0, -0.654, 0],
+        ])
+        assert data.imp.shape == (8, 8)
+        assert np.array_equal(data.imp, expected_imp)
+
+    def test_invalid_implication_values(self, matrix):
+        def too_big(var, val1, val2):
+            return 1.001
+
+        def too_small(var, val1, val2):
+            return -1.001
+
+        with pytest.raises(ValueError):
+            ClaimImplicationDataset(matrix, too_big)
+        with pytest.raises(ValueError):
+            ClaimImplicationDataset(matrix, too_small)
