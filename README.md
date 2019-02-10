@@ -30,6 +30,7 @@ for the trustworthiness of sources etc.
 * Average.Log [1]
 * Investment [1]
 * PooledInvestment [1]
+* TruthFinder [2]
 
 ## Input
 
@@ -49,3 +50,6 @@ TODO
 ## References
 1. Pasternack, Jeff and Roth, Dan, [*"Knowing What to Believe (when You Already
    Know Something)"*](http://dl.acm.org/citation.cfm?id=1873781.1873880)
+
+1. X. Yin and J. Han and P. S. Yu [*"Truth Discovery with Multiple Conflicting
+   Information Providers on the Web"*](http://ieeexplore.ieee.org/document/4415269/)
