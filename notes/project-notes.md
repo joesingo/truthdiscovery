@@ -16,10 +16,6 @@ Basic usage will be:
     * Table listing *all* belief and trust values
     * Values for sources/facts/objects matching a query
 
-Preliminary tasks:
-  * Decide which algorithms should be implemented
-  * Identify common ground for all algorithms
-
 # Existing software
 
 * This python library implements some fact-finding algorithms:
@@ -51,6 +47,8 @@ Preliminary tasks:
 * Some approaches also deal with *copying detection* in sources: determine if
   sources that copy each other, and which sources are dependent on which others
   (see [1] and [2] section 4)
+  * Useful because false values are often copied between sources: commonly
+    occurring claims might not be accurate
 
 * Basic algorithms use only sources and claims as inputs:
   * Sums (Hubs and Authorities)
@@ -74,7 +72,12 @@ Preliminary tasks:
   * Constrained:
     * Include (user specific) prior knowledge about what is true
 
+* Semi-supervised
+  * Uses a number of ground truths
+  * E.g. [3]
+
 ## Ideas for truth-discovery properties and axioms
+
 * Source makes an extra claim, not contradictory with other claims: scores
   remain the same
   * As it stands this is probably not sensible, since making an additional
@@ -94,15 +97,16 @@ Preliminary tasks:
 
 * Sources make identical claims: same trust scores
 
-* ~~Linearity (?): if we replace claims for c1 and c2 with a combined claim c',
-  s(c')=s(c1)+s(c2)~~ (probably not sensible)
-
 * Stability measure: upper bound on amount of change when k changes in input
   graph (matrix norm of difference between old and new trust matrices?)
 
 * Main axiom: replacing one of a claim's sources with one with lower trust
   score results in lower confidence. Dually, replacing one of a source's claims
   with a less believable one results in lower trust score
+  * Precisely: let c_1, c_2 be claims not made by a source s, and
+    belief(c_1) <= belief(c_2). Consider new graphs G_1 where s claims c_1, and
+    G_2 where s claims c_2. Then trust(G_1, s) <= trust(G_2, s)
+  * Similar in the other direction, where we add two sources to a claim
 
 * PageRank axioms could apply to homogeneous networks
 
@@ -132,3 +136,5 @@ Preliminary tasks:
 2. Manish Gupta, Jiawei Han
    Heterogeneous Network-Based Trust Analysis: A Survey
 
+3. Xiaoxin Yin, Wenzhao Tan
+   Semi-supervised Truth Discovery

@@ -173,6 +173,20 @@ something))
   * Hyperparameter controls the relative importance of historical data in
     source weight updates
 
+## Semi-Supervised Truth Discovery
+
+* Views facts as nodes in a graph
+* Weights between facts are determined by:
+  * Similarity between facts (for facts about the same object)
+  * Whether facts are claimed by a common source
+* Poses problem as an optimisation problem: assign confidence scores to facts
+  such that a certain loss function is minimised
+* Labelled data is in the form of *ground truths* -- these facts are known to
+  be true and are always assigned a confidence of 1
+* Unique solution can be found by inverting a large matrix. An iterative
+  algorithm that converges to the optimal solution is also given, which is more
+  practical for large data
+
 # Overview
 
 Modelling truth-discovery problem as finding the values of variables X1...Xn
