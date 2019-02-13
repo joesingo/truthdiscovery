@@ -23,10 +23,6 @@ class TestCodeStyle:
 
     def get_source_files(self, root_dir):
         for dirpath, dirnames, filenames in os.walk(root_dir):
-            # Skip migration files
-            if os.path.split(dirpath)[-1] in ("migrations", "migrations.orig"):
-                continue
-
             for filename in filenames:
                 full_path = os.path.join(dirpath, filename)
                 if full_path.endswith(".py"):
