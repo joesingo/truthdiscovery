@@ -1,6 +1,6 @@
 import numpy as np
 
-from truthdiscovery.algorithm import PriorBelief
+from truthdiscovery.algorithm.base import PriorBelief
 from truthdiscovery.algorithm.investment import Investment
 from truthdiscovery.output import Result
 
