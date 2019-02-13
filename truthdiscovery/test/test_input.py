@@ -5,8 +5,8 @@ import pytest
 from truthdiscovery.input import (
     ClaimImplicationDataset,
     Dataset,
-    SupervisedDataset,
-    SyntheticDataset
+    SupervisedData,
+    SyntheticData
 )
 from truthdiscovery.output import Result
 
@@ -122,14 +122,14 @@ class TestDataset:
         assert (data.mut_ex == expected_mut_ex_mat).all()
 
 
-class TestSupervisedDataset:
+class TestSupervisedData:
     @pytest.fixture
-    def matrix(self):
-        return ma.masked_values([
+    def dataset(self):
+        return Dataset(ma.masked_values([
             [1, 2, 3, 4],
             [1, 0, 3, 4],
             [0, 2, 3, 4]
-        ], 0)
+        ], 0))
 
     def test_from_csv(self, tmpdir):
         filepath = tmpdir.join("data.csv")
@@ -142,7 +142,8 @@ class TestSupervisedDataset:
             "5,1,3,1,1"
         ]))
 
-        data = SupervisedDataset.from_csv(str(filepath))
+        sup = SupervisedData.from_csv(str(filepath))
+        data = sup.data
         expected_matrix = ma.masked_values([
             [1, 0, 3, 2, 6],
             [0, 9, 2, 2, 5],
@@ -158,10 +159,10 @@ class TestSupervisedDataset:
         assert data.num_claims == 15
         assert np.all(data.sv.mask == expected_matrix.mask)
         assert np.all(data.sv == expected_matrix)
-        assert np.all(data.values.mask == expected_values.mask)
-        assert np.all(data.values == expected_values)
+        assert np.all(sup.values.mask == expected_values.mask)
+        assert np.all(sup.values == expected_values)
 
-    def test_invalid_values_shape(self, matrix):
+    def test_invalid_values_shape(self, dataset):
         invalid_values = (
             np.array([]),
             np.array([0.5]),
@@ -175,9 +176,9 @@ class TestSupervisedDataset:
         )
         for values in invalid_values:
             with pytest.raises(ValueError):
-                SupervisedDataset(matrix, values)
+                SupervisedData(dataset, values)
 
-    def test_valid_values(self, matrix):
+    def test_valid_values(self, dataset):
         valid_values = (
             np.array([1, 2, 3, 4]),
             np.array([-1, -2, -3, -4]),
@@ -185,12 +186,12 @@ class TestSupervisedDataset:
         )
         for values in valid_values:
             try:
-                SupervisedDataset(matrix, values)
+                SupervisedData(dataset, values)
             except ValueError:  # pragma: no cover
                 assert False, "Unexpected error for values = {}".format(values)
 
-    def test_accuracy(self, matrix):
-        data = SupervisedDataset(matrix, ma.masked_values([5, 6, -1, 8], -1))
+    def test_accuracy(self, dataset):
+        sup = SupervisedData(dataset, ma.masked_values([5, 6, -1, 8], -1))
         test_data = (
             (2 / 3, [{5: 1.0, 15: 0.8, -10: 0.5},           # correct
                      {1: 0.99, 2: 0.8},                     # wrong
@@ -206,7 +207,7 @@ class TestSupervisedDataset:
 
         for expected_acc, belief in test_data:
             res = Result(trust=[1.5, 0.5, 0.5], belief=belief)
-            got_acc = data.get_accuracy(res)
+            got_acc = sup.get_accuracy(res)
             assert got_acc == expected_acc
 
         # Results where there is a tie for most believed value
@@ -217,13 +218,13 @@ class TestSupervisedDataset:
             {1: 0.5, 2: 0.4}              # wrong
         ]
         res = Result(trust=[1.5, 0.5, 0.5], belief=var_beliefs)
-        assert data.get_accuracy(res) in (1 / 3, 2 / 3)
+        assert sup.get_accuracy(res) in (1 / 3, 2 / 3)
 
-    def test_no_true_values_known(self, matrix):
-        data = SupervisedDataset(matrix, ma.masked_all((4,)))
+    def test_no_true_values_known(self, dataset):
+        sup = SupervisedData(dataset, ma.masked_all((4,)))
         res = Result(trust=[0.5] * 3, belief=[{4: 1}] * 4)
         with pytest.raises(ValueError):
-            data.get_accuracy(res)
+            sup.get_accuracy(res)
 
 
 class TestResult:
@@ -243,9 +244,9 @@ class TestResult:
             assert set(res.get_most_believed_values(0)) == exp
 
 
-class TestSyntheticDataset:
+class TestSyntheticData:
     """
-    Test the SyntheticDataset class
+    Test the SyntheticData class
     """
     def test_invalid_trust_vector_shape(self):
         invalid_trust_scores = (
@@ -257,7 +258,7 @@ class TestSyntheticDataset:
         )
         for trust in invalid_trust_scores:
             with pytest.raises(ValueError):
-                SyntheticDataset(trust, 10)
+                SyntheticData(trust, 10)
 
     def test_trust_range_error(self):
         invalid_trust_scores = (
@@ -268,7 +269,7 @@ class TestSyntheticDataset:
         )
         for trust in invalid_trust_scores:
             with pytest.raises(ValueError):
-                SyntheticDataset(trust, 10)
+                SyntheticData(trust, 10)
 
     def test_valid_trusts(self):
         valid_trust_scores = (
@@ -278,29 +279,29 @@ class TestSyntheticDataset:
         )
         for trust in valid_trust_scores:
             try:
-                SyntheticDataset(trust, 10)
+                SyntheticData(trust, 10)
             except ValueError:  # pragma: no cover
                 assert False, "Unexpected error for trust = {}".format(trust)
 
     def test_claim_probability(self):
         trust = np.full((5,), 0.5)
-        prob = SyntheticDataset(trust, claim_probability=1)
+        synth = SyntheticData(trust, claim_probability=1)
         # If claims made with p=1 then all possible claims should be made
-        assert (~prob.sv.mask).all()
+        assert (~synth.data.sv.mask).all()
 
     def test_invalid_claim_probability(self):
         invalid_probs = (0, -1, -0.5, -0.0000001, 1.0000001)
         trust = np.full((5,), 0.5)
         for prob in invalid_probs:
             with pytest.raises(ValueError):
-                SyntheticDataset(trust, claim_probability=prob)
+                SyntheticData(trust, claim_probability=prob)
 
     def test_domain_size(self):
         invalid_domain_sizes = (-1, 0, 1)
         trust = np.full((5,), 0.5)
         for ds in invalid_domain_sizes:
             with pytest.raises(ValueError):
-                SyntheticDataset(trust, domain_size=ds)
+                SyntheticData(trust, domain_size=ds)
 
 
 class TestImplicationDataset:

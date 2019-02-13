@@ -5,22 +5,22 @@ import numpy.ma as ma
 from truthdiscovery.input.dataset import Dataset
 
 
-class SupervisedDataset(Dataset):
+class SupervisedData:
     """
-    A dataset for which the true values of a subset of the variables is known
+    A class to store a dataset for which the true values of a subset of the
+    variables is known
     """
-    def __init__(self, sv_mat, true_values, *args, **kwargs):
+    def __init__(self, dataset, true_values):
         """
-        :param sv_mat:      Source-variables matrix (as for Dataset
-                            constructor)
+        :param dataset:     a Dataset (or sub-class) object
         :param true_values: numpy array of true values for the variables.
                             Length must be the same as the number of variables.
                             May be a masked array if not all true values are
                             known.
         """
-        super().__init__(sv_mat, *args, **kwargs)
-
-        if true_values.ndim != 1 or true_values.shape[0] != sv_mat.shape[1]:
+        self.data = dataset
+        if (true_values.ndim != 1
+                or true_values.shape[0] != self.data.sv.shape[1]):
             raise ValueError(
                 "Number of true values must be the same as the number of"
                 "variables"
@@ -75,7 +75,7 @@ class SupervisedDataset(Dataset):
         :return:     a SupervisedDataset object representing the matrix encoded
                      by the CSV
         """
-        unsup = Dataset.from_csv(path)
-        true_values = unsup.sv[0, :]
-        sv_mat = unsup.sv[1:, :]
-        return cls(sv_mat, true_values)
+        temp = Dataset.from_csv(path)  # Load the whole thing as a matrix
+        true_values = temp.sv[0, :]
+        sv_mat = temp.sv[1:, :]
+        return cls(Dataset(sv_mat), true_values)

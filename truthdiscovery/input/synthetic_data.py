@@ -1,18 +1,18 @@
 import numpy as np
 import numpy.ma as ma
 
-from truthdiscovery.input.supervised_dataset import SupervisedDataset
+from truthdiscovery.input.dataset import Dataset
+from truthdiscovery.input.supervised_data import SupervisedData
 
 
-class SyntheticDataset(SupervisedDataset):
+class SyntheticData(SupervisedData):
     """
     A synthetic dataset generated randomly according to given source trust
     values, each of which is interpreted as the probability that a source's
     claim is correct
     """
     def __init__(self, trust, num_variables=100, claim_probability=0.5,
-                 domain_size=4,
-                 **kwargs):
+                 domain_size=4, **kwargs):
         """
         :param trust: numpy array of trust values in [0, 1] for sources
         :param num_variables: the number of artificial variables to generate
@@ -34,14 +34,12 @@ class SyntheticDataset(SupervisedDataset):
         if domain_size <= 1:
             raise ValueError("Domain size must be greater than 1")
 
-        self.trust = trust
         # Generate 'true' values for the variables uniformly from [0,...,d - 1]
         true_values = np.random.randint(0, domain_size, size=(num_variables,))
 
         sv_mat = ma.masked_all((len(trust), num_variables))
         for var, true_value in enumerate(true_values):
             claim_made = False
-            # Loop to ensure that at least one claim is made for this variable
             for source, trust_val in enumerate(trust):
                 if np.random.random_sample() <= claim_probability:
                     claim_made = True
@@ -52,7 +50,7 @@ class SyntheticDataset(SupervisedDataset):
             if not claim_made:  # pragma: no cover
                 source = np.random.randint(0, len(trust))
                 sv_mat[source, var] = self.generate_claim(
-                    self.trust[source], true_value, domain_size
+                    trust[source], true_value, domain_size
                 )
 
         # Make sure all sources make at least one claim
@@ -60,10 +58,10 @@ class SyntheticDataset(SupervisedDataset):
             if row.mask.all():  # pragma: no cover
                 var = np.random.randint(0, num_variables)
                 sv_mat[source, var] = self.generate_claim(
-                    self.trust[source], true_values[var], domain_size
+                    trust[source], true_values[var], domain_size
                 )
 
-        super().__init__(sv_mat, true_values, **kwargs)
+        super().__init__(Dataset(sv_mat), true_values, **kwargs)
 
     @classmethod
     def generate_claim(cls, trust_val, true_value, domain_size):

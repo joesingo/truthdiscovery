@@ -7,7 +7,7 @@ from collections import OrderedDict
 import numpy as np
 import matplotlib.pyplot as plt
 
-from truthdiscovery.input import SyntheticDataset
+from truthdiscovery.input import SyntheticData
 from truthdiscovery.algorithm import (
     AverageLog,
     Investment,
@@ -52,12 +52,12 @@ def main():
     for dist_label, dist in trust_distributions.items():
         trust = np.clip(dist(size=(NUM_SOURCES,)), 0, 1)
         for _ in range(REPETITIONS):
-            data = SyntheticDataset(
+            synth = SyntheticData(
                 trust, NUM_VARIABLES, CLAIM_PROBABILITY, DOMAIN_SIZE
             )
 
             for alg_label, alg in algorithms.items():
-                acc = data.get_accuracy(alg.run(data))
+                acc = synth.get_accuracy(alg.run(synth.data))
                 key = (alg_label, dist_label)
                 if key not in results:
                     results[key] = []
