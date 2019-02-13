@@ -7,7 +7,10 @@ from truthdiscovery.algorithm import AverageLog
 from truthdiscovery.input import Dataset
 
 
-if __name__ == "__main__":
+def main():
+    """
+    Run an algorithm and print results
+    """
     data = Dataset(ma.masked_values([
         [1, 4, 0, 5, 7, 0],
         [0, 2, 0, 4, 9, 0],
@@ -26,3 +29,6 @@ if __name__ == "__main__":
         print("  variable {}:".format(var))
         for val in sorted(beliefs):
             print("    {}: {:.3f}".format(val, beliefs[val]))
+
+if __name__ == "__main__":
+    main()

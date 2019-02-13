@@ -1,0 +1,13 @@
+[MASTER]
+ignore=test
+
+[FORMAT]
+max-line-length=79
+
+[MESSAGES CONTROL]
+disable=R0903,  # Too few public methods
+        W0223,  # Abstract method not overridden
+
+[BASIC]
+attr-rgx=[a-z_][a-z0-9_]{0,30}
+variable-rgx=[a-z_][a-z0-9_]{0,30}

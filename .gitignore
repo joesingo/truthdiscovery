@@ -9,3 +9,5 @@
 *.bbl
 venv/*
 *.egg-info
+htmlcov
+.coverage
