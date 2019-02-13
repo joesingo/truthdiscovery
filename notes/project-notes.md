@@ -12,6 +12,8 @@ Basic usage will be:
   * Choose algorithm
   * Choose algorithm parameters/initial conditions (algorithm-specific)
   * Upload/select dataset and any other inputs
+    * Add option to specify number of sources/variables, and fill in matrix
+      incrementally
   * Choose form of results
     * Table listing *all* belief and trust values
     * Values for sources/facts/objects matching a query
@@ -113,6 +115,8 @@ Basic usage will be:
 * If claims state that a variable X takes a given value: trust/belief scores
   should not depend on the specific values that sources claim X takes; i.e.
   replacing all claims X=k with X=k' leaves scores unchanged.
+
+* If all sources make the same claim, that claim should be the most believed.
 
 ## Future work
 

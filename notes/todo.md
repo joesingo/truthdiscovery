@@ -85,6 +85,5 @@ Miao, C., Su, L., (...), Qin, Z., Ren, K.	2018	Proceedings of the ACM SIGKDD
 International Conference on Knowledge Discovery and Data Mining pp. 1705-1714
 
 ## Data
-* Perform tests on synthetic data with varying number of variables, sources,
-  and source trust distributions
 * Find an interesting real-world dataset, both 'supervised' and unsupervised
+* Consider how generation of synthetic data affects results
