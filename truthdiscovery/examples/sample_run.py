@@ -30,5 +30,6 @@ def main():
         for val in sorted(beliefs):
             print("    {}: {:.3f}".format(val, beliefs[val]))
 
+
 if __name__ == "__main__":
     main()
