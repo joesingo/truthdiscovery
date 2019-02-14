@@ -67,10 +67,11 @@ class SyntheticData(SupervisedData):
     def generate_claim(cls, trust_val, true_value, domain_size):
         """
         Generate a value for a source to claim for a variable
+
         :param trust_val: trust value for the source in [0, 1]
         :param true_value: the true value for the variable
         :param domain_size: the number of possible values for the variable; the
-                            domain is {0, 1, ..., domain_size - 1}
+                            domain is ``{0, 1, ..., domain_size - 1}``
         """
         # Source claims the correct value with probability trust_val, and
         # chooses an incorrect value uniformly otherwise

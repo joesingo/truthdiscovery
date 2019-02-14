@@ -17,7 +17,7 @@ class TruthFinder(BaseIterativeAlgorithm):
         """
         :param influence_param:  A number in [0, 1] that controls how much
                                  influence related claims have on confidence
-                                 scores (ro in the paper)
+                                 scores (rho in the paper)
         :param dampening_factor: A number in (0, 1) that prevents overly high
                                  confidence when sources are not independent
                                  (gamma in the paper)
@@ -44,6 +44,7 @@ class TruthFinder(BaseIterativeAlgorithm):
         Return the 'tau' vector as defined in the TruthFinder paper. This
         involves taking logs to convert trust in [0, 1] to [0, +inf) to prevent
         numerical underflow
+
         :param trust: numpy array of trust values
         :return:      tau vector
         """

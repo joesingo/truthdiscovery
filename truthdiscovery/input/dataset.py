@@ -5,9 +5,10 @@ import numpy as np
 import numpy.ma as ma
 
 
-#: A claim in this context is an statement of the form X=v where X is a
-#: variable and v is a value. Here `var` is the index of the variable in the
-#: original data, and `val` is the value.
+#: A claim in this context is an statement of the form ``var = x``.
+#:
+#: :param var: index of the variable in the original data
+#: :param val: claimed value
 Claim = namedtuple("Claim", ["var", "val"])
 
 
@@ -18,18 +19,18 @@ class Dataset:
     according to different *sources*.
 
     The data is given as a matrix where columns correspond to variables, and
-    rows correspond to sources. Let X_1, ..., X_n be the variables, and s_1,
-    ... s_m be the sources. A value v at entry (i, j) means that s_i asserts
-    that X_j = v.
+    rows correspond to sources. Let ``X_1, ..., X_n`` be the variables, and
+    ``s_1, ... s_m`` be the sources. A value ``v`` at entry ``(i, j)`` means
+    that ``s_i`` asserts that ``X_j = v``.
 
-    No entry at (i, j) means that s_i does not make any assertions regarding
-    the value of X_j.
+    No entry at ``(i, j)`` means that ``s_i`` does not make any assertions
+    regarding the value of ``X_j``.
     """
     def __init__(self, sv_mat):
         """
         :param sv_mat: Source-variables matrix as a 2D numpy array. May be a
                        masked array to encode missing values
-        raises ValueError: if the dimension of the input is invalid
+        :raises ValueError: if the dimension of the input is invalid
         """
         self.sv = sv_mat
         if self.sv.ndim != 2:
@@ -90,7 +91,7 @@ class Dataset:
 
         :param belief: numpy array of belief values for claims
         :return:       a list of belief values for variables taking different
-                       values, in the format required for `Result`
+                       values, in the format required for :any:`Result`
         """
         var_beliefs = [{} for _ in range(self.num_variables)]
         for claim_index, belief_score in enumerate(claim_beliefs):
@@ -102,6 +103,7 @@ class Dataset:
     def from_csv(cls, path):
         """
         Load a matrix from a CSV file
+
         :param path: path on disk to a CSV file
         :return: a Dataset object representing the matrix encoded by the CSV
         """

@@ -8,12 +8,16 @@ class Investment(BaseIterativeAlgorithm):
     Investment by Pasternack and Roth.
 
     Sources invest uniformly in their claims and receive returns; the source
-    who invested most in claim j received the most return from claim j
+    who invested most in a claim receives the most return from that claim
     """
     priors = PriorBelief.VOTED
     g = 1.2
 
     def __init__(self, *args, g=None, **kwargs):
+        """
+        :param g: exponent in non-linear function used to grow claim beliefs
+                  at each iteration (optional)
+        """
         if g is not None:
             self.g = g
         super().__init__(*args, **kwargs)

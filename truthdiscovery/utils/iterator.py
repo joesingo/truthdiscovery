@@ -9,9 +9,13 @@ class DistanceMeasures(Enum):
     vectors. Note that not all methods are actually distance measures in the
     sense of metric spaces.
     """
+    #: L1 norm (Manhattan distance)
     L1 = 1
+    #: L2 norm (Euclidean distance)
     L2 = 2
+    #: Infinity norm
     L_INF = 3
+    #: Cosine distance, i.e. 1 - cosine similarity
     COSINE = 4
 
 
@@ -39,7 +43,7 @@ class Iterator:
 
     def reset(self):
         """
-        Rest iteration
+        Reset iteration
         """
         raise NotImplementedError("Must be implemented in child classes")
 
@@ -52,6 +56,9 @@ class FixedIterator(Iterator):
     it_count = None
 
     def __init__(self, limit=None):
+        """
+        :param limit: number of iterations to perform
+        """
         if limit is not None:
             if limit < 0:
                 raise ValueError("Iteration limit cannot be negative")
@@ -85,10 +92,10 @@ class ConvergenceIterator(Iterator):
 
     def __init__(self, distance_measure, threshold, limit=None, debug=False):
         """
-        :param distance_measure: value from DistanceMeasures enumeration
+        :param distance_measure: value from :any:`DistanceMeasures` enumeration
         :param threshold:        iteration is finished when distance goes below
                                  this threshold value
-        :param limit:            maximum number of iterations to perform
+        :param limit:            upper limit on number of iterations to perform
         :param debug:            if True, print out current distance at each
                                  iteration
         """
@@ -135,11 +142,12 @@ class ConvergenceIterator(Iterator):
     def get_distance(cls, distance_measure, obj1, obj2):
         """
         Calculate distance between vectors using the given measure
-        :param distance_measure: value from DistanceMeasures enumeration
+
+        :param distance_measure: value from :any:`DistanceMeasures` enumeration
         :param obj1:             first object to be compared
         :param obj2:             second object to be compared
-        :raises ValueError: if distance_measure is not an item from the
-                            DistanceMeasures enumeration
+        :raises ValueError: if ``distance_measure`` is not an item from the
+                            :any:`DistanceMeasures` enumeration
         """
         if distance_measure == DistanceMeasures.L1:
             return np.linalg.norm(obj1 - obj2, ord=1)

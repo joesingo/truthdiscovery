@@ -32,9 +32,11 @@ class SupervisedData:
         """
         Calculate the accuracy of truth-discovery results, computed as the
         frequency of cases where the most believed value for a variable is the
-        correct one.
+        correct one, ignoring cases where only one value for a variable is
+        claimed across all sources (in this case all algorithms will predict
+        the same value).
 
-        :param results: Results object
+        :param results: a :any:`Result` object
         :return: accuracy as a number in [0, 1]: 1 is best accuracy, 0 is worst
         """
         total = 0
@@ -43,10 +45,7 @@ class SupervisedData:
             if ma.is_masked(true_value):
                 continue
 
-            # If only one value is claimed across all sources then any
-            # algorithm will guess the same value (there is only one to choose
-            # from), so it is not meaningful to include this variable in the
-            # accuracy calculation
+            # Skip if there is only one claimed value
             if len(results.belief[var]) == 1:
                 continue
 
@@ -72,8 +71,8 @@ class SupervisedData:
         the true values.
 
         :param path: path on disk to a CSV file
-        :return:     a SupervisedDataset object representing the matrix encoded
-                     by the CSV
+        :return:     a SupervisedData object representing the matrix encoded by
+                     the CSV
         """
         temp = Dataset.from_csv(path)  # Load the whole thing as a matrix
         true_values = temp.sv[0, :]

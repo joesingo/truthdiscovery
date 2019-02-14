@@ -23,8 +23,9 @@ class BaseAlgorithm:
     def run(self, data):
         """
         Run the algorithm on the given data
-        :param data: input data as a Dataset object
-        :return: the results as a Results tuple
+
+        :param data: input data as a :any:`Dataset` object
+        :return: the results as a :any:`Result` tuple
         """
         raise NotImplementedError("Must be implemented in child classes")
 
@@ -39,10 +40,10 @@ class BaseIterativeAlgorithm(BaseAlgorithm):
 
     def __init__(self, iterator=None, priors=None):
         """
-        :param iterator: Iterator object to control when iteration stops
+        :param iterator: :any:`Iterator` object to control when iteration stops
                          (optional)
-        :param priors:   value from `PriorBelief` enumeration to specify which
-                         prior belief values are used (optional)
+        :param priors:   value from :any:`PriorBelief` enumeration to specify
+                         which prior belief values are used (optional)
         """
         self.iterator = iterator or self.get_default_iterator()
         if priors is not None:
@@ -50,18 +51,19 @@ class BaseIterativeAlgorithm(BaseAlgorithm):
 
     def get_default_iterator(self):
         """
-        Return the Iterator object to use by default, if the user does not
-        provide one
-        :return: an Iterator object
+        Return the :any:`Iterator` object to use by default, if the user does
+        not provide one
+
+        :return: an :any:`Iterator` object
         """
         return FixedIterator(20)
 
     def get_prior_beliefs(self, data):
         """
-        :param data:        input data as a Dataset object
+        :param data:        input data as a :any:`Dataset` object
         :return:            a numpy array of prior belief values for claims
-        :raises ValueError: if self.prior is not an item from the `PriorBelief`
-                            enumeration
+        :raises ValueError: if ``self.prior`` is not an item from the
+                            :any:`PriorBelief` enumeration
         """
         if self.priors == PriorBelief.FIXED:
             return np.full((data.num_claims,), 0.5)
@@ -78,11 +80,6 @@ class BaseIterativeAlgorithm(BaseAlgorithm):
         )
 
     def run(self, data):
-        """
-        Run the algorithm on a dataset
-        :param data: input data as a Dataset object
-        :return: the results as a Results tuple
-        """
         self.iterator.reset()
         trust, claim_belief = self._run(data)
         return Result(
@@ -94,9 +91,10 @@ class BaseIterativeAlgorithm(BaseAlgorithm):
         """
         Internal method for running the algorithm, to avoid including
         boilerplate code in each subclass
-        :param data: Dataset object
-        :return: a tuple (trust, claim_belief), where trust is a numpy array of
-                 source trusts, and belief is a numpy array of claim beliefs,
-                 both ordered as in the input data
+
+        :param data: :any:`Dataset` object
+        :return: a tuple ``(trust, claim_belief)``, where ``trust`` is a numpy
+                 array of source trusts, and ``belief`` is a numpy array of
+                 claim beliefs, both ordered as in the input data
         """
         raise NotImplementedError("Must be implemented in child classes")

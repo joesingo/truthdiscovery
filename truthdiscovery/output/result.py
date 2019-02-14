@@ -6,8 +6,8 @@ class Result:
         """
         :param trust:  a list of source trust scores in the order sources
                        appear in the input.
-        :param belief: a list of dicts of the form {val: belief, ...} for each
-                       variable
+        :param belief: a list of dicts of the form ``{val: belief, ...}`` for
+                       each variable
         """
         self.trust = trust
         self.belief = belief
