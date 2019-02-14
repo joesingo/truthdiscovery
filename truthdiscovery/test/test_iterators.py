@@ -3,6 +3,7 @@ import pytest
 import numpy as np
 
 from truthdiscovery.utils import (
+    ConvergenceError,
     ConvergenceIterator,
     DistanceMeasures,
     FixedIterator,
@@ -17,6 +18,40 @@ class TestBaseIterator:
             it.compare(1, 2)
         with pytest.raises(NotImplementedError):
             it.finished()
+        with pytest.raises(NotImplementedError):
+            it.reset()
+
+    def test_reset(self):
+        limit = 25
+        it = FixedIterator(limit)
+        # Run the iterator down
+        while not it.finished():
+            it.compare(1, 2)
+        # Reset: should no longer be finished
+        it.reset()
+        assert not it.finished()
+        # Check can run it down again
+        it_count = 0
+        while not it.finished():
+            it_count += 1
+            it.compare(1, 2)
+        assert it_count == limit
+
+        # Perform the same test for a convergence iterator
+        current_distance = 1
+        conv_it = ConvergenceIterator(DistanceMeasures.L1, 0.501)
+        while not conv_it.finished():
+            current_distance -= 0.02
+            conv_it.compare(np.array([1]), np.array([1 + current_distance]))
+        conv_it.reset()
+        assert not conv_it.finished()
+        it_count = 0
+        current_distance = 1
+        while not conv_it.finished():
+            current_distance -= 0.02
+            it_count += 1
+            conv_it.compare(np.array([1]), np.array([1 + current_distance]))
+        assert it_count == limit
 
 
 class TestFixedIterator:
@@ -39,22 +74,6 @@ class TestFixedIterator:
             it.compare("hello", {"blah": 999})
         assert it_count == limit
 
-    def test_reset(self):
-        limit = 24
-        it = FixedIterator(limit)
-        # Run the iterator down
-        while not it.finished():
-            it.compare(1, 2)
-        # Reset: should no longer be finished
-        it.reset()
-        assert not it.finished()
-        # Check can run it down again
-        it_count = 0
-        while not it.finished():
-            it_count += 1
-            it.compare(1, 2)
-        assert it_count == limit
-
 
 class TestConvergenceIterator:
     def test_basic(self):
@@ -75,6 +94,15 @@ class TestConvergenceIterator:
         for measure in invalid:
             with pytest.raises(ValueError):
                 ConvergenceIterator.get_distance(measure, obj1, obj2)
+
+    def test_did_not_converge(self):
+        it = ConvergenceIterator(DistanceMeasures.L_INF, 0.5, limit=200)
+        it_count = 0
+        with pytest.raises(ConvergenceError):
+            while not it.finished():
+                it_count += 1
+                it.compare(np.array([1]), np.array([2]))
+        assert it_count == 200
 
 
 class TestDistanceMeasures:
