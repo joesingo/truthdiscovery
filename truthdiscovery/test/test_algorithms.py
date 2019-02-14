@@ -393,7 +393,6 @@ class TestTruthFinder(BaseTest):
         n = 50
         t_0 = 0.4
         gamma = 0.5
-        ro = 0.25
 
         trust = [t_0, t_0, t_0]
         belief = [0] * 4
@@ -423,8 +422,7 @@ class TestTruthFinder(BaseTest):
             ]
 
         truthfinder = TruthFinder(
-            dampening_factor=gamma, influence_param=ro, initial_trust=t_0,
-            num_iterations=n
+            dampening_factor=gamma, initial_trust=t_0, num_iterations=n
         )
         results = truthfinder.run(data)
 
