@@ -18,6 +18,11 @@ from truthdiscovery.algorithm import (
     TruthFinder
 )
 from truthdiscovery.input import ClaimImplicationDataset, Dataset
+from truthdiscovery.utils import (
+    ConvergenceIterator,
+    DistanceMeasures,
+    FixedIterator
+)
 
 
 class BaseTest:
@@ -50,6 +55,11 @@ class TestVoting(BaseTest):
 
 
 class TestBaseIterative(BaseTest):
+    def test_run_fail(self, data):
+        alg = BaseIterativeAlgorithm()
+        with pytest.raises(NotImplementedError):
+            alg.run(data)
+
     def test_fixed_priors(self, data):
         alg = BaseIterativeAlgorithm(priors=PriorBelief.FIXED)
         got = alg.get_prior_beliefs(data)
@@ -97,7 +107,7 @@ class TestSums(BaseTest):
         finding eigenvectors of suitable matrices (using numpy "by hand"), as
         per Kleinberg paper for Hubs and Authorities
         """
-        sums = Sums(20)
+        sums = Sums(iterator=ConvergenceIterator(DistanceMeasures.L1, 0.00001))
         results = sums.run(data)
         assert np.allclose(results.trust, [1, 0.53208889, 0.34729636])
 
@@ -115,7 +125,7 @@ class TestSums(BaseTest):
 class TestAverageLog(BaseTest):
     def test_basic(self, data):
         num_iterations = 20
-        avlog = AverageLog(num_iterations)
+        avlog = AverageLog(iterator=FixedIterator(num_iterations))
         results = avlog.run(data)
 
         t = [0, 0, 0]
@@ -176,7 +186,7 @@ class TestInvestment(BaseTest):
         # sources bar one having trust 0, which causes division by zero error
         num_iterations = 20
         g = 1.4
-        inv = Investment(num_iterations=num_iterations, g=g)
+        inv = Investment(iterator=FixedIterator(num_iterations), g=g)
         results = inv.run(data)
 
         b = [
@@ -250,7 +260,9 @@ class TestPooledInvestment(BaseTest):
 
         num_iterations = 5
         g = 1.4
-        pooled_inv = PooledInvestment(num_iterations=num_iterations, g=g)
+        pooled_inv = PooledInvestment(
+            iterator=FixedIterator(num_iterations), g=g
+        )
         results = pooled_inv.run(data)
 
         b = [0.5] * 6
@@ -369,7 +381,7 @@ class TestTruthFinder(BaseTest):
 
         truthfinder = TruthFinder(
             dampening_factor=gamma, influence_param=ro, initial_trust=t_0,
-            num_iterations=n
+            iterator=FixedIterator(n)
         )
         results = truthfinder.run(imp_data)
 
@@ -422,7 +434,8 @@ class TestTruthFinder(BaseTest):
             ]
 
         truthfinder = TruthFinder(
-            dampening_factor=gamma, initial_trust=t_0, num_iterations=n
+            dampening_factor=gamma, initial_trust=t_0,
+            iterator=FixedIterator(n)
         )
         results = truthfinder.run(data)
 
@@ -478,19 +491,19 @@ class TestOnLargeData:
         assert res.belief == exp_belief, belief_err
 
     def test_sums(self, data):
-        sums = Sums()
+        sums = Sums(iterator=FixedIterator(20))
         self.check_results(sums, data, "sums_results.json")
 
     def test_average_log(self, data):
-        average_log = AverageLog()
+        average_log = AverageLog(iterator=FixedIterator(20))
         self.check_results(average_log, data, "average_log_results.json")
 
     def test_investment(self, data):
-        investment = Investment()
+        investment = Investment(iterator=FixedIterator(20))
         self.check_results(investment, data, "investment_results.json")
 
     def test_pooled_investment(self, data):
-        pooled_investment = PooledInvestment()
+        pooled_investment = PooledInvestment(iterator=FixedIterator(10))
         self.check_results(
             pooled_investment, data, "pooled_investment_results.json"
         )
@@ -504,3 +517,19 @@ class TestOnLargeData:
     def test_voting(self, data):
         voting = MajorityVoting()
         self.check_results(voting, data, "voting_results.json")
+
+
+class TestIteratorsForAlgorithms:
+    def test_default_iterator_types(self):
+        test_data = {
+            FixedIterator: (Sums, AverageLog, Investment, PooledInvestment),
+            ConvergenceIterator: (TruthFinder,)
+        }
+        for it_cls, alg_classes in test_data.items():
+            for alg_cls in alg_classes:
+                obj = alg_cls()
+                err_msg = ("Wrong iterator type for {}: {} instead of {}"
+                           .format(alg_cls.__name__,
+                                   obj.iterator.__class__.__name__,
+                                   it_cls.__name__))
+                assert isinstance(obj.iterator, it_cls), err_msg

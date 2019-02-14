@@ -1,7 +1,6 @@
 import numpy as np
 
 from truthdiscovery.algorithm.base import BaseIterativeAlgorithm
-from truthdiscovery.output import Result
 
 
 class AverageLog(BaseIterativeAlgorithm):
@@ -11,11 +10,7 @@ class AverageLog(BaseIterativeAlgorithm):
     Similar to Sums (and uses the same belief update step), but updates source
     trust as average claim belief weighted by log(number of claims).
     """
-    def run(self, data):
-        """
-        :param data: input data as a Dataset object
-        :return: the results as a Results tuple
-        """
+    def _run(self, data):
         trust = np.zeros((data.num_sources,))
         belief = self.get_prior_beliefs(data)
 
@@ -32,16 +27,16 @@ class AverageLog(BaseIterativeAlgorithm):
 
         weights = np.log(claim_counts) / claim_counts
 
-        for _ in range(self.num_iterations):
+        while not self.iterator.finished():
             # Entry-wise multiplication
-            trust = weights * np.matmul(data.sc, belief)
-            belief = np.matmul(data.sc.T, trust)
+            new_trust = weights * np.matmul(data.sc, belief)
+            belief = np.matmul(data.sc.T, new_trust)
 
             # Normalise as with sums
-            trust = trust / max(trust)
+            new_trust = new_trust / max(new_trust)
             belief = belief / max(belief)
 
-        return Result(
-            trust=list(trust),
-            belief=data.get_variable_value_beliefs(belief)
-        )
+            self.iterator.compare(new_trust, trust)
+            trust = new_trust
+
+        return trust, belief

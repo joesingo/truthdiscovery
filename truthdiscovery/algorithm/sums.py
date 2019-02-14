@@ -1,7 +1,6 @@
 import numpy as np
 
 from truthdiscovery.algorithm.base import BaseIterativeAlgorithm
-from truthdiscovery.output import Result
 
 
 class Sums(BaseIterativeAlgorithm):
@@ -11,24 +10,20 @@ class Sums(BaseIterativeAlgorithm):
     Described by Kleinberg for web pages, and adapted to truth-discovery by
     Pasternack and Roth
     """
-    def run(self, data):
-        """
-        :param data: input data as a Dataset object
-        :return: the results as a Results tuple
-        """
+    def _run(self, data):
         trust = np.zeros((data.num_sources,))
         belief = self.get_prior_beliefs(data)
 
-        for _ in range(self.num_iterations):
-            trust = np.matmul(data.sc, belief)
-            belief = np.matmul(data.sc.T, trust)
+        while not self.iterator.finished():
+            new_trust = np.matmul(data.sc, belief)
+            belief = np.matmul(data.sc.T, new_trust)
 
             # Trust and belief are normalised so that the largest entries in
             # each are 1; otherwise trust and belief scores grow without bound
-            trust = trust / max(trust)
+            new_trust = new_trust / max(new_trust)
             belief = belief / max(belief)
 
-        return Result(
-            trust=list(trust),
-            belief=data.get_variable_value_beliefs(belief)
-        )
+            self.iterator.compare(trust, new_trust)
+            trust = new_trust
+
+        return trust, belief

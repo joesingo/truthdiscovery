@@ -1,14 +1,13 @@
 import numpy as np
 
 from truthdiscovery.algorithm.base import BaseIterativeAlgorithm
-from truthdiscovery.output import Result
+from truthdiscovery.utils.iterator import ConvergenceIterator, DistanceMeasures
 
 
 class TruthFinder(BaseIterativeAlgorithm):
     """
     TruthFinder by Yin, Han, Yu.
     """
-    num_iterations = 200
     influence_param = 0.5
     dampening_factor = 0.3
     initial_trust = 0.9
@@ -30,7 +29,14 @@ class TruthFinder(BaseIterativeAlgorithm):
             self.dampening_factor = dampening_factor
         if initial_trust is not None:
             self.initial_trust = initial_trust
+
         super().__init__(*args, **kwargs)
+
+    def get_default_iterator(self):
+        """
+        Use cosine convergence iterator by default, as described in the paper
+        """
+        return ConvergenceIterator(DistanceMeasures.COSINE, 0.001)
 
     @classmethod
     def get_log_trust(cls, trust):
@@ -43,11 +49,7 @@ class TruthFinder(BaseIterativeAlgorithm):
         """
         return -np.log(1 - trust)
 
-    def run(self, data):
-        """
-        :param data: input data as a Dataset object
-        :return: the results as a Results tuple
-        """
+    def _run(self, data):
         trust = np.zeros((data.num_sources,))
         try:
             imp = data.imp
@@ -60,14 +62,11 @@ class TruthFinder(BaseIterativeAlgorithm):
         trust = np.full((data.num_sources,), self.initial_trust)
         belief = np.zeros((data.num_claims,))
 
-        # TODO: implement running until convergence using cosine similarilty,
-        # as per the TruthFinder paper
-        for _ in range(self.num_iterations):
+        while not self.iterator.finished():
             log_belief = np.matmul(b_mat, self.get_log_trust(trust))
             belief = 1 / (1 + np.exp(-self.dampening_factor * log_belief))
-            trust = np.matmul(a_mat, belief)
+            new_trust = np.matmul(a_mat, belief)
+            self.iterator.compare(new_trust, trust)
+            trust = new_trust
 
-        return Result(
-            trust=list(trust),
-            belief=data.get_variable_value_beliefs(belief)
-        )
+        return trust, belief
