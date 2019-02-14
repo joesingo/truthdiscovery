@@ -129,9 +129,10 @@ class ConvergenceIterator(Iterator):
                 "Distance did not go beneath threshold in {} iterations"
                 .format(self.limit)
             )
+        return False
 
     @classmethod
-    def get_distance(self, distance_measure, obj1, obj2):
+    def get_distance(cls, distance_measure, obj1, obj2):
         """
         Calculate distance between vectors using the given measure
         :param distance_measure: value from DistanceMeasures enumeration
