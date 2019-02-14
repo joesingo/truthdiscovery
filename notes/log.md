@@ -28,3 +28,14 @@
 12-02-2019:
 -----------
 * Read Semi-Supervised Truth-Discovery paper
+* Write sample script to play around with running algorithms
+
+13-02-2019:
+-----------
+* Add tests for code style
+* Refactor supervised dataset class
+
+14-02-2019:
+-----------
+* Allow algorithms to run till convergence, or use a fixed number of iterations
+* Make a start on documentation
