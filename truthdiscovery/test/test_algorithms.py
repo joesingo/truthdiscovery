@@ -508,11 +508,18 @@ class TestOnLargeData:
             pooled_investment, data, "pooled_investment_results.json"
         )
 
-    # TODO: construct test data including claim implications, and load it
-    # from CSV
-    # def test_truthfinder(self, data):
-    #     truthfinder = TruthFinder()
-    #     self.check_results(truthfinder, data, "truthfinder_results.json")
+    def test_truthfinder(self, data):
+        it = ConvergenceIterator(DistanceMeasures.COSINE, 0.001)
+        truthfinder = TruthFinder(iterator=it)
+
+        def imp(var, val1, val2):
+            diff = val1 - val2
+            return np.exp(-0.5 * diff ** 2)
+
+        data_with_imp = ClaimImplicationDataset(data.sv, imp)
+        self.check_results(
+            truthfinder, data_with_imp, "truthfinder_results.json"
+        )
 
     def test_voting(self, data):
         voting = MajorityVoting()
