@@ -78,3 +78,13 @@ class SupervisedData:
         true_values = temp.sv[0, :]
         sv_mat = temp.sv[1:, :]
         return cls(Dataset(sv_mat), true_values)
+
+    def to_csv(self):
+        """
+        :return: a string representation of data and true values in CSV format
+        """
+        rows, cols = self.data.sv.shape
+        temp = ma.masked_all((rows + 1, cols))
+        temp[0, :] = self.values
+        temp[1:, :] = self.data.sv
+        return Dataset(temp).to_csv()

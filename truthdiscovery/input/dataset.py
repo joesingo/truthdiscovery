@@ -108,3 +108,12 @@ class Dataset:
         :return: a Dataset object representing the matrix encoded by the CSV
         """
         return cls(np.genfromtxt(path, delimiter=",", usemask=True))
+
+    def to_csv(self):
+        """
+        :return: a string representation of the dataset in CSV format
+        """
+        return "\n".join(
+            ",".join("" if ma.is_masked(val) else str(val) for val in row)
+            for row in self.sv
+        )

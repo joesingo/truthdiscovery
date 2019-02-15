@@ -121,6 +121,22 @@ class TestDataset:
         assert data.mut_ex.shape == expected_mut_ex_mat.shape
         assert (data.mut_ex == expected_mut_ex_mat).all()
 
+    def test_export_to_csv(self):
+        data = Dataset(ma.masked_values([
+            # All full row
+            [1, 2, 3, 4, 5, 6, 7, 8],
+            # Mixed row
+            [1, 2, 0, -123, 4, -2.3, 99.123, -123],
+            # All empty row
+            [-123, -123, -123, -123, -123, -123, -123, -123]
+        ], -123))
+        expected = "\n".join((
+            "1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0",
+            "1.0,2.0,0.0,,4.0,-2.3,99.123,",
+            ",,,,,,,"
+        ))
+        assert data.to_csv() == expected
+
 
 class TestSupervisedData:
     @pytest.fixture
@@ -225,6 +241,22 @@ class TestSupervisedData:
         res = Result(trust=[0.5] * 3, belief=[{4: 1}] * 4)
         with pytest.raises(ValueError):
             sup.get_accuracy(res)
+
+    def test_export_to_csv(self):
+        data = Dataset(ma.masked_values([
+            [7, 8, 9, 10, 11],
+            [-123, -123, -123, -123, -123],
+            [7, -123, 9, -123, 11]
+        ], -123))
+        values = ma.masked_values([1, -99, -2, 0, 1.5], -99)
+        sup = SupervisedData(data, values)
+        expected = "\n".join((
+            "1.0,,-2.0,0.0,1.5",
+            "7.0,8.0,9.0,10.0,11.0",
+            ",,,,",
+            "7.0,,9.0,,11.0"
+        ))
+        assert sup.to_csv() == expected
 
 
 class TestResult:

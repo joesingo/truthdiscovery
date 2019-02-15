@@ -99,3 +99,4 @@ TODO: explain
 - Purpose of synthetic data
 - Method of generation
 - Available parameters
+- Export to CSV
