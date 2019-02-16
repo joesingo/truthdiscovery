@@ -160,7 +160,7 @@ class ConvergenceIterator(Iterator):
             norm2 = np.linalg.norm(obj2)
             if norm1 == 0 or norm2 == 0:
                 return 1
-            return 1 - (np.dot(obj1, obj2) / (norm1 * norm2))
+            return np.clip(1 - (np.dot(obj1, obj2) / (norm1 * norm2)), 0, 1)
         raise ValueError(
             "Invalid distance measure: '{}'".format(distance_measure)
         )
