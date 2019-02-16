@@ -15,7 +15,7 @@ class DistanceMeasures(Enum):
     L2 = 2
     #: Infinity norm
     L_INF = 3
-    #: Cosine distance, i.e. 1 - cosine similarity
+    #: 1 - cosine similarity
     COSINE = 4
 
 
@@ -158,6 +158,8 @@ class ConvergenceIterator(Iterator):
         if distance_measure == DistanceMeasures.COSINE:
             norm1 = np.linalg.norm(obj1)
             norm2 = np.linalg.norm(obj2)
+            if norm1 == 0 or norm2 == 0:
+                return 1
             return 1 - (np.dot(obj1, obj2) / (norm1 * norm2))
         raise ValueError(
             "Invalid distance measure: '{}'".format(distance_measure)

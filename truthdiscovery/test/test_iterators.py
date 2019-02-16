@@ -133,3 +133,17 @@ class TestDistanceMeasures:
             [1, 1, 0.3, 0.2],
             0.5292255080098709
         )
+        # Cosine similarity is not defined when one of the vectors is 0...
+        # our distance should be 1 in this case
+        self.check(
+            DistanceMeasures.COSINE,
+            [0, 0, 0, 0],
+            [1, 1, 0.3, 0.2],
+            1
+        )
+        self.check(
+            DistanceMeasures.COSINE,
+            [1, 1, 0.3, 0.2],
+            [0, 0, 0, 0],
+            1
+        )
