@@ -35,7 +35,7 @@ Datasets are represented by the :any:`Dataset` class. The above data can be
 loaded as follows. ::
 
    import numpy.ma as ma
-   from truthdiscovery.input import Dataset
+   from truthdiscovery import Dataset
 
    mydataset = Dataset(ma.masked_values([
        [4, 7, 0],
@@ -76,7 +76,7 @@ To this end, the :any:`SupervisedData` class stores a :any:`Dataset` along with
 a list of true variable values. The list of true values may contain empty
 values for cases where only a subset of true values are known. For example: ::
 
-    from truthdiscovery.input import SupervisedData
+    from truthdiscovery import SupervisedData
 
     values = ma.masked_values([4, 5, 0], 0)
     supervised = SupervisedData(mydataset, values)
