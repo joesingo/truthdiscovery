@@ -1,6 +1,7 @@
 import numpy as np
 
 from truthdiscovery.algorithm.base import BaseIterativeAlgorithm
+from truthdiscovery.exceptions import RoundingError
 from truthdiscovery.utils.iterator import ConvergenceIterator, DistanceMeasures
 
 
@@ -48,6 +49,8 @@ class TruthFinder(BaseIterativeAlgorithm):
         :param trust: numpy array of trust values
         :return:      tau vector
         """
+        if np.any(trust == 1):
+            raise RoundingError("Trust has become 1 for at least one source")
         return -np.log(1 - trust)
 
     def _run(self, data):
@@ -64,7 +67,10 @@ class TruthFinder(BaseIterativeAlgorithm):
         belief = np.zeros((data.num_claims,))
 
         while not self.iterator.finished():
-            log_belief = np.matmul(b_mat, self.get_log_trust(trust))
+            try:
+                log_belief = np.matmul(b_mat, self.get_log_trust(trust))
+            except RoundingError:
+                break
             belief = 1 / (1 + np.exp(-self.dampening_factor * log_belief))
             new_trust = np.matmul(a_mat, belief)
             self.iterator.compare(new_trust, trust)

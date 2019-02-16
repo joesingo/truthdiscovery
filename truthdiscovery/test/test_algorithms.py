@@ -450,6 +450,27 @@ class TestTruthFinder(BaseTest):
         assert np.isclose(results.belief[1][8], belief[2])
         assert np.isclose(results.belief[2][7], belief[3])
 
+    def test_trust_invalid(self):
+        """
+        In theory trust scores cannot be 1 for any source. In practise scores
+        get so close to 1 that they are rounded to 1, which causes problems
+        when we do log(1 - trust).
+
+        This test checks that iteration stops in this case
+        """
+        data = Dataset(np.array([
+            [1, 2, 3],
+            [1, 2, 3],
+            [1, 2, 3],
+            [1, 2, 3],
+            [1, 2, 3]
+        ]))
+        it = FixedIterator(100)
+        alg = TruthFinder(iterator=it)
+        res = alg.run(data)
+        # Iteration should stop after only 7 iterations, instead of 100
+        assert it.it_count == 7
+
 
 class TestOnLargeData:
     """

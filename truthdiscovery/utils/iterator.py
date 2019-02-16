@@ -2,6 +2,8 @@ from enum import Enum
 
 import numpy as np
 
+from truthdiscovery.exceptions import ConvergenceError
+
 
 class DistanceMeasures(Enum):
     """
@@ -17,12 +19,6 @@ class DistanceMeasures(Enum):
     L_INF = 3
     #: 1 - cosine similarity
     COSINE = 4
-
-
-class ConvergenceError(Exception):
-    """
-    An algorithm failed to converge within the iteration limit
-    """
 
 
 class Iterator:

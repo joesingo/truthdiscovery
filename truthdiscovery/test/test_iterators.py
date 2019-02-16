@@ -3,12 +3,12 @@ import pytest
 import numpy as np
 
 from truthdiscovery.utils import (
-    ConvergenceError,
     ConvergenceIterator,
     DistanceMeasures,
     FixedIterator,
     Iterator
 )
+from truthdiscovery.exceptions import ConvergenceError
 
 
 class TestBaseIterator:
