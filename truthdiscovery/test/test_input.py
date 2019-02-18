@@ -6,7 +6,8 @@ from truthdiscovery.input import (
     ClaimImplicationDataset,
     Dataset,
     SupervisedData,
-    SyntheticData
+    SyntheticData,
+    TextDataset
 )
 from truthdiscovery.output import Result
 
@@ -397,3 +398,51 @@ class TestImplicationDataset:
             ClaimImplicationDataset(matrix, too_big)
         with pytest.raises(ValueError):
             ClaimImplicationDataset(matrix, too_small)
+
+
+class TestTextDataset:
+    @pytest.fixture
+    def data(self):
+        class MyTextDataset(TextDataset):
+            def get_tuples(self, _fileobj):
+                return (
+                    ("john", "wind", "very windy"),
+                    ("paul", "wind", "not very windy"),
+                    ("george", "wind", "very windy"),
+                    ("ringo", "wind", "not very windy at all"),
+
+                    ("john", "rain", "dry"),
+                    ("george", "rain", "wet"),
+                    ("ringo", "rain", "dry"),
+
+                    ("john", "water", "wet"),  # re-use variable value
+                    ("paul", "water", "drink"),
+                    ("george", "water", "drink")
+                )
+        return MyTextDataset(None)
+
+    def test_basic(self, data):
+        expected_sv = ma.masked_values([
+            [0, 3, 5],
+            [1, -1, 6],
+            [0, 4, 6],
+            [2, 3, -1]
+        ], -1)
+        assert data.sv.shape == expected_sv.shape
+        assert np.all(data.sv.mask == expected_sv.mask)
+        assert np.all(data.sv == expected_sv)
+
+    def test_var_beliefs(self, data):
+        got = data.get_variable_value_beliefs(
+            [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
+        )
+        expected = {
+            "wind": {
+                "very windy": 0.1,
+                "not very windy": 0.2,
+                "not very windy at all": 0.3
+            },
+            "rain": {"dry": 0.4, "wet": 0.5},
+            "water": {"wet": 0.6, "drink": 0.7}
+        }
+        assert got == expected
