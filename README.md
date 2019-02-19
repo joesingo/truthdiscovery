@@ -34,14 +34,17 @@ for the trustworthiness of sources etc.
 
 ## Input
 
-In this library, objects are referred to as *variables*, and a claim for a
-variable `X` is a statement of the form `X = v` for some integer `v`.
+In this library, objects are referred to as *variables*, and claims are
+statements asserting that a given variable takes a given value.
 
-This allows the source/claim/object network to be conveniently encoded in a
-matrix, where rows correspond to sources, columns correspond to variables, and
-an entry at position `(i, j)` is the value that source `i` claims for variable
-`j` (the matrix may contain empty cells in cases where a source does not make a
-claim about a variable).
+The data is then given as a list (or other iterable) of tuples of the form
+``(source_label, var_label, value)``.
+
+Alternatively, if all values are numeric, the source/claim/variable network can
+be encoded as a matrix where rows correspond to sources, columns correspond to
+variables, and an entry at position ``(i, j)`` is the value that source ``i``
+claims for variable ``j`` (the matrix may contain empty cells in cases where a
+source does not make a claim about a variable).
 
 ## Usage
 
