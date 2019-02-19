@@ -3,8 +3,9 @@ import numpy.ma as ma
 import pytest
 
 from truthdiscovery.input import (
-    ClaimImplicationDataset,
     Dataset,
+    IDMapping,
+    MatrixDataset,
     SupervisedData,
     SyntheticData
 )
@@ -12,18 +13,86 @@ from truthdiscovery.output import Result
 
 
 class TestDataset:
+    @pytest.fixture
+    def data(self):
+        triples = (
+            ("john", "wind", "very windy"),
+            ("paul", "wind", "not very windy"),
+            ("george", "wind", "very windy"),
+            ("ringo", "wind", "not very windy at all"),
+
+            ("john", "rain", "dry"),
+            ("george", "rain", "wet"),
+
+            ("john", "water", "wet"),  # re-use value
+            ("paul", "water", "drink"),
+            ("george", "water", "drink"),
+
+            # Mix up the order of variables
+            ("ringo", "rain", "dry"),
+        )
+        return Dataset(triples)
+
+    def test_num_sources_variables_claims(self, data):
+        assert data.num_sources == 4
+        assert data.num_variables == 3
+        assert data.num_claims == 7
+
+    def test_claims_matrix(self, data):
+        expected_claim_mat = np.array([
+            [1, 0, 0, 1, 0, 1, 0],
+            [0, 1, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 1, 0, 1],
+            [0, 0, 1, 1, 0, 0, 0],
+        ])
+        assert data.sc.shape == expected_claim_mat.shape
+        assert np.array_equal(data.sc, expected_claim_mat)
+
+    def test_mut_ex_matrix(self, data):
+        expected_mut_ex = np.array([
+            [1, 1, 1, 0, 0, 0, 0],
+            [1, 1, 1, 0, 0, 0, 0],
+            [1, 1, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 1, 0, 0],
+            [0, 0, 0, 1, 1, 0, 0],
+            [0, 0, 0, 0, 0, 1, 1],
+            [0, 0, 0, 0, 0, 1, 1],
+        ])
+        assert np.array_equal(data.mut_ex, expected_mut_ex)
+
+
+class TestIDMapping:
+    def test_insert(self):
+        mapping = IDMapping()
+        # Should insert when querying for the first time
+        assert mapping.get_id("hello") == 0
+        assert mapping.get_id("goodbye") == 1
+        # Should retrieve the same values when calling a second time
+        assert mapping.get_id("hello") == 0
+        # Labels can be any (hashable) type
+        assert mapping.get_id(("this", "is", 4, "tuple")) == 2
+        # Raise exception if disallowing inserts
+        with pytest.raises(KeyError):
+            mapping.get_id("something new", insert=False)
+        # Should be bi-directional
+        assert mapping.inverse[0] == "hello"
+        assert mapping.inverse[1] == "goodbye"
+        assert mapping.inverse[2] == ("this", "is", 4, "tuple")
+
+
+class TestMatrixDataset:
     def test_create(self):
         # From a regular numpy array
         normal_arr = np.ones((2, 3))
-        Dataset(normal_arr)
+        MatrixDataset(normal_arr)
 
         # From masked array
         masked_arr = ma.array(normal_arr,
                               mask=[[True, False, True], [False, True, False]])
-        Dataset(masked_arr)
+        MatrixDataset(masked_arr)
 
     def test_num_sources_variables_claims(self):
-        mat = Dataset(np.array([
+        mat = MatrixDataset(np.array([
             [1, 4, 5],
             [2, 0, 5],
             [1, 1, 5],
@@ -36,7 +105,7 @@ class TestDataset:
     def test_dimension(self):
         with pytest.raises(ValueError):
             arr = np.zeros((3, 3, 3))
-            m = Dataset(arr)
+            m = MatrixDataset(arr)
 
     def test_from_csv(self, tmpdir):
         filepath = tmpdir.join("data.csv")
@@ -48,7 +117,7 @@ class TestDataset:
             "5,1,3,1,1"
         ]))
 
-        data = Dataset.from_csv(str(filepath))
+        data = MatrixDataset.from_csv(str(filepath))
         expected_matrix = ma.masked_values([
             [1, 0, 3, 2, 6],
             [0, 9, 2, 2, 5],
@@ -63,66 +132,53 @@ class TestDataset:
         assert (data.sv == expected_matrix).all()
 
     def test_claims_matrix(self):
-        data = Dataset(ma.masked_values([
-            [7, 4, 7], [5, 1, -1], [-1, 2, 4], [7, -1, 2],
+        data = MatrixDataset(ma.masked_values([
+            [7, 4, 7],
+            [5, 1, -1],
+            [-1, 2, 4],
+            [7, -1, 2],
             [-1, 1, 2]
         ], -1))
         expected_claim_mat = np.array([
-            [1, 0, 1, 0, 0, 1, 0, 0],
-            [0, 1, 0, 1, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 1, 0],
+            [1, 1, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0, 1, 1, 0],
             [1, 0, 0, 0, 0, 0, 0, 1],
-            [0, 0, 0, 1, 0, 0, 0, 1]
+            [0, 0, 0, 0, 1, 0, 0, 1]
         ])
         assert data.sc.shape == expected_claim_mat.shape
         assert (data.sc == expected_claim_mat).all()
 
-    def test_claim_var_val_mapping(self):
-        data = Dataset(ma.masked_values([
-            # X Y  Z
-            [7, 4, 7],
-            [5, 1, 0],
-            [0, 2, 4],
-            [7, 0, 2],
-            [0, 1, 2]
-        ], 0))
-
-        test_data = (
-            (0, 0, 7),  # X = 7
-            (1, 0, 5),  # X = 5
-            (2, 1, 4),  # Y = 4
-            (3, 1, 1),  # Y = 1
-            (4, 1, 2),  # Y = 2
-            (5, 2, 7),  # Z = 7
-            (6, 2, 4),  # Z = 4
-            (7, 2, 2),  # Z = 2
-        )
-
-        for claim_num, var_num, val in test_data:
-            claim = data.claims[claim_num]
-            assert claim.var == var_num
-            assert claim.val == val
-
     def test_mutual_exclusion_matrix(self):
-        data = Dataset(ma.masked_values([
+        data = MatrixDataset(ma.masked_values([
             [7, 4, 7], [5, 1, -1], [-1, 2, 4], [7, -1, 2],
             [-1, 1, 2]
         ], -1))
+        # Claims are:
+        # 0: x=7
+        # 1: y=4
+        # 2: z=7
+        # 3: x=5
+        # 4: y=1
+        # 5: y=2
+        # 6: z=4
+        # 7: z=2
+        # Mutual exclusion groups are {0, 3}, {1, 4, 5}, {2, 6, 7}
         expected_mut_ex_mat = np.array([
-            [1, 1, 0, 0, 0, 0, 0, 0],
-            [1, 1, 0, 0, 0, 0, 0, 0],
-            [0, 0, 1, 1, 1, 0, 0, 0],
-            [0, 0, 1, 1, 1, 0, 0, 0],
-            [0, 0, 1, 1, 1, 0, 0, 0],
-            [0, 0, 0, 0, 0, 1, 1, 1],
-            [0, 0, 0, 0, 0, 1, 1, 1],
-            [0, 0, 0, 0, 0, 1, 1, 1]
+            [1, 0, 0, 1, 0, 0, 0, 0],
+            [0, 1, 0, 0, 1, 1, 0, 0],
+            [0, 0, 1, 0, 0, 0, 1, 1],
+            [1, 0, 0, 1, 0, 0, 0, 0],
+            [0, 1, 0, 0, 1, 1, 0, 0],
+            [0, 1, 0, 0, 1, 1, 0, 0],
+            [0, 0, 1, 0, 0, 0, 1, 1],
+            [0, 0, 1, 0, 0, 0, 1, 1],
         ])
         assert data.mut_ex.shape == expected_mut_ex_mat.shape
         assert (data.mut_ex == expected_mut_ex_mat).all()
 
     def test_export_to_csv(self):
-        data = Dataset(ma.masked_values([
+        data = MatrixDataset(ma.masked_values([
             # All full row
             [1, 2, 3, 4, 5, 6, 7, 8],
             # Mixed row
@@ -141,11 +197,11 @@ class TestDataset:
 class TestSupervisedData:
     @pytest.fixture
     def dataset(self):
-        return Dataset(ma.masked_values([
-            [1, 2, 3, 4],
-            [1, 0, 3, 4],
-            [0, 2, 3, 4]
-        ], 0))
+        return Dataset((
+            ("s1", "x", 1), ("s1", "y", 2), ("s1", "z", 3), ("s1", "w", 4),
+            ("s2", "x", 1), ("s2", "z", 3), ("s2", "w", 4),
+            ("s3", "y", 2), ("s3", "z", 3), ("s3", "w", 4)
+        ))
 
     def test_from_csv(self, tmpdir):
         filepath = tmpdir.join("data.csv")
@@ -167,96 +223,55 @@ class TestSupervisedData:
             [1, 9, 5, 3, 4],
             [5, 1, 3, 1, 1]
         ], 0)
-        expected_values = ma.masked_values([
-            7, 8, 0, 100, 0
-        ], 0)
+        expected_values = {0: 7, 1: 8, 3: 100}
         assert data.num_sources == 5
         assert data.num_variables == 5
         assert data.num_claims == 15
         assert np.all(data.sv.mask == expected_matrix.mask)
         assert np.all(data.sv == expected_matrix)
-        assert np.all(sup.values.mask == expected_values.mask)
         assert np.all(sup.values == expected_values)
 
-    def test_invalid_values_shape(self, dataset):
-        invalid_values = (
-            np.array([]),
-            np.array([0.5]),
-            np.array([0.5, 0.4]),
-            np.array([0.5, 0.4, 0.3]),
-            np.array([0.5, 0.4, 0.3, 0.2, 0.1]),
-            np.array([
-                [0.5, 0.5],
-                [0.5, 0.5]
-            ])
-        )
-        for values in invalid_values:
-            with pytest.raises(ValueError):
-                SupervisedData(dataset, values)
-
-    def test_valid_values(self, dataset):
-        valid_values = (
-            np.array([1, 2, 3, 4]),
-            np.array([-1, -2, -3, -4]),
-            ma.masked_values([1, 2, -1, 4], -1)
-        )
-        for values in valid_values:
-            try:
-                SupervisedData(dataset, values)
-            except ValueError:  # pragma: no cover
-                assert False, "Unexpected error for values = {}".format(values)
-
     def test_accuracy(self, dataset):
-        sup = SupervisedData(dataset, ma.masked_values([5, 6, -1, 8], -1))
+        sup = SupervisedData(dataset, {"x": 5, "y": 6, "w": 8})
         test_data = (
-            (2 / 3, [{5: 1.0, 15: 0.8, -10: 0.5},           # correct
-                     {1: 0.99, 2: 0.8},                     # wrong
-                     {7: 0.5, 6: 0.7, -10: 0.999},          # unknown
-                     {1: 0.1, 2: 0.1, 3: 0.1, 8: 0.101}]),  # correct
+            (2 / 3, {"x": {5: 1.0, 15: 0.8, -10: 0.5},           # correct
+                     "y": {1: 0.99, 2: 0.8},                     # wrong
+                     "z": {7: 0.5, 6: 0.7, -10: 0.999},          # unknown
+                     "w": {1: 0.1, 2: 0.1, 3: 0.1, 8: 0.101}}),  # correct
 
             # Results where a variable has only one claimed value
-            (1 / 2, [{5: 1.0},                              # correct, only one
-                     {1: 0.99, 2: 0.8},                     # wrong
-                     {7: 0.5, 6: 0.7, -10: 0.999},          # unknown
-                     {1: 0.1, 2: 0.1, 3: 0.1, 8: 0.101}])   # correct
+            (1 / 2, {"x": {5: 1.0},                         # correct, only one
+                     "y": {1: 0.99, 2: 0.8},                    # wrong
+                     "z": {7: 0.5, 6: 0.7, -10: 0.999},         # unknown
+                     "w": {1: 0.1, 2: 0.1, 3: 0.1, 8: 0.101}})  # correct
         )
 
         for expected_acc, belief in test_data:
-            res = Result(trust=[1.5, 0.5, 0.5], belief=belief)
+            res = Result(
+                trust={"s1": 1.5, "s2": 0.5, "s3": 0.5},
+                belief=belief
+            )
             got_acc = sup.get_accuracy(res)
             assert got_acc == expected_acc
 
         # Results where there is a tie for most believed value
-        var_beliefs = [
-            {5: 0.8, 5000: 0.8, 4: 0.6},  # tie: either correct or incorrect
-            {6: 0.7, 1: 0.2},             # correct
-            {1: 0.5, 2: 0.4},             # unknown
-            {1: 0.5, 2: 0.4}              # wrong
-        ]
-        res = Result(trust=[1.5, 0.5, 0.5], belief=var_beliefs)
+        var_beliefs = {
+            "x": {5: 0.8, 5000: 0.8, 4: 0.6},  # tie: either correct or not
+            "y": {6: 0.7, 1: 0.2},             # correct
+            "z": {1: 0.5, 2: 0.4},             # unknown
+            "w": {1: 0.5, 2: 0.4}              # wrong
+        }
+        res = Result(trust={0: 1.5, 1: 0.5, 2: 0.5}, belief=var_beliefs)
         assert sup.get_accuracy(res) in (1 / 3, 2 / 3)
 
     def test_no_true_values_known(self, dataset):
-        sup = SupervisedData(dataset, ma.masked_all((4,)))
-        res = Result(trust=[0.5] * 3, belief=[{4: 1}] * 4)
+        sup = SupervisedData(dataset, {})
+        res = Result(
+            trust={0: 0.5, 1: 0.5, 2: 0.5},
+            belief={i: {4: 1} for i in range(4)}
+        )
         with pytest.raises(ValueError):
             sup.get_accuracy(res)
-
-    def test_export_to_csv(self):
-        data = Dataset(ma.masked_values([
-            [7, 8, 9, 10, 11],
-            [-123, -123, -123, -123, -123],
-            [7, -123, 9, -123, 11]
-        ], -123))
-        values = ma.masked_values([1, -99, -2, 0, 1.5], -99)
-        sup = SupervisedData(data, values)
-        expected = "\n".join((
-            "1.0,,-2.0,0.0,1.5",
-            "7.0,8.0,9.0,10.0,11.0",
-            ",,,,",
-            "7.0,,9.0,,11.0"
-        ))
-        assert sup.to_csv() == expected
 
 
 class TestResult:
@@ -335,20 +350,41 @@ class TestSyntheticData:
             with pytest.raises(ValueError):
                 SyntheticData(trust, domain_size=ds)
 
+    def test_export_to_csv(self, tmpdir):
+        synth = SyntheticData(np.array([0.5, 0.5]), num_variables=10)
+        csv_string = synth.to_csv()
+        lines = [line for line in csv_string.split("\n") if line]
+        assert len(lines) == 3
 
-class TestImplicationDataset:
+        filename = tmpdir.join("mydata.csv")
+        filename.write(csv_string)
+        loaded = SupervisedData.from_csv(str(filename))
+        assert np.array_equal(loaded.values, synth.values)
+        assert np.array_equal(loaded.data.sc, synth.data.sc)
+
+
+class TestImplications:
     @pytest.fixture
-    def matrix(self):
-        return ma.masked_values([
-            [1, 2, 3, 4],
-            [2, 0, 4, 5],
-            [0, 3, 3, 5]
-        ], 0)
+    def triples(self):
+        return [
+            ("s1", "x", 1),
+            ("s1", "y", 2),
+            ("s1", "z", 3),
+            ("s1", "w", 4),
 
-    def test_implications(self, matrix):
+            ("s2", "x", 2),
+            ("s2", "z", 4),
+            ("s2", "w", 5),
+
+            ("s3", "y", 3),
+            ("s3", "z", 3),
+            ("s3", "w", 5)
+        ]
+
+    def test_implications(self, triples):
         # Test using manually crafted values
         def imp_func(var, val1, val2):
-            if var == 0:
+            if var == "x":
                 if (val1, val2) == (1, 2):
                     return 0.85
                 elif (val1, val2) == (2, 1):
@@ -356,37 +392,46 @@ class TestImplicationDataset:
                 elif (val1, val2) == (1, 1):  # pragma: no cover
                     # Note: this value should not be used
                     return 10000000  # pragma: no cover
-            elif var == 1:
+            elif var == "y":
                 if (val1, val2) == (2, 3):
                     return 1
                 elif (val1, val2) == (3, 2):
                     return 0.0001
-            elif var == 2:
+            elif var == "z":
                 if (val1, val2) == (3, 4):
                     return -0.3
                 elif (val1, val2) == (4, 3):
                     return None
-            elif var == 3:
+            elif var == "w":
                 if (val1, val2) == (4, 5):
                     return 0.7
                 elif (val1, val2) == (5, 4):
                     return -0.654
 
-        data = ClaimImplicationDataset(matrix, imp_func)
+        data = Dataset(triples, implication_function=imp_func)
+        # Claims are:
+        # 0: x=1
+        # 1: y=2
+        # 2: z=3
+        # 3: w=4
+        # 4: x=2
+        # 5: z=4
+        # 6: w=5
+        # 7: y=3
         expected_imp = np.array([
-            [0, 0.85, 0, 0, 0, 0, 0, 0],
-            [-0.5, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 1, 0, 0, 0, 0],
-            [0, 0, 0.0001, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0.85, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1],
             [0, 0, 0, 0, 0, -0.3, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0.7, 0],
+            [-0.5, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0.7],
-            [0, 0, 0, 0, 0, 0, -0.654, 0],
+            [0, 0, 0, -0.654, 0, 0, 0, 0],
+            [0, 0.0001, 0, 0, 0, 0, 0, 0]
         ])
         assert data.imp.shape == (8, 8)
         assert np.array_equal(data.imp, expected_imp)
 
-    def test_invalid_implication_values(self, matrix):
+    def test_invalid_implication_values(self, triples):
         def too_big(var, val1, val2):
             return 1.001
 
@@ -394,6 +439,6 @@ class TestImplicationDataset:
             return -1.001
 
         with pytest.raises(ValueError):
-            ClaimImplicationDataset(matrix, too_big)
+            Dataset(triples, implication_function=too_big)
         with pytest.raises(ValueError):
-            ClaimImplicationDataset(matrix, too_small)
+            Dataset(triples, implication_function=too_small)

@@ -2,7 +2,7 @@ import random
 
 import numpy.ma as ma
 
-from truthdiscovery.input.dataset import Dataset
+from truthdiscovery.input.matrix_dataset import MatrixDataset
 
 
 class SupervisedData:
@@ -12,20 +12,11 @@ class SupervisedData:
     """
     def __init__(self, dataset, true_values):
         """
-        :param dataset:     a Dataset (or sub-class) object
-        :param true_values: numpy array of true values for the variables.
-                            Length must be the same as the number of variables.
-                            May be a masked array if not all true values are
-                            known.
+        :param dataset:     an :any:`Dataset` (or sub-class) object
+        :param true_values: dict of the form ``{var_label: true_value, ...}``
+                            pairs for the known true values
         """
         self.data = dataset
-        if (true_values.ndim != 1
-                or true_values.shape[0] != self.data.sv.shape[1]):
-            raise ValueError(
-                "Number of true values must be the same as the number of"
-                "variables"
-            )
-
         self.values = true_values
 
     def get_accuracy(self, results):
@@ -41,19 +32,16 @@ class SupervisedData:
         """
         total = 0
         count = 0
-        for var, true_value in enumerate(self.values):
-            if ma.is_masked(true_value):
-                continue
-
+        for var_label, true_value in self.values.items():
             # Skip if there is only one claimed value
-            if len(results.belief[var]) == 1:
+            if len(results.belief[var_label]) == 1:
                 continue
 
             total += 1
             # Note: select value randomly if more than one most-believed value
             # exists
             most_believed = random.choice(
-                list(results.get_most_believed_values(var))
+                list(results.get_most_believed_values(var_label))
             )
             if most_believed == true_value:
                 count += 1
@@ -67,24 +55,16 @@ class SupervisedData:
     def from_csv(cls, path):
         """
         Load a matrix from a CSV file along with true values. The format is the
-        same as for loading an unsupervised dataset, but the first row contains
-        the true values.
+        same as for loading an unsupervised matrix dataset, but the first row
+        contains the true values.
 
         :param path: path on disk to a CSV file
-        :return:     a SupervisedData object representing the matrix encoded by
-                     the CSV
+        :return:     a :any:`SupervisedData` object representing the matrix
+                     encoded by the CSV
         """
-        temp = Dataset.from_csv(path)  # Load the whole thing as a matrix
-        true_values = temp.sv[0, :]
+        temp = MatrixDataset.from_csv(path)  # Load the whole thing as a matrix
+        # Get true values from first row
+        true_values = {i: v for i, v in enumerate(temp.sv[0, :])
+                       if not ma.is_masked(v)}
         sv_mat = temp.sv[1:, :]
-        return cls(Dataset(sv_mat), true_values)
-
-    def to_csv(self):
-        """
-        :return: a string representation of data and true values in CSV format
-        """
-        rows, cols = self.data.sv.shape
-        temp = ma.masked_all((rows + 1, cols))
-        temp[0, :] = self.values
-        temp[1:, :] = self.data.sv
-        return Dataset(temp).to_csv()
+        return cls(MatrixDataset(sv_mat), true_values)

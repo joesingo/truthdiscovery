@@ -3,11 +3,9 @@
 Input Data
 ==========
 
-In this library, the input to a truth-discovery algorithm is a matrix where
-rows correspond to sources, columns correspond to variables, and an entry at
-position ``(i, j)`` is the value that source ``i`` claims for variable ``j``
-(the matrix may contain empty cells in cases where a source does not make a
-claim about a variable).
+In this library, the input to a truth-discovery algorithm is a :any:`Dataset`
+object. A dataset object is constructed by passing an iterable of tuples of the
+form ``(source_label, var_label, value)`` for each claim that is made.
 
 For example, consider the following situation:
 
@@ -16,7 +14,25 @@ For example, consider the following situation:
 - Source 3 claims X = 3, Z = 5
 - Source 4 claims X = 3, Y = 6, Z = 8
 
-In matrix form, this is:
+This dataset can be constructed as follows. ::
+
+    from truthdiscovery import Dataset
+    tuples = [
+        ("source 1", "x", 4),
+        ("source 1", "y", 7),
+        ("source 2", "y", 7),
+        ...
+    ]
+    mydata = Dataset(tuples)
+
+In this case all values are numeric, so the dataset can alternatively be
+created as a :any:`MatrixDataset`. This is done by giving a matrix where rows
+correspond to sources, columns correspond to variables, and an entry at
+position ``(i, j)`` is the value that source ``i`` claims for variable ``j``
+(the matrix may contain empty cells in cases where a source does not make a
+claim about a variable).
+
+In matrix form, the above example is is:
 
 .. math::
    \begin{bmatrix}
@@ -26,45 +42,43 @@ In matrix form, this is:
    3 & 6 & 8 \\
    \end{bmatrix}
 
-where the columns correspond to X, Y and Z respectively.
+where the columns correspond to X, Y and Z respectively. Note that the sources
+and variable are not explicitly assigned labels (e.g. ``source 1``, ``x``) as
+they are when using the :any:`Dataset` constructor.
 
-Basic Usage
------------
-
-Datasets are represented by the :any:`Dataset` class. The above data can be
-loaded as follows. ::
+Matrices are representing using numpy's *masked array* type; the above example
+can be constructed as follows. ::
 
    import numpy.ma as ma
-   from truthdiscovery import Dataset
+   from truthdiscovery import MatrixDataset
 
-   mydataset = Dataset(ma.masked_values([
+   mydataset = MatrixDataset(ma.masked_values([
        [4, 7, 0],
        [0, 7, 8],
        [3, 0, 5],
        [3, 6, 8]
    ], 0))
 
-Note that numpy's `masked array` type is used to represent a matrix with missing
-entries.
-
-:any:`Dataset` objects can also be loaded from a file using the
-:meth:`~truthdiscovery.input.dataset.Dataset.from_csv` method. The above
-dataset in CSV format would be::
+:any:`MatrixDataset` objects can also be loaded from a file using the
+:meth:`~truthdiscovery.input.matrix_dataset.MatrixDataset.from_csv` method. The
+above dataset in CSV format would be::
 
     4,7,
     ,7,8
     3,,5
     3,6,8
 
-Advanced input types
---------------------
+Advanced input
+--------------
 
 TODO:
 
-- Explain :any:`ClaimImplicationDataset`
+- Explain claim implications
 
 Datasets with known true values
 -------------------------------
+
+TODO: update this
 
 An easy way to evaluate the performance of a truth-discovery algorithm is to
 run it on a dataset for which the true values of some of the variables is

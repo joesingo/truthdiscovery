@@ -1,4 +1,4 @@
-import numpy.ma as ma
+import numpy as np
 
 from truthdiscovery.algorithm.base import BaseAlgorithm
 from truthdiscovery.output import Result
@@ -12,18 +12,11 @@ class MajorityVoting(BaseAlgorithm):
     """
     def run(self, data):
         """
-        :param data: input data as a Dataset object
+        :param data: input data as a :any:`Dataset` object
+        :return: results as a :any:`Result` object
         """
-        m = data.sv
-        var_belief = []
-        for col in m.T:
-            beliefs = {}
-            for val in col:
-                if ma.is_masked(val):
-                    continue
-                if val not in beliefs:
-                    beliefs[val] = 0
-                beliefs[val] += 1
-            var_belief.append(beliefs)
-
-        return Result(trust=[1] * data.num_sources, belief=var_belief)
+        claim_belief = np.matmul(data.sc.T, np.ones((data.num_sources),))
+        return Result(
+            trust=data.get_source_trust_dict([1] * data.num_sources),
+            belief=data.get_belief_dict(claim_belief)
+        )

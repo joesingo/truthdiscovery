@@ -1,7 +1,7 @@
 import numpy as np
 import numpy.ma as ma
 
-from truthdiscovery.input.dataset import Dataset
+from truthdiscovery.input.matrix_dataset import MatrixDataset
 from truthdiscovery.input.supervised_data import SupervisedData
 
 
@@ -61,7 +61,10 @@ class SyntheticData(SupervisedData):
                     trust[source], true_values[var], domain_size
                 )
 
-        super().__init__(Dataset(sv_mat), true_values, **kwargs)
+        # Convert to dict, as required by parent class
+        true_values_dict = {var: val for var, val in enumerate(true_values)
+                            if not ma.is_masked(val)}
+        super().__init__(MatrixDataset(sv_mat), true_values_dict, **kwargs)
 
     @classmethod
     def generate_claim(cls, trust_val, true_value, domain_size):
@@ -80,3 +83,16 @@ class SyntheticData(SupervisedData):
         prob_dist[int(true_value)] = trust_val
         # Draw claimed value from domain with above probability distribution
         return np.random.choice(range(domain_size), p=prob_dist)
+
+    def to_csv(self):
+        """
+        :return: a string representation of data and generated true values in
+                 CSV format
+        """
+        rows, cols = self.data.sv.shape
+        temp = ma.masked_all((rows + 1, cols))
+        for var, val in self.values.items():
+            # var labels coincide with index in matrix here
+            temp[0, var] = val
+        temp[1:, :] = self.data.sv
+        return MatrixDataset(temp).to_csv()

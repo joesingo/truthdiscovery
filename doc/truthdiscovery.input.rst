@@ -4,18 +4,18 @@ truthdiscovery.input package
 Submodules
 ----------
 
-truthdiscovery.input.claim\_implication\_dataset module
--------------------------------------------------------
-
-.. automodule:: truthdiscovery.input.claim_implication_dataset
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 truthdiscovery.input.dataset module
 -----------------------------------
 
 .. automodule:: truthdiscovery.input.dataset
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+truthdiscovery.input.matrix\_dataset module
+-------------------------------------------
+
+.. automodule:: truthdiscovery.input.matrix_dataset
     :members:
     :undoc-members:
     :show-inheritance:

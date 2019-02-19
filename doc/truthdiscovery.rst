@@ -13,6 +13,18 @@ Subpackages
     truthdiscovery.test
     truthdiscovery.utils
 
+Submodules
+----------
+
+truthdiscovery.exceptions module
+--------------------------------
+
+.. automodule:: truthdiscovery.exceptions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Module contents
 ---------------
 

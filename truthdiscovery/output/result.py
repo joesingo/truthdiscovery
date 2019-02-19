@@ -4,10 +4,11 @@ class Result:
     """
     def __init__(self, trust, belief):
         """
-        :param trust:  a list of source trust scores in the order sources
-                       appear in the input.
-        :param belief: a list of dicts of the form ``{val: belief, ...}`` for
-                       each variable
+        :param trust:  a mapping of the form ``{source_label: trust_val, ..}``
+                       containing trust values for sources
+        :param belief: a mapping of the form
+                       ``{var_label: {val: belief, ...}, ...}`` containing
+                       belief values for claims
         """
         self.trust = trust
         self.belief = belief
@@ -17,7 +18,7 @@ class Result:
         Compute the most believed values for a variable. Note that more than
         one value may be most-believable if there are ties for maximum belief.
 
-        :param var: index in the input data of the variable to consider
+        :param var: label of the variable to consider
         :return: a generator of the values with maximum belief
         """
         sorted_beliefs = sorted(self.belief[var].items(), key=lambda x: -x[1])

@@ -17,7 +17,7 @@ from truthdiscovery.algorithm import (
     Sums,
     TruthFinder
 )
-from truthdiscovery.input import ClaimImplicationDataset, Dataset
+from truthdiscovery.input import Dataset, MatrixDataset
 from truthdiscovery.utils import (
     ConvergenceIterator,
     DistanceMeasures,
@@ -27,12 +27,21 @@ from truthdiscovery.utils import (
 
 class BaseTest:
     @pytest.fixture
-    def data(self):
-        return Dataset(ma.masked_values([
-            [1, 9, 7],
-            [1, 8, 0],
-            [0, 0, 7]
-        ], 0))
+    def triples(self):
+        return [
+            ("s1", "x", "one"),
+            ("s1", "y", "nine"),
+            ("s1", "z", "seven"),
+
+            ("s2", "x", "one"),
+            ("s2", "y", "eight"),
+
+            ("s3", "z", "seven"),
+        ]
+
+    @pytest.fixture
+    def data(self, triples):
+        return Dataset(triples)
 
 
 class TestBase(BaseTest):
@@ -46,12 +55,12 @@ class TestVoting(BaseTest):
     def test_basic(self, data):
         voting = MajorityVoting()
         results = voting.run(data)
-        assert results.trust == [1, 1, 1]
-        assert results.belief == [
-            {1: 2},
-            {9: 1, 8: 1},
-            {7: 2}
-        ]
+        assert results.trust == {"s1": 1, "s2": 1, "s3": 1}
+        assert results.belief == {
+            "x": {"one": 2},
+            "y": {"nine": 1, "eight": 1},
+            "z": {"seven": 2}
+        }
 
 
 class TestBaseIterative(BaseTest):
@@ -63,35 +72,36 @@ class TestBaseIterative(BaseTest):
     def test_fixed_priors(self, data):
         alg = BaseIterativeAlgorithm(priors=PriorBelief.FIXED)
         got = alg.get_prior_beliefs(data)
+        # Claims are:
+        # 0: x=1
+        # 1: y=9
+        # 2: z=7
+        # 3: y=8
         expected = [0.5, 0.5, 0.5, 0.5]
         assert np.array_equal(got, expected)
 
-    def test_voted_priors(self, data):
+    def test_voted_priors(self, data, triples):
         alg = BaseIterativeAlgorithm(priors=PriorBelief.VOTED)
         got = alg.get_prior_beliefs(data)
-        expected = [1, 0.5, 0.5, 1]
+        expected = [1, 0.5, 1, 0.5]
         assert np.array_equal(got, expected)
 
         # Add a new value so that priors are different to voted...
-        mat2 = data.sv.copy()
-        mat2[2, 1] = 8
-        data2 = Dataset(mat2)
+        data2 = Dataset(triples + [("s3", "y", "eight")])
         got2 = alg.get_prior_beliefs(data2)
-        expected2 = [1, 1 / 3, 2 / 3, 1]
+        expected2 = [1, 1 / 3, 1, 2 / 3]
         assert np.array_equal(got2, expected2)
 
-    def test_uniform_priors(self, data):
+    def test_uniform_priors(self, data, triples):
         alg = BaseIterativeAlgorithm(priors=PriorBelief.UNIFORM)
         got = alg.get_prior_beliefs(data)
-        expected = [1, 0.5, 0.5, 1]
+        expected = [1, 0.5, 1, 0.5]
         assert np.array_equal(got, expected)
 
         # Same secondary test as for voted, but beliefs should not change here
-        mat2 = data.sv.copy()
-        mat2[2, 1] = 8
-        data2 = Dataset(mat2)
+        data2 = Dataset(triples + [("s3", "y", "eight")])
         got2 = alg.get_prior_beliefs(data2)
-        expected2 = [1, 0.5, 0.5, 1]
+        expected2 = [1, 0.5, 1, 0.5]
         assert np.array_equal(got2, expected2)
 
     def test_invalid_priors(self, data):
@@ -109,17 +119,19 @@ class TestSums(BaseTest):
         """
         sums = Sums(iterator=ConvergenceIterator(DistanceMeasures.L1, 0.00001))
         results = sums.run(data)
-        assert np.allclose(results.trust, [1, 0.53208889, 0.34729636])
+        assert np.isclose(results.trust["s1"], 1)
+        assert np.isclose(results.trust["s2"], 0.53208889)
+        assert np.isclose(results.trust["s3"], 0.34729636)
 
-        assert set(results.belief[0].keys()) == {1}
-        assert np.isclose(results.belief[0][1], 1)
+        assert set(results.belief["x"].keys()) == {"one"}
+        assert np.isclose(results.belief["x"]["one"], 1)
 
-        assert set(results.belief[1].keys()) == {9, 8}
-        assert np.isclose(results.belief[1][9], 0.65270364)
-        assert np.isclose(results.belief[1][8], 0.34729636)
+        assert set(results.belief["y"].keys()) == {"eight", "nine"}
+        assert np.isclose(results.belief["y"]["nine"], 0.65270364)
+        assert np.isclose(results.belief["y"]["eight"], 0.34729636)
 
-        assert set(results.belief[2].keys()) == {7}
-        assert np.isclose(results.belief[2][7], 0.87938524)
+        assert set(results.belief["z"].keys()) == {"seven"}
+        assert np.isclose(results.belief["z"]["seven"], 0.87938524)
 
 
 class TestAverageLog(BaseTest):
@@ -148,40 +160,34 @@ class TestAverageLog(BaseTest):
             for j, val in enumerate(b):
                 b[j] = val / max_b
 
-        assert np.allclose(results.trust, t)
+        assert np.isclose(results.trust["s1"], t[0])
+        assert np.isclose(results.trust["s2"], t[1])
+        assert np.isclose(results.trust["s3"], t[2])
 
-        assert set(results.belief[0].keys()) == {1}
-        assert set(results.belief[1].keys()) == {9, 8}
-        assert set(results.belief[2].keys()) == {7}
+        assert set(results.belief["x"].keys()) == {"one"}
+        assert set(results.belief["y"].keys()) == {"eight", "nine"}
+        assert set(results.belief["z"].keys()) == {"seven"}
 
-        assert np.isclose(results.belief[0][1], b[0])
-        assert np.isclose(results.belief[1][9], b[1])
-        assert np.isclose(results.belief[1][8], b[2])
-        assert np.isclose(results.belief[2][7], b[3])
-
-    def test_with_zero_rows(self, data):
-        # Copy the data and add a new source who makes no claims
-        rows, cols = data.sv.shape
-        new_shape = (rows + 1, cols)
-        new_mat = ma.zeros(new_shape)
-        new_mat[0:rows, :] = data.sv
-        new_mat[rows, :] = ma.masked
-        new_data = Dataset(new_mat)
-
-        avlog = AverageLog()
-        with pytest.raises(ValueError):
-            avlog.run(new_data)
+        assert np.isclose(results.belief["x"]["one"], b[0])
+        assert np.isclose(results.belief["y"]["nine"], b[1])
+        assert np.isclose(results.belief["y"]["eight"], b[2])
+        assert np.isclose(results.belief["z"]["seven"], b[3])
 
 
 class TestInvestment(BaseTest):
     def test_basic(self):
-        data = Dataset(ma.masked_values([
-            [1, 0, 9],
-            [0, 9, 0],
-            [1, 1, 1],
-            [9, 1, 9]
-        ], 9))
+        data = Dataset([
+            ("s1", "x", "one"),
+            ("s2", "x", "zero"),
+            ("s3", "x", "one"),
 
+            ("s1", "y", "zero"),
+            ("s3", "y", "one"),
+            ("s4", "y", "one"),
+
+            ("s2", "z", "zero"),
+            ("s3", "z", "one")
+        ])
         # TODO: find example that converges nicely: this one results in all
         # sources bar one having trust 0, which causes division by zero error
         num_iterations = 20
@@ -190,12 +196,12 @@ class TestInvestment(BaseTest):
         results = inv.run(data)
 
         b = [
-            2 / 3,
-            1 / 3,
-            2 / 3,
-            1 / 3,
-            1 / 2,
-            1 / 2
+            2 / 3,  # x = 1
+            1 / 3,  # x = 0
+            2 / 3,  # y = 1
+            1 / 3,  # y = 0
+            1 / 2,  # z = 1
+            1 / 2   # z = 0
         ]
         t = [1, 1, 1, 1]
         old_t = t[:]
@@ -234,29 +240,30 @@ class TestInvestment(BaseTest):
             for j, val in enumerate(b):
                 b[j] = val / max_b
 
-        assert np.allclose(results.trust, t)
+        assert np.isclose(results.trust["s1"], t[0])
+        assert np.isclose(results.trust["s2"], t[1])
+        assert np.isclose(results.trust["s3"], t[2])
 
-        assert set(results.belief[0].keys()) == {0, 1}
-        assert set(results.belief[1].keys()) == {0, 1}
-        assert set(results.belief[2].keys()) == {0, 1}
+        assert set(results.belief["x"].keys()) == {"zero", "one"}
+        assert set(results.belief["y"].keys()) == {"zero", "one"}
+        assert set(results.belief["z"].keys()) == {"zero", "one"}
 
-        assert np.isclose(results.belief[0][1], b[0])
-        assert np.isclose(results.belief[0][0], b[1])
-        assert np.isclose(results.belief[1][1], b[2])
-        assert np.isclose(results.belief[1][0], b[3])
-        assert np.isclose(results.belief[2][1], b[4])
-        assert np.isclose(results.belief[2][0], b[5])
+        assert np.isclose(results.belief["x"]["one"], b[0])
+        assert np.isclose(results.belief["x"]["zero"], b[1])
+        assert np.isclose(results.belief["y"]["one"], b[2])
+        assert np.isclose(results.belief["y"]["zero"], b[3])
+        assert np.isclose(results.belief["z"]["one"], b[4])
+        assert np.isclose(results.belief["z"]["zero"], b[5])
 
 
 class TestPooledInvestment(BaseTest):
     def test_basic(self):
         # Same data as Investment above
-        data = Dataset(ma.masked_values([
-            [1, 0, 9],
-            [0, 9, 0],
-            [1, 1, 1],
-            [9, 1, 9]
-        ], 9))
+        data = Dataset([
+            ("s1", "x", "one"), ("s2", "x", "zero"), ("s3", "x", "one"),
+            ("s1", "y", "zero"), ("s3", "y", "one"), ("s4", "y", "one"),
+            ("s2", "z", "zero"), ("s3", "z", "one")
+        ])
 
         num_iterations = 5
         g = 1.4
@@ -314,33 +321,36 @@ class TestPooledInvestment(BaseTest):
             for j, val in enumerate(b):
                 b[j] = val / max_b
 
-        assert np.allclose(results.trust, t)
+        assert np.isclose(results.trust["s1"], t[0])
+        assert np.isclose(results.trust["s2"], t[1])
+        assert np.isclose(results.trust["s3"], t[2])
 
-        assert set(results.belief[0].keys()) == {0, 1}
-        assert set(results.belief[1].keys()) == {0, 1}
-        assert set(results.belief[2].keys()) == {0, 1}
+        assert set(results.belief["x"].keys()) == {"zero", "one"}
+        assert set(results.belief["y"].keys()) == {"zero", "one"}
+        assert set(results.belief["z"].keys()) == {"zero", "one"}
 
-        assert np.isclose(results.belief[0][1], b[0])
-        assert np.isclose(results.belief[0][0], b[1])
-        assert np.isclose(results.belief[1][1], b[2])
-        assert np.isclose(results.belief[1][0], b[3])
-        assert np.isclose(results.belief[2][1], b[4])
-        assert np.isclose(results.belief[2][0], b[5])
+        assert np.isclose(results.belief["x"]["one"], b[0])
+        assert np.isclose(results.belief["x"]["zero"], b[1])
+        assert np.isclose(results.belief["y"]["one"], b[2])
+        assert np.isclose(results.belief["y"]["zero"], b[3])
+        assert np.isclose(results.belief["z"]["one"], b[4])
+        assert np.isclose(results.belief["z"]["zero"], b[5])
 
 
 class TestTruthFinder(BaseTest):
     """
     Test the TruthFinder algorithm
     """
-    def test_basic(self, data):
+    def test_basic(self, triples):
         def imp_func(var, val1, val2):
+            m = {"eight": 8, "nine": 9}
             # Make sure implication is asymmetric
-            diff = val1 - val2
+            diff = m[val1] - m[val2]
             if diff > 0:
                 return np.exp(-0.5 * diff * diff)
             return 0.4
 
-        imp_data = ClaimImplicationDataset(data.sv, imp_func)
+        imp_data = Dataset(triples, implication_function=imp_func)
         n = 50
         t_0 = 0.4
         gamma = 0.5
@@ -385,22 +395,24 @@ class TestTruthFinder(BaseTest):
         )
         results = truthfinder.run(imp_data)
 
-        assert np.allclose(results.trust, trust)
+        assert np.isclose(results.trust["s1"], trust[0])
+        assert np.isclose(results.trust["s2"], trust[1])
+        assert np.isclose(results.trust["s3"], trust[2])
 
-        assert set(results.belief[0].keys()) == {1}
-        assert set(results.belief[1].keys()) == {9, 8}
-        assert set(results.belief[2].keys()) == {7}
+        assert set(results.belief["x"].keys()) == {"one"}
+        assert set(results.belief["y"].keys()) == {"eight", "nine"}
+        assert set(results.belief["z"].keys()) == {"seven"}
 
-        assert np.isclose(results.belief[0][1], belief[0])
-        assert np.isclose(results.belief[1][9], belief[1])
-        assert np.isclose(results.belief[1][8], belief[2])
-        assert np.isclose(results.belief[2][7], belief[3])
+        assert np.isclose(results.belief["x"]["one"], belief[0])
+        assert np.isclose(results.belief["y"]["nine"], belief[1])
+        assert np.isclose(results.belief["y"]["eight"], belief[2])
+        assert np.isclose(results.belief["z"]["seven"], belief[3])
 
     def test_no_implications(self, data):
         """
         Perform the same run as above, but do not bother with implications
-        between claims. This is to check that implications are ignored if a
-        normal Dataset object is passed in, instead of ClaimImplicationDataset
+        between claims. This is to check that implications are ignored if no
+        implication function is given
         """
         n = 50
         t_0 = 0.4
@@ -439,16 +451,18 @@ class TestTruthFinder(BaseTest):
         )
         results = truthfinder.run(data)
 
-        assert np.allclose(results.trust, trust)
+        assert np.isclose(results.trust["s1"], trust[0])
+        assert np.isclose(results.trust["s2"], trust[1])
+        assert np.isclose(results.trust["s3"], trust[2])
 
-        assert set(results.belief[0].keys()) == {1}
-        assert set(results.belief[1].keys()) == {9, 8}
-        assert set(results.belief[2].keys()) == {7}
+        assert set(results.belief["x"].keys()) == {"one"}
+        assert set(results.belief["y"].keys()) == {"eight", "nine"}
+        assert set(results.belief["z"].keys()) == {"seven"}
 
-        assert np.isclose(results.belief[0][1], belief[0])
-        assert np.isclose(results.belief[1][9], belief[1])
-        assert np.isclose(results.belief[1][8], belief[2])
-        assert np.isclose(results.belief[2][7], belief[3])
+        assert np.isclose(results.belief["x"]["one"], belief[0])
+        assert np.isclose(results.belief["y"]["nine"], belief[1])
+        assert np.isclose(results.belief["y"]["eight"], belief[2])
+        assert np.isclose(results.belief["z"]["seven"], belief[3])
 
     def test_trust_invalid(self):
         """
@@ -458,7 +472,7 @@ class TestTruthFinder(BaseTest):
 
         This test checks that iteration stops in this case
         """
-        data = Dataset(np.array([
+        data = MatrixDataset(np.array([
             [1, 2, 3],
             [1, 2, 3],
             [1, 2, 3],
@@ -479,7 +493,7 @@ class TestOnLargeData:
     """
     @pytest.fixture
     def data(self):
-        return Dataset.from_csv(self.get_filepath("data.csv"))
+        return MatrixDataset.from_csv(self.get_filepath("data.csv"))
 
     def get_filepath(self, name):
         here = path.abspath(path.dirname(__file__))
@@ -499,17 +513,22 @@ class TestOnLargeData:
         with open(self.get_filepath(exp_results_filename)) as res_file:
             exp_res = json.load(res_file)
 
-        trust_err = "Incorrect trust for {}".format(exp_results_filename)
-        assert res.trust == exp_res["trust"], trust_err
+        for source, trust_val in exp_res["trust"].items():
+            source = int(source)
+            err_msg = "Incorrect trust for {}, source {}".format(
+                exp_results_filename, source
+            )
+            # assert res.trust[source] == trust_val, err_msg
+            assert np.isclose(res.trust[source], trust_val), err_msg
 
-        # JSON cannot have floats as keys, so we need to convert them before
-        # comparison with real results
-        exp_belief = [
-            {float(k): v for k, v in belief_dict.items()}
-            for belief_dict in exp_res["belief"]
-        ]
-        belief_err = "Incorrect belief for {}".format(exp_results_filename)
-        assert res.belief == exp_belief, belief_err
+        for var, beliefs in exp_res["belief"].items():
+            var = int(var)
+            for val, belief_val in beliefs.items():
+                val = float(val)
+                err_msg = "Incorrect belief for {}, var {}, value {}".format(
+                    exp_results_filename, var, val
+                )
+                assert np.isclose(res.belief[var][val], belief_val), err_msg
 
     def test_sums(self, data):
         sums = Sums(iterator=FixedIterator(20))
@@ -537,10 +556,8 @@ class TestOnLargeData:
             diff = val1 - val2
             return np.exp(-0.5 * diff ** 2)
 
-        data_with_imp = ClaimImplicationDataset(data.sv, imp)
-        self.check_results(
-            truthfinder, data_with_imp, "truthfinder_results.json"
-        )
+        data = MatrixDataset(data.sv, implication_function=imp)
+        self.check_results(truthfinder, data, "truthfinder_results.json")
 
     def test_voting(self, data):
         voting = MajorityVoting()

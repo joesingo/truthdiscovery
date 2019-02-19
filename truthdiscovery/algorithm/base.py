@@ -61,7 +61,8 @@ class BaseIterativeAlgorithm(BaseAlgorithm):
     def get_prior_beliefs(self, data):
         """
         :param data:        input data as a :any:`Dataset` object
-        :return:            a numpy array of prior belief values for claims
+        :return:            a numpy array of prior belief values for claims, in
+                            claim ID order
         :raises ValueError: if ``self.prior`` is not an item from the
                             :any:`PriorBelief` enumeration
         """
@@ -83,8 +84,8 @@ class BaseIterativeAlgorithm(BaseAlgorithm):
         self.iterator.reset()
         trust, claim_belief = self._run(data)
         return Result(
-            trust=list(trust),
-            belief=data.get_variable_value_beliefs(claim_belief)
+            trust=data.get_source_trust_dict(trust),
+            belief=data.get_belief_dict(claim_belief)
         )
 
     def _run(self, data):

@@ -4,6 +4,14 @@ truthdiscovery.examples package
 Submodules
 ----------
 
+truthdiscovery.examples.convergence\_test module
+------------------------------------------------
+
+.. automodule:: truthdiscovery.examples.convergence_test
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 truthdiscovery.examples.sample\_run module
 ------------------------------------------
 

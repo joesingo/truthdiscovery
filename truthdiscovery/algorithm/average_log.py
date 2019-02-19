@@ -21,10 +21,6 @@ class AverageLog(BaseIterativeAlgorithm):
         # for all sources in one operation
         claim_counts = np.matmul(data.sc, np.ones((data.num_claims,)))
 
-        # TODO: decide how to handle this case better
-        if np.any(claim_counts == 0):
-            raise ValueError("All sources must make at least one claim")
-
         weights = np.log(claim_counts) / claim_counts
 
         while not self.iterator.finished():

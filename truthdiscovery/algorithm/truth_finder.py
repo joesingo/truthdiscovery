@@ -55,13 +55,10 @@ class TruthFinder(BaseIterativeAlgorithm):
 
     def _run(self, data):
         trust = np.zeros((data.num_sources,))
-        try:
-            imp = data.imp
-        except AttributeError:
-            imp = np.zeros((data.num_claims, data.num_claims))
 
         a_mat = (data.sc.T / np.matmul(data.sc, np.ones((data.num_claims),))).T
-        b_mat = data.sc.T + self.influence_param * np.matmul(imp.T, data.sc.T)
+        b_mat = data.sc.T + self.influence_param * np.matmul(data.imp.T,
+                                                             data.sc.T)
 
         trust = np.full((data.num_sources,), self.initial_trust)
         belief = np.zeros((data.num_claims,))
