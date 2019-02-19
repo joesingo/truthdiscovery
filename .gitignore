@@ -11,3 +11,5 @@ venv/*
 *.egg-info
 htmlcov
 .coverage
+tags
+doc/_build/*

@@ -78,22 +78,19 @@ TODO:
 Datasets with known true values
 -------------------------------
 
-TODO: update this
-
 An easy way to evaluate the performance of a truth-discovery algorithm is to
 run it on a dataset for which the true values of some of the variables is
-already known. A measure of the `accuracy` of the algorithm can then be
+already known. A measure of the *accuracy* of the algorithm can then be
 computed by considering how many variables the algorithm predicted the correct
 value (i.e. the most believed value for a variable was the correct one).
 
 To this end, the :any:`SupervisedData` class stores a :any:`Dataset` along with
-a list of true variable values. The list of true values may contain empty
-values for cases where only a subset of true values are known. For example: ::
+known true variable values as a dictionary in the form
+``{var_label: true_value, ...}``. For example: ::
 
     from truthdiscovery import SupervisedData
 
-    values = ma.masked_values([4, 5, 0], 0)
-    supervised = SupervisedData(mydataset, values)
+    supervised = SupervisedData(mydataset, {"x": 4, "y": 5})
 
     # run an algorithm and compute accuracy...
 
@@ -102,8 +99,9 @@ values for cases where only a subset of true values are known. For example: ::
 See :meth:`~truthdiscovery.input.supervised_data.SupervisedData.get_accuracy`
 for a description of how the accuracy calculation is performed.
 
-Supervised data can also be loaded from a CSV file. The format is the same as
-for unsupervised data (see above), but the first row contains the true values.
+Supervised data can also be loaded from a matrix in a CSV file. The format is
+the same as for unsupervised matrix data (see above), but the first row
+contains the true values.
 
 Synthetic data
 --------------
