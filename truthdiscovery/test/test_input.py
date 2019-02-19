@@ -241,9 +241,12 @@ class TestSupervisedData:
 
             # Results where a variable has only one claimed value
             (1 / 2, {"x": {5: 1.0},                         # correct, only one
-                     "y": {1: 0.99, 2: 0.8},                    # wrong
-                     "z": {7: 0.5, 6: 0.7, -10: 0.999},         # unknown
-                     "w": {1: 0.1, 2: 0.1, 3: 0.1, 8: 0.101}})  # correct
+                     "y": {1: 0.99, 2: 0.8},                     # wrong
+                     "z": {7: 0.5, 6: 0.7, -10: 0.999},          # unknown
+                     "w": {1: 0.1, 2: 0.1, 3: 0.1, 8: 0.101}}),  # correct
+
+            # Results where all claimed values are wrong
+            (0, {"x": {4: 1, 2: 0.5}, "y": {4: 1}, "z": {4: 1}, "w": {4: 1}})
         )
 
         for expected_acc, belief in test_data:
@@ -263,6 +266,15 @@ class TestSupervisedData:
         }
         res = Result(trust={0: 1.5, 1: 0.5, 2: 0.5}, belief=var_beliefs)
         assert sup.get_accuracy(res) in (1 / 3, 2 / 3)
+
+    def test_unknown_variable(self, dataset):
+        sup = SupervisedData(dataset, {"hello": 42})
+        res = Result(
+            trust={"s1": 1.5, "s2": 0.5, "s3": 0.5},
+            belief={"x": {4: 1, 2: 0.5}, "y": {4: 1}, "z": {4: 1}, "w": {4: 1}}
+        )
+        with pytest.raises(KeyError):
+            sup.get_accuracy(res)
 
     def test_no_true_values_known(self, dataset):
         sup = SupervisedData(dataset, {})

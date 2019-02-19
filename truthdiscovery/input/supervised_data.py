@@ -34,8 +34,11 @@ class SupervisedData:
         count = 0
         for var_label, true_value in self.values.items():
             # Skip if there is only one claimed value
-            if len(results.belief[var_label]) == 1:
-                continue
+            try:
+                if len(results.belief[var_label]) == 1:
+                    continue
+            except KeyError:
+                raise KeyError("Unknown variable '{}'".format(var_label))
 
             total += 1
             # Note: select value randomly if more than one most-believed value
