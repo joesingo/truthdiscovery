@@ -1,9 +1,7 @@
-from collections import namedtuple
 import itertools
 
 from bidict import bidict
 import numpy as np
-import numpy.ma as ma
 
 
 class IDMapping(bidict):
