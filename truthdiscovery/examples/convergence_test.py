@@ -54,7 +54,7 @@ def main():
     for measure, (row, col) in zip(DistanceMeasures, subplot_coords):
         distances = {}
 
-        iterator = ConvergenceIterator(measure, 0.0001, limit=200, debug=True)
+        iterator = ConvergenceIterator(measure, 0, limit=30, debug=True)
         for cls in ALGORITHMS:
             name = cls.__name__
             print("running {} using {} measure".format(name, measure))
@@ -86,12 +86,12 @@ def main():
 
         ax = axes[row, col]
         ax.set_title("{}".format(MEASURE_NAMES[measure]))
-        ax.set_xlabel("Iteration number (log scale)")
-        ax.set_ylabel("Distance between old and new trust")
+        ax.set_xlabel("Iteration number")
+        ax.set_ylabel("Distance between old and new trust (log scale)")
         for name, dists in distances.items():
             while len(dists) < max_its:
                 dists.append(None)
-            ax.semilogx(x, dists, label=name, linewidth=3)
+            ax.semilogy(x, dists, label=name, linewidth=3)
         ax.legend()
     plt.show()
 
