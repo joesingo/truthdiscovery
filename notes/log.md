@@ -29,6 +29,7 @@
 -----------
 * Read Semi-Supervised Truth-Discovery paper
 * Write sample script to play around with running algorithms
+* *MEETING*
 
 13-02-2019:
 -----------
@@ -39,3 +40,25 @@
 -----------
 * Allow algorithms to run till convergence, or use a fixed number of iterations
 * Make a start on documentation
+
+15-02-2019:
+-----------
+* Export synthetic data to CSV
+
+16-02-2019:
+-----------
+* Debug and attempt to fix issues with TruthFinder
+
+17-02-2019:
+-----------
+* Work on running algorithms with real-world data
+* Big refactor of Dataset and related classes, to allow text data
+
+18-02-2019:
+-----------
+* Continuing refactoring work
+
+19-02-2019:
+-----------
+* Finish refactor and update documentation and tests
+* *MEETING*
