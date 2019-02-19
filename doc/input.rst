@@ -112,3 +112,11 @@ TODO: explain
 - Method of generation
 - Available parameters
 - Export to CSV
+
+Custom dataset formats
+----------------------
+
+TODO:
+
+- Explain FileDataset
+- Give examples

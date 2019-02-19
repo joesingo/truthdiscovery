@@ -2,8 +2,10 @@ import numpy as np
 import numpy.ma as ma
 import pytest
 
+from truthdiscovery.algorithm import MajorityVoting
 from truthdiscovery.input import (
     Dataset,
+    FileDataset,
     IDMapping,
     MatrixDataset,
     SupervisedData,
@@ -454,3 +456,88 @@ class TestImplications:
             Dataset(triples, implication_function=too_big)
         with pytest.raises(ValueError):
             Dataset(triples, implication_function=too_small)
+
+
+class TestFileDataset:
+    @pytest.fixture
+    def example_cls(self):
+        class ExampleDataset(FileDataset):
+            def get_tuples(self, fileobj):
+                for line in map(str.strip, fileobj):
+                    source, var, value = line.split(" | ")
+                    yield (
+                        "source {}".format(source),
+                        "var {}".format(var),
+                        int(value) * 2 + 1
+                    )
+        return ExampleDataset
+
+    @pytest.fixture
+    def file_contents(self):
+        return "\n".join([
+            "abc | xyz | 42",
+            "def | xyz | 3",
+            "abc | XYZ | 7",
+            "ghi | XYZ | 7",
+            "def | XYZ | 6",
+        ])
+
+    def test_base(self, file_contents, tmpdir):
+        input_file = tmpdir.join("test_input.dataset")
+        input_file.write(file_contents)
+        with pytest.raises(NotImplementedError):
+            FileDataset(str(input_file))
+
+    def test_basic(self, example_cls, file_contents, tmpdir):
+        input_file = tmpdir.join("test_input.dataset")
+        input_file.write(file_contents)
+        dataset = example_cls(str(input_file))
+        # Claims should be:
+        # 0: xyz = 85
+        # 1: xyz = 7
+        # 2: XYZ = 15
+        # 3: XYZ = 13
+        expected_sc = np.array([
+            [1, 0, 1, 0],
+            [0, 1, 0, 1],
+            [0, 0, 1, 0]
+        ])
+        assert np.array_equal(dataset.sc, expected_sc)
+
+        # Use voting algorithm to get results, and check they are as expected
+        res = MajorityVoting().run(dataset)
+
+        assert res.trust == {"source abc": 1, "source def": 1, "source ghi": 1}
+        assert res.belief == {
+            "var xyz": {85: 1, 7: 1},
+            "var XYZ": {15: 2, 13: 1}
+        }
+
+    def test_implications(self, example_cls, file_contents, tmpdir):
+        """
+        Check that claim implications can still be used with file datasets
+        """
+        def imp(var, val1, val2):
+            if var == "var xyz":
+                if (val1, val2) == (7, 85):
+                    return 1
+                else:
+                    return -1
+            else:
+                if (val1, val2) == (13, 15):
+                    return 0.5
+                else:
+                    return -0.5
+
+        input_file = tmpdir.join("test_input.dataset")
+        input_file.write(file_contents)
+        dataset = example_cls(str(input_file), implication_function=imp)
+
+        expected_imp = np.array([
+            [0, -1, 0, 0],
+            [1, 0, 0, 0],
+            [0, 0, 0, -0.5],
+            [0, 0, 0.5, 0]
+        ])
+        print(dataset.imp)
+        assert np.array_equal(dataset.imp, expected_imp)
