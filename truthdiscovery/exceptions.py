@@ -4,8 +4,8 @@ class ConvergenceError(Exception):
     """
 
 
-class RoundingError(Exception):
+class EarlyFinishError(Exception):
     """
-    Error raised when an algorithm cannot perform its required calculations
-    because trust/belief have been rounded
+    Error raised when an iterative algorithm is forced to finish early, e.g.
+    due to rounding errors preventing further computations
     """

@@ -1,6 +1,7 @@
 import numpy as np
 
 from truthdiscovery.algorithm.base import PriorBelief
+from truthdiscovery.exceptions import EarlyFinishError
 from truthdiscovery.algorithm.investment import Investment
 from truthdiscovery.utils.iterator import FixedIterator
 
@@ -27,10 +28,12 @@ class PooledInvestment(Investment):
 
         while not self.iterator.finished():
             # Trust update is the same as for Investment
-            investment_amounts = trust / claim_counts
-            mat = data.sc / np.matmul(data.sc.T, investment_amounts)
-            new_trust = investment_amounts * np.matmul(mat, belief)
-
+            try:
+                new_trust = self.update_trust(
+                    trust, claim_counts, data.sc, belief
+                )
+            except EarlyFinishError:
+                break
             # 'Invest' trust in claims, grow with non-linear function, and
             # update belief
             base_returns = np.matmul(data.sc.T, (new_trust / claim_counts))
