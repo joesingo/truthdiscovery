@@ -1,9 +1,9 @@
 ## Implementation ideas:
 Could have multiple interfaces:
   * Command line
-  * Website
   * Python API
-  * HTTP API?
+  * Website
+  * ~~HTTP API?~~
 
 Should have core Python API, from which command line and web clients are built
 from. If necessary, a HTTP API can mimic the Python API.
