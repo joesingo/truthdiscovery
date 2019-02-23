@@ -10,6 +10,7 @@
 \usepackage{multicol}
 \usepackage{cite}
 \usepackage{hyperref}
+\usepackage{amsthm}
 % \usepackage[top=1cm, bottom=1cm, left=2cm, right=2cm]{geometry}
 
 % Settings
@@ -20,11 +21,18 @@
 	linkcolor={blue!80!black}
 }
 
+% Maths environments
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+\theoremstyle{plain}
+\newtheorem{axiom}{Axiom}
+
 \begin{document}
 \maketitle
 % \begin{multicols}{2}
 
-\section{Common framework for truth-discovery}
+\section{Frameworks for truth-discovery used in existing literature}
 
 \subsection{Li et. al. survey}
 \label{sec:li}
@@ -72,7 +80,7 @@ believed fact for each object by taking the fact with highest confidence.
 \subsection{Latent Dirichlet Truth Discovery}
 \label{sec:ldt}
 
-The method proposed in \cite{ldt} is similar to both above approaches:
+The method proposed in \cite{zhang_qi_tang} is similar to both above approaches:
 
 \begin{itemize}
 \item Set of sources $\mathcal{S}$, objects $\mathcal{O}$, facts $F_o$ for each
@@ -164,6 +172,101 @@ is given by $s(f)$ (\ref{sec:galland} sense, when this is defined).
 
 This is a special case since the only claimed values are \texttt{True} and
 \texttt{False}, whereas in \ref{sec:li} the values can be anything.
+
+\section{Model for the development of axioms}
+
+The input seems to be essentially equivalent in all approaches, with the
+exception of \ref{sec:galland} which has the concept of negative claims.
+
+Output differs: in \ref{sec:li} a single true fact is selected for each object,
+and in the others all facts are given a belief score in $[0, 1]$. Both
+approaches ultimately \emph{rank} the facts of each object.
+
+Initial ideas of a graph-theoretic formulation:
+
+% Input network definition
+\begin{definition}
+
+A \emph{truth-discovery network} consists of non-empty sets $\mathcal{S}$
+(sources), $\mathcal{F}$ (facts), $\mathcal{O}$ (objects), and a directed graph
+$G=(V, E)$ where $V = \mathcal{S} \cup \mathcal{F} \cup \mathcal{O}$, and $E
+\subseteq (\mathcal{S} \times \mathcal{F}) \cup (\mathcal{F} \times
+\mathcal{O})$ satisfies the following properties:
+
+\begin{enumerate}
+
+\item Each $f \in \mathcal{F}$ has a unique successor node in $\mathcal{O}$,
+denoted $O_f$ (i.e. each fact relates to a single object)
+
+\item For $s \in \mathcal{S}$ and $o \in \mathcal{O}$, there is at most one $f
+\in \mathcal{F}$ such that $(s, f) \in E$ and $O_f = o$ (i.e. sources can only
+claim one fact per object)
+
+\end{enumerate}
+
+For $o \in \mathcal{O}$ we denote by $F_o$ the set $\{f \in \mathcal{F} : O_f =
+o \}$.
+
+\end{definition}
+
+Some initial ideas for what a truth-discovery algorithm is.
+
+% Algorithm definition
+\begin{definition}
+\label{def:ordinal}
+
+A \emph{truth-discovery algorithm} $A$ assigns to each truth-discovery network
+a total ordering $\preceq_\mathcal{S}^A$ on the set of sources $\mathcal{S}$
+(the \emph{trust ordering}) and a total ordering $\preceq_o^A$ on the set of
+facts $F_o$ for each object $o \in \mathcal{O}$.
+
+\end{definition}
+
+\begin{definition}
+\label{def:numerical}
+
+A \emph{truth-discovery algorithm} $A$ assigns to each truth-discovery network
+a \emph{source trust} mapping $\tau: \mathcal{S} \rightarrow [0, 1]$ and
+\emph{claim belief} mapping $\phi: \mathcal{F} \rightarrow [0, 1]$.
+
+\end{definition}
+
+\begin{definition}
+\label{def:most_believed}
+
+A \emph{truth-discovery algorithm} $A$ assigns to each truth-discovery network
+a set of \emph{true facts} $\mathcal{F}^* \subseteq \mathcal{F}$ that contains
+exactly one element of $F_o$ for each object $o$ (plus source trusts as per one
+of definition \ref{def:ordinal} or \ref{def:numerical})
+
+\end{definition}
+
+\textbf{Thoughts:}
+\begin{itemize}
+
+\item Definition \ref{def:ordinal} considers only the relative order of
+sources/facts, rather than assigning numerical values (as real-world algorithms
+do in practise). This follows ideas in PageRank axiomatisation{\cite{altman}},
+axioms for personalised ranking systems{\cite{altman_personalised}} and I think
+social choice in general.
+
+Also, numerical trust scores often do not have semantic meaning, so only the
+relative scores are important anyway (definitely no semantics in Pasternack and
+Roth paper \cite{pasternack}, although maybe there is in probabilistic ones
+like \emph{TruthFinder}\cite{yin_han_yu} and LDT\cite{zhang_qi_tang})
+
+\item Every algorithm that I have seen in practise gives output for trusts as
+in definition \ref{def:numerical}. The majority of them also give fact belief
+in this way. This also captures how much more trustworthy sources are than each
+other, which is lost when only considering relative trustworthiness (e.g. the
+difference between $\tau(s_1) = 0.9, \tau(s_2) = 0.89$ and $\tau(s_1) = 0.9,
+\tau(s_2) = 0.01$)
+
+\item Some algorithms only give most believed values as output (not belief
+score for each fact) as per definition \ref{def:most_believed} (e.g.
+\cite{li_conflicts}).
+
+\end{itemize}
 
 \bibliography{references}{}
 \bibliographystyle{plain}
