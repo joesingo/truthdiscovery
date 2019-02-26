@@ -1,5 +1,6 @@
 """
-Script to measure run-time of various algorithms
+Script to measure run-time of various algorithms as the number of sources and
+variable increases
 """
 from collections import OrderedDict
 import json
@@ -19,8 +20,11 @@ from truthdiscovery.algorithm import (
     TruthFinder
 )
 
+# Sizes for sources/variables to use in the experiments
 DATA_SIZES = list(range(100, 2001, 200))
+# The fixed size for the parameter that is not being varied
 FIXED_SIZE = 500
+# Parameters for synthetic data generation
 CLAIM_PROBABILITY = 0.1
 DOMAIN_SIZE = 4
 
