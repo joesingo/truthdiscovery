@@ -2,16 +2,21 @@ class Result:
     """
     Object to hold the results of truth-discovery.
     """
-    def __init__(self, trust, belief):
+    def __init__(self, trust, belief, time_taken, iterations=None):
         """
         :param trust:  a mapping of the form ``{source_label: trust_val, ..}``
                        containing trust values for sources
         :param belief: a mapping of the form
                        ``{var_label: {val: belief, ...}, ...}`` containing
                        belief values for claims
+        :param time_taken: seconds taken to produce these results
+        :param iterations: number of iterations the algorithm ran for, or None
+                           if not applicable
         """
         self.trust = trust
         self.belief = belief
+        self.time_taken = time_taken
+        self.iterations = iterations
 
     def get_most_believed_values(self, var):
         """

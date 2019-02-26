@@ -15,11 +15,11 @@ class TestBaseIterator:
     def test_run_base_fail(self):
         it = Iterator()
         with pytest.raises(NotImplementedError):
-            it.compare(1, 2)
-        with pytest.raises(NotImplementedError):
             it.finished()
-        with pytest.raises(NotImplementedError):
-            it.reset()
+
+    def test_it_count(self):
+        it = Iterator()
+        assert it.it_count == 0
 
     def test_reset(self):
         limit = 25
@@ -36,6 +36,7 @@ class TestBaseIterator:
             it_count += 1
             it.compare(1, 2)
         assert it_count == limit
+        assert it.it_count == limit
 
         # Perform the same test for a convergence iterator
         current_distance = 1
@@ -52,6 +53,7 @@ class TestBaseIterator:
             it_count += 1
             conv_it.compare(np.array([1]), np.array([1 + current_distance]))
         assert it_count == limit
+        assert conv_it.it_count == limit
 
 
 class TestFixedIterator:

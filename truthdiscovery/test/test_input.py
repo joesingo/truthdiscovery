@@ -254,7 +254,8 @@ class TestSupervisedData:
         for expected_acc, belief in test_data:
             res = Result(
                 trust={"s1": 1.5, "s2": 0.5, "s3": 0.5},
-                belief=belief
+                belief=belief,
+                time_taken=None
             )
             got_acc = sup.get_accuracy(res)
             assert got_acc == expected_acc
@@ -266,14 +267,22 @@ class TestSupervisedData:
             "z": {1: 0.5, 2: 0.4},             # unknown
             "w": {1: 0.5, 2: 0.4}              # wrong
         }
-        res = Result(trust={0: 1.5, 1: 0.5, 2: 0.5}, belief=var_beliefs)
+        res = Result(
+            trust={0: 1.5, 1: 0.5, 2: 0.5}, belief=var_beliefs, time_taken=None
+        )
         assert sup.get_accuracy(res) in (1 / 3, 2 / 3)
 
     def test_unknown_variable(self, dataset):
         sup = SupervisedData(dataset, {"hello": 42})
         res = Result(
             trust={"s1": 1.5, "s2": 0.5, "s3": 0.5},
-            belief={"x": {4: 1, 2: 0.5}, "y": {4: 1}, "z": {4: 1}, "w": {4: 1}}
+            belief={
+                "x": {4: 1, 2: 0.5},
+                "y": {4: 1},
+                "z": {4: 1},
+                "w": {4: 1}
+            },
+            time_taken=None
         )
         with pytest.raises(KeyError):
             sup.get_accuracy(res)
@@ -282,7 +291,8 @@ class TestSupervisedData:
         sup = SupervisedData(dataset, {})
         res = Result(
             trust={0: 0.5, 1: 0.5, 2: 0.5},
-            belief={i: {4: 1} for i in range(4)}
+            belief={i: {4: 1} for i in range(4)},
+            time_taken=None
         )
         with pytest.raises(ValueError):
             sup.get_accuracy(res)
@@ -301,7 +311,7 @@ class TestResult:
         )
         trust = [0.5] * 10
         for var_belief, exp in test_data:
-            res = Result(trust, [var_belief])
+            res = Result(trust, [var_belief], time_taken=None)
             assert set(res.get_most_believed_values(0)) == exp
 
 

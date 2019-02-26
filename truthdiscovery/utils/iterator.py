@@ -25,11 +25,15 @@ class Iterator:
     """
     Base class for iterators
     """
+    it_count = 0
+
     def compare(self, _obj1, _obj2):
         """
         Log the comparison of two objects
         """
-        raise NotImplementedError("Must be implemented in child classes")
+        # By default just increase iteration count without comparing objects at
+        # all
+        self.it_count += 1
 
     def finished(self):
         """
@@ -41,7 +45,7 @@ class Iterator:
         """
         Reset iteration
         """
-        raise NotImplementedError("Must be implemented in child classes")
+        self.it_count = 0
 
 
 class FixedIterator(Iterator):
@@ -49,7 +53,6 @@ class FixedIterator(Iterator):
     Iterator that runs a fixed number of times, then finishes
     """
     limit = 20
-    it_count = None
 
     def __init__(self, limit=None):
         """
@@ -61,15 +64,6 @@ class FixedIterator(Iterator):
             self.limit = limit
         self.reset()
 
-    def reset(self):
-        self.it_count = 0
-
-    def compare(self, _obj1, _obj2):
-        """
-        Increase the iteration count. Objects passed in are unused
-        """
-        self.it_count += 1
-
     def finished(self):
         return self.it_count >= self.limit
 
@@ -80,7 +74,6 @@ class ConvergenceIterator(Iterator):
     smaller than a set threshold
     """
     threshold = 0.0001
-    it_count = None
     distance_measure = None
     current_distance = None
     limit = 1000000
@@ -95,7 +88,6 @@ class ConvergenceIterator(Iterator):
         :param debug:            if True, print out current distance at each
                                  iteration
         """
-        self.it_count = 0
         self.distance_measure = distance_measure
         if threshold is not None:
             self.threshold = threshold
@@ -105,14 +97,14 @@ class ConvergenceIterator(Iterator):
         self.reset()
 
     def reset(self):
-        self.it_count = 0
+        super().reset()
         self.current_distance = None
 
     def compare(self, obj1, obj2):
         """
         Update the most recent distance between objects
         """
-        self.it_count += 1
+        super().compare(obj1, obj2)
         self.current_distance = self.get_distance(
             self.distance_measure, obj1, obj2
         )

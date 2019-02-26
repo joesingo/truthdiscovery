@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 
 from truthdiscovery.algorithm.base import BaseAlgorithm
@@ -15,8 +17,11 @@ class MajorityVoting(BaseAlgorithm):
         :param data: input data as a :any:`Dataset` object
         :return: results as a :any:`Result` object
         """
+        start_time = time.time()
         claim_belief = np.matmul(data.sc.T, np.ones((data.num_sources),))
+        end_time = time.time()
         return Result(
             trust=data.get_source_trust_dict([1] * data.num_sources),
-            belief=data.get_belief_dict(claim_belief)
+            belief=data.get_belief_dict(claim_belief),
+            time_taken=end_time - start_time
         )

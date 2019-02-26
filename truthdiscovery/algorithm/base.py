@@ -1,4 +1,5 @@
 from enum import Enum
+import time
 
 import numpy as np
 
@@ -82,10 +83,14 @@ class BaseIterativeAlgorithm(BaseAlgorithm):
 
     def run(self, data):
         self.iterator.reset()
+        start_time = time.time()
         trust, claim_belief = self._run(data)
+        end_time = time.time()
         return Result(
             trust=data.get_source_trust_dict(trust),
-            belief=data.get_belief_dict(claim_belief)
+            belief=data.get_belief_dict(claim_belief),
+            time_taken=end_time - start_time,
+            iterations=self.iterator.it_count
         )
 
     def _run(self, data):
