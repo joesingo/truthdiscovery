@@ -62,3 +62,15 @@
 -----------
 * Finish refactor and update documentation and tests
 * *MEETING*
+
+20-02-2019:
+-----------
+* Prevent division by zero errors
+
+[21-25]-02-2019:
+----------------
+* Background reading on truth-discovery approaches, to find common framework
+  for developing axioms
+* Sketch possible formalisms of truth-discovery
+* Research existing work on axioms of ranking systems
+* Come up with a few basic ideas for axioms, which are not fully detailed yet
