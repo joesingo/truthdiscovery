@@ -32,7 +32,7 @@ class PooledInvestment(Investment):
                 new_trust = self.update_trust(
                     trust, claim_counts, data.sc, belief
                 )
-            except EarlyFinishError:
+            except EarlyFinishError:  # pragma: no cover
                 break
             # 'Invest' trust in claims, grow with non-linear function, and
             # update belief

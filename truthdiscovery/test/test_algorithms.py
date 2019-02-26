@@ -257,6 +257,27 @@ class TestInvestment(BaseTest):
         assert np.isclose(results.belief["z"]["one"], b[4])
         assert np.isclose(results.belief["z"]["zero"], b[5])
 
+    def test_converge_to_zero(self):
+        """"
+        Run Investment till convergence with input that is known to cause
+        problems as trust drains to zero, which causes division by zero.
+        """
+        data = Dataset([
+            ("s1", "x", "one"),
+            ("s2", "x", "zero"),
+            ("s3", "x", "one"),
+
+            ("s1", "y", "zero"),
+            ("s3", "y", "one"),
+            ("s4", "y", "one"),
+
+            ("s2", "z", "zero"),
+            ("s3", "z", "one")
+        ])
+        it = ConvergenceIterator(DistanceMeasures.L2, 0.1e-100)
+        res = Investment(iterator=it).run(data)
+        assert res.iterations == 41
+
 
 class TestPooledInvestment(BaseTest):
     def test_basic(self):
