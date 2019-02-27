@@ -526,6 +526,7 @@ class TestOnLargeData:
     def check_results(self, alg, data, exp_results_filename):
         """
         Helper method to check results of an algorithm
+
         :param alg: algorithm instance
         :param data: Dataset instance
         :param exp_results_filename: filename of JSON file containing expected

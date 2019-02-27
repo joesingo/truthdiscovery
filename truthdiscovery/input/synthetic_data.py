@@ -14,7 +14,7 @@ class SyntheticData(SupervisedData):
     def __init__(self, trust, num_variables=100, claim_probability=0.5,
                  domain_size=4, **kwargs):
         """
-        :param trust: numpy array of trust values in [0, 1] for sources
+        :param trust: list or numpy array of trust values in [0, 1] for sources
         :param num_variables: the number of artificial variables to generate
         :param claim_probability: the probability of a source making a claim
                                   about the value of a given variable
@@ -22,6 +22,8 @@ class SyntheticData(SupervisedData):
                             may take
         :raises ValueError: if invalid parameters are given
         """
+        if isinstance(trust, list):
+            trust = np.array(trust)
         if trust.ndim != 1:
             raise ValueError("Trust vector must be one dimensional")
         if trust.shape[0] == 0:

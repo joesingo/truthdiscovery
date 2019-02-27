@@ -319,6 +319,9 @@ class TestSyntheticData:
     """
     Test the SyntheticData class
     """
+    def test_trust_as_list(self):
+        SyntheticData(trust=[0, 1, 0.5])
+
     def test_invalid_trust_vector_shape(self):
         invalid_trust_scores = (
             np.array([]),
