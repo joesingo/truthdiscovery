@@ -38,6 +38,11 @@
         \textbf{TODO:} #1
     }
 }
+\renewcommand{\S}{\mathcal{S}}  % Note: overrides existing command
+\renewcommand{\O}{\mathcal{O}}  % Note: overrides existing command
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\sle}{\le}
+\newcommand{\fle}{\preceq}
 
 \begin{document}
 \maketitle
@@ -52,7 +57,7 @@ A 2015 survey by Li et. al. {\cite{li_survey}} defines truth-discovery as
 follows.
 
 \begin{itemize}
-\item We have a set of sources $\mathcal{S}$, and a set of objects $\mathcal{O}$
+\item We have a set of sources $\S$, and a set of objects $\O$
 \item Each source $s$ claims a value $v_{o}^{s}$ for some objects $o$ (not
 necessarily \emph{all} objects)
 \item Truth-discovery: compute a \emph{source weight} $w_s$ for each source,
@@ -68,14 +73,13 @@ From \cite{gupta_han_survey}, slightly re-phrased by me (e.g. paper calls
 sources `providers', denotes confidence by $s$\ldots)
 
 \begin{itemize}
-\item Set of sources $\mathcal{S}$, objects $\mathcal{O}$
+\item Set of sources $\S$, objects $\O$
 \item Each object $o$ has as associated set of \emph{facts} $F_o$. Write
-$\mathcal{F} = \bigcup_{o \in \mathcal{O}}F_o$
+$\F = \bigcup_{o \in \O}F_o$
 \item Sources \emph{provide} facts about objects. They may provide facts about
 multiple objects, but only one fact per object
 \item Could be formalised similar to \ref{sec:li} as follows: $f_o^s \in F_o$
-is the fact provided by source $s$ for object $o$, defined for a subset of
-$\mathcal{O}$
+is the fact provided by source $s$ for object $o$, defined for a subset of $\O$
 \item Truth-discovery: compute \emph{source trusts} $t_s$ for each source $s$,
 and \emph{fact confidence} $c_f$ for each fact $f$
 \end{itemize}
@@ -94,8 +98,7 @@ believed fact for each object by taking the fact with highest confidence.
 The method proposed in \cite{zhang_qi_tang} is similar to both above approaches:
 
 \begin{itemize}
-\item Set of sources $\mathcal{S}$, objects $\mathcal{O}$, facts $F_o$ for each
-$o \in \mathcal{O}$
+\item Set of sources $\S$, objects $\O$, facts $F_o$ for each $o \in \O$
 \item Each source $s$ makes claim $\texttt{Cl}_o(s) \in F_o \cup
 \{\oslash\}$ for the true fact for object $o$, where $\oslash$ is special
 symbol to indicate no claim is made
@@ -117,8 +120,8 @@ component}
 In \cite{pasternack}:
 
 \begin{itemize}
-\item Set of sources $\mathcal{S}$, each with a set of claims $C_s$ ($s \in
-\mathcal{S}$). Write $\mathcal{C} = \bigcup_{s \in \mathcal{S}}{C_s}$
+\item Set of sources $\S$, each with a set of claims $C_s$ ($s \in \S$). Write
+$\mathcal{C} = \bigcup_{s \in \S}{C_s}$
 \item Each claim $c$ has \emph{mutual exclusion} set $M_c \subseteq
 \mathcal{C}$: only one claim in each $M_c$ is true. Note that $c \in M_c$
 \item Truth-discovery: compute source trusts $t_s$ and claim beliefs $b_c$
@@ -128,7 +131,7 @@ This is essentially the same as \ref{sec:gupta}, if we let each mutual
 exclusion set be called an object, rename claims to facts, and the facts
 provided by source $s$ are simply those in $C_s$. Something like the following.
 $$
-\mathcal{O} = \{M_c : c \in \mathcal{C}\},
+\O = \{M_c : c \in \mathcal{C}\},
 \quad
 F_{M_c} = M_c
 $$
@@ -145,9 +148,9 @@ scheme, which is initially quite different from those above (again, slightly
 re-phrased by me in places):
 
 \begin{itemize}
-\item Set of sources $\mathcal{S}$, facts $\mathcal{F}$, and the \emph{real
-world} $W: \mathcal{F} \rightarrow \{\texttt{True}, \texttt{False}\}$
-\item Each source $s$ is a partial mapping $\mathcal{F} \rightarrow
+\item Set of sources $\S$, facts $\F$, and the \emph{real world}
+$W: \F \rightarrow \{\texttt{True}, \texttt{False}\}$
+\item Each source $s$ is a partial mapping $\F \rightarrow
 \{\texttt{True}, \texttt{False}\}$
 \item Each source $s$ has an \emph{error factor} $\epsilon(s) \in [0, 1]$ (?)
 that represents the likeliness of $s$ making a mistake on the truth value of
@@ -155,11 +158,11 @@ any given fact
 \item Set of \emph{queries} $\mathcal{Q}$. Each fact $f$ has a \emph{reference
 query} $ref(f) \in \mathcal{Q}$ (imagine that $q\in\mathcal{Q}$ is a question,
 and $f$ answers the question in some way). Any query has exactly one true fact.
-Formally, for each query $q$, let $F_q = \{f \in \mathcal{F} : ref(f) = q\}$.
+Formally, for each query $q$, let $F_q = \{f \in \F : ref(f) = q\}$.
 For each $q$ there is exactly one $f \in F_q$ with $W(f) = \texttt{True}$ \item
 Truth-discovery: compute source error factors $\epsilon(s)$, and an estimate
-for the real world $W$ given as a mapping $\mathcal{F} \rightarrow [0,
-1]$ where 1 represents true and 0 represents false.
+for the real world $W$ given as a mapping $\F \rightarrow [0, 1]$ where 1
+represents true and 0 represents false.
 \end{itemize}
 
 Some important differences here:
@@ -222,25 +225,22 @@ My graph-theoretic formulation of truth-discovery is as follows.
 % Input network definition
 \begin{definition}
 
-A \emph{truth-discovery network} consists of non-empty sets $\mathcal{S}$
-(sources), $\mathcal{O}$ (objects), $\mathcal{F}$ (facts), and a directed graph
-$G=(V, E)$ where $V = \mathcal{S} \cup \mathcal{F} \cup \mathcal{O}$, and $E
-\subseteq (\mathcal{S} \times \mathcal{F}) \cup (\mathcal{F} \times
-\mathcal{O})$ satisfies the following properties:
+A \emph{truth-discovery network} consists of non-empty sets $\S$ (sources),
+$\O$ (objects), $\F$ (facts), and a directed graph $G=(V, E)$ where
+$V = \S \cup \F \cup \O$, and $E \subseteq (\S \times \F) \cup (\F \times \O)$
+satisfies the following properties:
 
 \begin{enumerate}
 
-\item Each $f \in \mathcal{F}$ has a unique successor node in $\mathcal{O}$,
-denoted $O_f$ (i.e. each fact relates to a single object)
+\item Each $f \in \F$ has a unique successor node in $\O$, denoted $O_f$ (i.e.
+each fact relates to a single object)
 
-\item For $s \in \mathcal{S}$ and $o \in \mathcal{O}$, there is at most one $f
-\in \mathcal{F}$ such that $(s, f) \in E$ and $O_f = o$ (i.e. sources can only
-claim one fact per object)
+\item For $s \in \S$ and $o \in \O$, there is at most one $f \in \F$ such that
+$(s, f) \in E$ and $O_f = o$ (i.e. sources can only claim one fact per object)
 
 \end{enumerate}
 
-For $o \in \mathcal{O}$ we denote by $F_o$ the set $\{f \in \mathcal{F} : O_f =
-o \}$.
+For $o \in \O$ we denote by $F_o$ the set $\{f \in \F : O_f = o \}$.
 
 \end{definition}
 
@@ -249,13 +249,13 @@ o \}$.
 \label{def:truth_discovery_algorithm}
 
 A \emph{truth-discovery algorithm} $A$ assigns to each truth-discovery network
-$N=(\mathcal{S}, \mathcal{O}, \mathcal{F}, G)$ a pair $(\le_N^A, \preceq_N^A)$
-of total (weak) orderings on the sets $\mathcal{S}$ and $\mathcal{F}$
+$N=(\S, \O, \F, G)$ a pair $(\sle_N^A, \fle_N^A)$
+of total (weak) orderings on the sets $\S$ and $\F$
 respectively.
 
-Sub- and super-scripts can be omitted when the context is clear. $s_1 \le s_2$
+Sub- and super-scripts can be omitted when the context is clear. $s_1 \sle s_2$
 means $s_2$ is ranked as \emph{more trustworthy} than $s_1$ in the network $N$
-according to $A$; $f_1 \preceq f_2$ means $f_2$ is ranked as \emph{more
+according to $A$; $f_1 \fle f_2$ means $f_2$ is ranked as \emph{more
 believable} than $f_1$.
 
 \end{definition}
@@ -264,9 +264,9 @@ believable} than $f_1$.
 \label{def:numerical}
 
 A \emph{numerical truth-discovery algorithm} $A$ assigns to each
-truth-discovery network $N=(\mathcal{S}, \mathcal{O}, \mathcal{F}, G)$ a
-\emph{source trust} mapping $\tau: \mathcal{S} \rightarrow [0, 1]$ and
-\emph{fact belief} mapping $\phi: \mathcal{F} \rightarrow [0, 1]$.
+truth-discovery network $N=(\S, \O, \F, G)$ a \emph{source trust} mapping
+$\tau: \S \rightarrow [0, 1]$ and \emph{fact belief} mapping
+$\phi: \F \rightarrow [0, 1]$.
 
 \end{definition}
 
@@ -274,10 +274,10 @@ truth-discovery network $N=(\mathcal{S}, \mathcal{O}, \mathcal{F}, G)$ a
     Any numerical truth-discovery algorithm $A$ naturally induces a truth-discovery
     algorithm $A'$, where for any truth-discovery network $N$ we define
     \begin{align*}
-    s_1 \le_N^{A'} s_2 & \iff \tau(s_1) \le \tau(s2) \\
-    f_1 \preceq_N^{A'} f_2 & \iff \phi(f_1) \le \phi(f_2)
+    s_1 \sle_N^{A'} s_2 & \iff \tau(s_1) \le \tau(s2) \\
+    f_1 \fle_N^{A'} f_2 & \iff \phi(f_1) \le \phi(f_2)
     \end{align*}
-    for $s_1, s_2 \in \mathcal{S}$ and $f_1, f_2 \in \mathcal{F}$.
+    for $s_1, s_2 \in \S$ and $f_1, f_2 \in \F$.
 
     In this work we deal primarily with truth-discovery algorithms as defined
     in definition \ref{def:truth_discovery_algorithm}, instead of working
@@ -295,10 +295,10 @@ truth-discovery network $N=(\mathcal{S}, \mathcal{O}, \mathcal{F}, G)$ a
     One downside to this approach is that whilst we can tell whether or not
     $s_1$ is more trustworthy than $s_2$, we cannot tell by \emph{how much}.
     For example, consider two numeric algorithms $A$ and $A'$ and
-    $\mathcal{S}=\{s_1, s_2\}$ such that $\tau(s_1)=0.5, \tau(s_2)=0.51$, and
+    $\S=\{s_1, s_2\}$ such that $\tau(s_1)=0.5, \tau(s_2)=0.51$, and
     $\tau'(s_1)=0.01, \tau'(s_2)=0.99$. Both algorithms induce the same ranking
-    on $\mathcal{S}$, yet $A$ considers the two sources to have similar trust
-    values while $A'$ considers $s_2$ to be much more trustworthy than $s_1$.
+    on $\S$, yet $A$ considers the two sources to have similar trust values
+    while $A'$ considers $s_2$ to be much more trustworthy than $s_1$.
 
 \end{remark}
 
@@ -409,7 +409,7 @@ Similar for opposite situation.
 \emph{relative} position of sources can be judged as getting better or worse.
 Something like the following would check if $s$ gets worse than \emph{some}
 other source after a change: $s$ ranks worse in $N'$ than in $N$ if there is
-$s' \in \mathcal{S}$ such that $s' <_N s$ and $s \le_{N'} s'$.
+$s' \in \S$ such that $s' <_N s$ and $s \sle_{N'} s'$.
 
 Or we could assign each source a number according to which position they rank,
 and use this number to compare positions after a change in input.
