@@ -21,18 +21,33 @@ This dataset can be constructed as follows. ::
         ("source 1", "x", 4),
         ("source 1", "y", 7),
         ("source 2", "y", 7),
-        ...
+        ("source 2", "z", 5),
+        ("source 3", "x", 3),
+        ("source 3", "z", 5),
+        ("source 4", "x", 3),
+        ("source 4", "y", 6),
+        ("source 4", "z", 8)
     ]
     mydata = Dataset(tuples)
 
-In this case all values are numeric, so the dataset can alternatively be
-created as a :any:`MatrixDataset`. This is done by giving a matrix where rows
-correspond to sources, columns correspond to variables, and an entry at
+Note that source labels, variable labels, and variable values can be any types,
+not just strings/numbers as in the above example (the only caveat is that they
+must be `hashable <https://docs.python.org/3/glossary.html#term-hashable>`_
+types so they can be used as dictionary keys).
+
+..
+
+Data with numeric values only
+-----------------------------
+
+In the above example all values are numeric, so the dataset can alternatively
+be created as a :any:`MatrixDataset`. This is done by giving a matrix where
+rows correspond to sources, columns correspond to variables, and an entry at
 position ``(i, j)`` is the value that source ``i`` claims for variable ``j``
 (the matrix may contain empty cells in cases where a source does not make a
 claim about a variable).
 
-In matrix form, the above example is is:
+In matrix form, the example is:
 
 .. math::
    \begin{bmatrix}
@@ -52,7 +67,7 @@ can be constructed as follows. ::
    import numpy.ma as ma
    from truthdiscovery import MatrixDataset
 
-   mydataset = MatrixDataset(ma.masked_values([
+   mydata = MatrixDataset(ma.masked_values([
        [4, 7, 0],
        [0, 7, 8],
        [3, 0, 5],
@@ -68,12 +83,56 @@ above dataset in CSV format would be::
     3,,5
     3,6,8
 
-Advanced input
---------------
+Implications between claims
+---------------------------
 
-TODO:
+As well as considering sources and claimed variable values, some algorithms
+consider *implications between claims*. The idea is that if a given claim is
+considered believable, claims that it implies should be considered believable
+too. Currently *TruthFinder* [1]_ is the only algorithm implemented here that
+considers implications.
 
-- Explain claim implications
+To be precise, the implication between claims ``var = x`` and ``var = y`` is a
+value in [-1, 1] that describes how the confidence that ``var = x`` influences
+the confidence of ``var = y``.  A positive value indicates that if ``var = x``
+is true, then ``var = y`` is likely to be true. A negative value means that if
+``var = x`` is true, then ``var = y`` is likely to be false [1]_.
+
+The implication values are domain-specific and need to be given on a
+per-dataset basis. They may be based on *similarity*, where the implication is
+close to 1 when ``x`` and ``y`` are similar and close to -1 when they are
+dissimilar. In general claim implications need not be symmetric (i.e. ``var=x
+-> var=y`` can be different from ``var=y -> var=x``).
+
+In this library implication values can be optionally given by passing a
+function for the ``implication_function`` argument to the constructor for
+:any:`Dataset` (or its sub-classes). This function should accept arguments
+``(var, val1, val2)`` and return a value in [-1, 1], or None to indicate no
+implication.  ::
+
+    import math
+    from truthdiscovery import Dataset
+    tuples = [
+        ("source 1", "x", 4),
+        ("source 1", "y", 7),
+        ("source 2", "y", 7),
+        ("source 2", "z", 5),
+        ("source 3", "x", 3),
+        ("source 3", "z", 5),
+        ("source 4", "x", 3),
+        ("source 4", "y", 6),
+        ("source 4", "z", 8)
+    ]
+    def imp(var, val1, val2):
+        # Implication is close to 1 when val1, val2 are close, and goes to -1
+        # when they are far apart.
+        #
+        # Note that this example does not consider the value of `var`. In
+        # principle the calculation for implication can differ between
+        # variables.
+        return 2 * math.exp(-(val1 - val2)**2) - 1
+
+    mydata = Dataset(tuples, implication_function=imp)
 
 Datasets with known true values
 -------------------------------
@@ -90,10 +149,10 @@ known true variable values as a dictionary in the form
 
     from truthdiscovery import SupervisedData
 
-    supervised = SupervisedData(mydataset, {"x": 4, "y": 5})
+    supervised = SupervisedData(mydata, {"x": 4, "y": 5})
 
     # run an algorithm and compute accuracy...
-
+    results = myalg.run(supervised.data)
     accuracy = supervised.get_accuracy(results)
 
 See :meth:`~truthdiscovery.input.supervised_data.SupervisedData.get_accuracy`
@@ -106,12 +165,37 @@ contains the true values.
 Synthetic data
 --------------
 
-TODO: explain
+It is also possible to generate *synthetic datasets*, where sources, variables
+and claims are generated randomly according to some given parameters. This
+provides an easy way to test algorithms on datasets of different sizes, with
+different distributions for trust among sources, and to test accuracy without
+collecting real-world data. For example: ::
 
-- Purpose of synthetic data
-- Method of generation
-- Available parameters
-- Export to CSV
+    import numpy as np
+    from truthdiscovery import SyntheticData
+
+    synth = SyntheticData(
+        trust=np.random.uniform(size=(4,)),
+        num_variables=10,
+        claim_probability=0.5,
+        domain_size=4
+    )
+
+See the :any:`SyntheticData` constructor for an explanation of the available
+parameters. The above example creates a dataset with 4 sources (each with trust
+value drawn from a uniform distribution on [0, 1]) and 10 variables with values
+in ``{0, 1, 2, 3}``, where a source claims a value for roughly half of the
+variables.
+
+:any:`SyntheticData` is a sub-class of :any:`SupervisedData` (the 'true' value
+of each variable is generated randomly before source claims are generated), so
+accuracy calculations can be performed with synthetic data as shown in the
+previous section.
+
+Synthetic data can be exported to CSV (the same format that can be loaded by
+:meth:`~truthdiscovery.input.supervised_data.SupervisedData.from_csv` for
+supervised data) with the
+:meth:`~truthdiscovery.input.synthetic_data.SyntheticData.to_csv` method.
 
 Custom dataset formats
 ----------------------
@@ -120,3 +204,10 @@ TODO:
 
 - Explain FileDataset
 - Give examples
+
+References
+----------
+
+.. [1] X. Yin and J. Han and P. S. Yu, `Truth Discovery with Multiple Conflicting
+   Information Providers on the Web
+   <http://ieeexplore.ieee.org/document/4415269/>`_.

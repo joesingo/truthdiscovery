@@ -19,7 +19,8 @@ class SyntheticData(SupervisedData):
         :param claim_probability: the probability of a source making a claim
                                   about the value of a given variable
         :param domain_size: the number of possible values each variable
-                            may take
+                            may take. The possible values are
+                            ``[0, .... d - 1]``.
         :raises ValueError: if invalid parameters are given
         """
         if isinstance(trust, list):
