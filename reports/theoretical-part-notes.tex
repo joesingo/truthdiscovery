@@ -11,6 +11,7 @@
 \usepackage{cite}
 \usepackage{hyperref}
 \usepackage{amsthm}
+\usepackage{amsmath}
 % \usepackage[top=1cm, bottom=1cm, left=2cm, right=2cm]{geometry}
 
 % Settings
@@ -27,6 +28,16 @@
 
 \theoremstyle{plain}
 \newtheorem{axiom}{Axiom}
+
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+% Commands
+\newcommand{\todo}[1] {
+    \textcolor{red}{
+        \textbf{TODO:} #1
+    }
+}
 
 \begin{document}
 \maketitle
@@ -206,13 +217,13 @@ The framework I choose should be general enough that all (or at least most)
 algorithms in the literature can fit into it. The framework will then
 facilitate comparison between the algorithms.
 
-Initial ideas of a graph-theoretic formulation:
+My graph-theoretic formulation of truth-discovery is as follows.
 
 % Input network definition
 \begin{definition}
 
 A \emph{truth-discovery network} consists of non-empty sets $\mathcal{S}$
-(sources), $\mathcal{F}$ (facts), $\mathcal{O}$ (objects), and a directed graph
+(sources), $\mathcal{O}$ (objects), $\mathcal{F}$ (facts), and a directed graph
 $G=(V, E)$ where $V = \mathcal{S} \cup \mathcal{F} \cup \mathcal{O}$, and $E
 \subseteq (\mathcal{S} \times \mathcal{F}) \cup (\mathcal{F} \times
 \mathcal{O})$ satisfies the following properties:
@@ -233,91 +244,76 @@ o \}$.
 
 \end{definition}
 
-Some initial ideas for what a truth-discovery algorithm is.
-
 % Algorithm definition
 \begin{definition}
-\label{def:ordinal}
+\label{def:truth_discovery_algorithm}
 
 A \emph{truth-discovery algorithm} $A$ assigns to each truth-discovery network
-a pair $(\preceq_\mathcal{S}^A, \preceq_\mathcal{F}^A)$ of total (weak)
-orderings on the sets $\mathcal{S}$ and $\mathcal{F}$ respectively.
+$N=(\mathcal{S}, \mathcal{O}, \mathcal{F}, G)$ a pair $(\le_N^A, \preceq_N^A)$
+of total (weak) orderings on the sets $\mathcal{S}$ and $\mathcal{F}$
+respectively.
 
-Sub- and super-scripts can be omitted when the context is clear. $s_1 \preceq
-s_2$ means $s_2$ is ranked as \emph{more trustworthy} than $s_1$; $f_1 \preceq
-f_2$ means $f_2$ is ranked as \emph{more believable} than $f_1$.
-
-\end{definition}
-
-\begin{definition}
-\label{def:ordinal_per_object}
-
-A \emph{truth-discovery algorithm} $A$ assigns to each truth-discovery network
-a total ordering $\preceq_\mathcal{S}^A$ on the set of sources $\mathcal{S}$
-(the \emph{trust ordering}) and a total ordering $\preceq_o^A$ on the set of
-facts $F_o$ for each object $o \in \mathcal{O}$.
+Sub- and super-scripts can be omitted when the context is clear. $s_1 \le s_2$
+means $s_2$ is ranked as \emph{more trustworthy} than $s_1$ in the network $N$
+according to $A$; $f_1 \preceq f_2$ means $f_2$ is ranked as \emph{more
+believable} than $f_1$.
 
 \end{definition}
-
 
 \begin{definition}
 \label{def:numerical}
 
-A \emph{truth-discovery algorithm} $A$ assigns to each truth-discovery network
-a \emph{source trust} mapping $\tau: \mathcal{S} \rightarrow [0, 1]$ and
+A \emph{numerical truth-discovery algorithm} $A$ assigns to each
+truth-discovery network $N=(\mathcal{S}, \mathcal{O}, \mathcal{F}, G)$ a
+\emph{source trust} mapping $\tau: \mathcal{S} \rightarrow [0, 1]$ and
 \emph{fact belief} mapping $\phi: \mathcal{F} \rightarrow [0, 1]$.
 
 \end{definition}
 
-\begin{definition}
-\label{def:most_believed}
+\begin{remark}
+    Any numerical truth-discovery algorithm $A$ naturally induces a truth-discovery
+    algorithm $A'$, where for any truth-discovery network $N$ we define
+    \begin{align*}
+    s_1 \le_N^{A'} s_2 & \iff \tau(s_1) \le \tau(s2) \\
+    f_1 \preceq_N^{A'} f_2 & \iff \phi(f_1) \le \phi(f_2)
+    \end{align*}
+    for $s_1, s_2 \in \mathcal{S}$ and $f_1, f_2 \in \mathcal{F}$.
 
-A \emph{truth-discovery algorithm} $A$ assigns to each truth-discovery network
-a set of \emph{true facts} $\mathcal{F}^* \subseteq \mathcal{F}$ that contains
-exactly one element of $F_o$ for each object $o$ (plus source trusts as per one
-of definition \ref{def:ordinal} or \ref{def:numerical})
+    In this work we deal primarily with truth-discovery algorithms as defined
+    in definition \ref{def:truth_discovery_algorithm}, instead of working
+    directly with numeric trust and belief scores. This is because we are
+    interested in the qualitative ranking of sources and facts, rather than
+    quantitative values. This approach is common in axiomatic treatment of
+    ranking systems{\cite{altman,altman_personalised}}. \todo{find more
+    references for this (e.g. Arrow, 1951, p17)}
 
-\end{definition}
+    Dispensing with numeric values is further justified by the fact that
+    trust/belief scores produced by numeric algorithms often do not have any
+    semantic meaning\cite{pasternack}, and so only the \emph{ranking} of
+    sources/facts is important.
 
-\textbf{Thoughts:}
+    One downside to this approach is that whilst we can tell whether or not
+    $s_1$ is more trustworthy than $s_2$, we cannot tell by \emph{how much}.
+    For example, consider two numeric algorithms $A$ and $A'$ and
+    $\mathcal{S}=\{s_1, s_2\}$ such that $\tau(s_1)=0.5, \tau(s_2)=0.51$, and
+    $\tau'(s_1)=0.01, \tau'(s_2)=0.99$. Both algorithms induce the same ranking
+    on $\mathcal{S}$, yet $A$ considers the two sources to have similar trust
+    values while $A'$ considers $s_2$ to be much more trustworthy than $s_1$.
+
+\end{remark}
+
+\textbf{Notes:}
 \begin{itemize}
 
-\item Definition \ref{def:ordinal} considers only the relative order of
-sources/facts, rather than assigning numerical values (as real-world algorithms
-do in practise). This follows ideas in PageRank axiomatisation{\cite{altman}},
-axioms for personalised ranking systems{\cite{altman_personalised}} and I think
-social choice in general (e.g. Arrow, 1951, p17).
-
-Also, numerical trust scores often do not have semantic meaning, so only the
-relative scores are important anyway (definitely no semantics in Pasternack and
-Roth paper \cite{pasternack}, although maybe there is in probabilistic ones
-like \emph{TruthFinder}\cite{yin_han_yu} and LDT\cite{zhang_qi_tang})
-
-\item Definition \ref{def:ordinal_per_object} is almost the same as
-\ref{def:ordinal}, but does not allow facts for different objects to be
-compared.
-
-\item Every algorithm that I have seen in practise gives output for trusts as
-in definition \ref{def:numerical}. The majority of them also give fact belief
-in this way. This also captures how much more trustworthy sources are than each
-other, which is lost when only considering relative trustworthiness (e.g. the
-difference between $\tau(s_1) = 0.9, \tau(s_2) = 0.89$ and $\tau(s_1) = 0.9,
-\tau(s_2) = 0.01$).
-
-Also, dealing with numerical trust/belief would allow for comparing trust
-scores when input changes, e.g. `make this change to the graph, and the trust
-of this particular $s$ may not decrease'
-
-\item Some algorithms only give most believed values as output (not belief
-score for each fact) as per definition \ref{def:most_believed} (e.g.
-\cite{li_conflicts}).
+\item Some algorithms only give most believed values as output (neither a
+ranking nor belief score for each fact) (e.g. \cite{li_conflicts}). However we
+can view such an algorithm in the above framework by considering it to rank the
+discovered true facts above all others, and ranking false facts equally.
 
 \item Some algorithms may give most-believed values for facts that are not
 claimed by any sources, e.g. if values are continuous could perform a weighted
 average of claimed facts (I believe this is done in \cite{li_conflicts} for
-continuous data types).
-
-None of the definitions above would support that.
+continuous data types). Neither of the definitions above support this.
 
 \end{itemize}
 
@@ -409,18 +405,14 @@ Dual axiom for facts: if a new source is added that ranks higher for trust than
 existing sources for a fact, that fact's belief ranking should not get worse.
 Similar for opposite situation.
 
-\textbf{Note}: if using numerical trust like in definition \ref{def:numerical},
-it is easy to compare trust for a fixed source/fact after edges in the input
-change.
+\textbf{Note:} Under definition \ref{def:truth_discovery_algorithm} only the
+\emph{relative} position of sources can be judged as getting better or worse.
+Something like the following would check if $s$ gets worse than \emph{some}
+other source after a change: $s$ ranks worse in $N'$ than in $N$ if there is
+$s' \in \mathcal{S}$ such that $s' <_N s$ and $s \le_{N'} s'$.
 
-Otherwise only the relative position of sources can be judged as getting better
-or worse. Something like the following would check if $s$ gets worse than
-\emph{some} other source after a change: $s$ ranks worse in $G'$ than in $G$ if
-there is $s' \in \mathcal{S}$ such that $s' \prec_{\mathcal{S}} s$ and $s
-\preceq_{\mathcal{S}}' s'$.
-
-Or could assign each source a number according to which position they rank, and
-use this number to compare positions after a change in input.
+Or we could assign each source a number according to which position they rank,
+and use this number to compare positions after a change in input.
 
 \end{itemize}
 
