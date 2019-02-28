@@ -19,14 +19,14 @@ class AverageLog(BaseIterativeAlgorithm):
         # Note that the number of claims made by s_i is the sum of the i-th row
         # of the claims matrix, so we multiply by [1 ... 1].T to get the counts
         # for all sources in one operation
-        claim_counts = np.matmul(data.sc, np.ones((data.num_claims,)))
+        claim_counts = data.sc @ np.ones((data.num_claims,))
 
         weights = np.log(claim_counts) / claim_counts
 
         while not self.iterator.finished():
             # Entry-wise multiplication
-            new_trust = weights * np.matmul(data.sc, belief)
-            belief = np.matmul(data.sc.T, new_trust)
+            new_trust = weights * (data.sc @  belief)
+            belief = data.sc.T @ new_trust
 
             # Normalise as with sums
             new_trust = new_trust / max(new_trust)

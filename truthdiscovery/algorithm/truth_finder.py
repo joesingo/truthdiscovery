@@ -58,20 +58,19 @@ class TruthFinder(BaseIterativeAlgorithm):
     def _run(self, data):
         trust = np.zeros((data.num_sources,))
 
-        a_mat = (data.sc.T / np.matmul(data.sc, np.ones((data.num_claims),))).T
-        b_mat = data.sc.T + self.influence_param * np.matmul(data.imp.T,
-                                                             data.sc.T)
+        a_mat = (data.sc.T / (data.sc @ np.ones((data.num_claims),))).T
+        b_mat = data.sc.T + self.influence_param * (data.imp.T @ data.sc.T)
 
         trust = np.full((data.num_sources,), self.initial_trust)
         belief = np.zeros((data.num_claims,))
 
         while not self.iterator.finished():
             try:
-                log_belief = np.matmul(b_mat, self.get_log_trust(trust))
+                log_belief = b_mat @ self.get_log_trust(trust)
             except EarlyFinishError:
                 break
             belief = 1 / (1 + np.exp(-self.dampening_factor * log_belief))
-            new_trust = np.matmul(a_mat, belief)
+            new_trust = a_mat @ belief
             self.iterator.compare(new_trust, trust)
             trust = new_trust
 

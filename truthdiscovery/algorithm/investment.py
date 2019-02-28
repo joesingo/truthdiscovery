@@ -30,7 +30,7 @@ class Investment(BaseIterativeAlgorithm):
         # The amount each source has to invest in its claims
         investment_amounts = old_trust / claim_counts
         # The amount each claim receives in investment from its sources
-        claim_investments = np.matmul(sc_mat.T, investment_amounts)
+        claim_investments = sc_mat.T @ investment_amounts
         # Trust update can be expressed as the of entry-wise product of
         # investment amounts and the following matrix, which is obtained
         # by entry-wise division
@@ -39,10 +39,10 @@ class Investment(BaseIterativeAlgorithm):
                 "Investment in at least one claim has become zero"
             )
         mat = sc_mat / claim_investments
-        return investment_amounts * np.matmul(mat, belief)
+        return investment_amounts * (mat @ belief)
 
     def _run(self, data):
-        claim_counts = np.matmul(data.sc, np.ones((data.num_claims,)))
+        claim_counts = data.sc @ np.ones((data.num_claims,))
         trust = np.ones((data.num_sources,))
         belief = self.get_prior_beliefs(data)
 
@@ -53,7 +53,7 @@ class Investment(BaseIterativeAlgorithm):
                 )
             except EarlyFinishError:
                 break
-            belief = np.matmul(data.sc.T, new_trust / claim_counts) ** self.g
+            belief = (data.sc.T @ (new_trust / claim_counts)) ** self.g
 
             new_trust = new_trust / max(new_trust)
             belief = belief / max(belief)

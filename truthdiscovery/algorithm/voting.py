@@ -18,7 +18,7 @@ class MajorityVoting(BaseAlgorithm):
         :return: results as a :any:`Result` object
         """
         start_time = time.time()
-        claim_belief = np.matmul(data.sc.T, np.ones((data.num_sources),))
+        claim_belief = data.sc.T @ np.ones((data.num_sources),)
         end_time = time.time()
         return Result(
             trust=data.get_source_trust_dict([1] * data.num_sources),

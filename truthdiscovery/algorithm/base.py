@@ -71,11 +71,11 @@ class BaseIterativeAlgorithm(BaseAlgorithm):
             return np.full((data.num_claims,), 0.5)
 
         if self.priors == PriorBelief.VOTED:
-            source_counts = np.matmul(data.sc.T, np.ones((data.num_sources,)))
-            return source_counts / np.matmul(data.mut_ex, source_counts)
+            source_counts = data.sc.T @ np.ones((data.num_sources,))
+            return source_counts / (data.mut_ex @ source_counts)
 
         if self.priors == PriorBelief.UNIFORM:
-            return 1 / np.matmul(data.mut_ex, np.ones((data.num_claims,)))
+            return 1 / (data.mut_ex @ np.ones((data.num_claims,)))
 
         raise ValueError(
             "Invalid prior belief type: '{}'".format(self.priors)

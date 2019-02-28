@@ -22,7 +22,7 @@ class PooledInvestment(Investment):
         return FixedIterator(10)
 
     def _run(self, data):
-        claim_counts = np.matmul(data.sc, np.ones((data.num_claims,)))
+        claim_counts = data.sc @ np.ones((data.num_claims,))
         trust = np.ones((data.num_sources,))
         belief = self.get_prior_beliefs(data)
 
@@ -36,9 +36,9 @@ class PooledInvestment(Investment):
                 break
             # 'Invest' trust in claims, grow with non-linear function, and
             # update belief
-            base_returns = np.matmul(data.sc.T, (new_trust / claim_counts))
+            base_returns = data.sc.T @ (new_trust / claim_counts)
             returns = base_returns ** self.g
-            belief = base_returns * (returns / np.matmul(data.mut_ex, returns))
+            belief = base_returns * (returns / (data.mut_ex @ returns))
 
             new_trust = new_trust / max(new_trust)
             belief = belief / max(belief)

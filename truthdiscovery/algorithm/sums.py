@@ -15,8 +15,8 @@ class Sums(BaseIterativeAlgorithm):
         belief = self.get_prior_beliefs(data)
 
         while not self.iterator.finished():
-            new_trust = np.matmul(data.sc, belief)
-            belief = np.matmul(data.sc.T, new_trust)
+            new_trust = data.sc @ belief
+            belief = data.sc.T @ new_trust
 
             # Trust and belief are normalised so that the largest entries in
             # each are 1; otherwise trust and belief scores grow without bound
