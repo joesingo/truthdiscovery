@@ -43,6 +43,8 @@
 \newcommand{\F}{\mathcal{F}}
 \newcommand{\sle}{\le}
 \newcommand{\fle}{\preceq}
+\newcommand{\sge}{\ge}
+\newcommand{\fge}{\succeq}
 
 \begin{document}
 \maketitle
@@ -240,7 +242,8 @@ $(s, f) \in E$ and $O_f = o$ (i.e. sources can only claim one fact per object)
 
 \end{enumerate}
 
-For $o \in \O$ we denote by $F_o$ the set $\{f \in \F : O_f = o \}$.
+For $o \in \O$ we denote by $F_o$ the set $\{f \in \F : O_f = o \}$, and by
+$S_o$ the set $\{s \in \S : \exists f \in F_o : (s, f) \in E\}$.
 
 \end{definition}
 
@@ -340,6 +343,8 @@ truth-discovery, since we want to find the global truths.
 Nevertheless the paper gives some axioms that seem like they could be
 applicable.
 
+\item Judgement aggregation (handbook 17.2) seems highly relevant.
+
 \item \emph{An Axiomatic Approach to Personalised Ranking
 Systems}{\cite{altman_personalised}}. Agents trust other agents, represented as
 directed edges in a graph. A personalised ranking system gives a ranking of the
@@ -380,9 +385,11 @@ truth-discovery.
 is not connected to the rest of the graph, then changes outside this subset
 should not affect the results on the subset.
 
-\item Consensus-type axiom: if for an object $o$ all sources claim a fact $f$,
-then $f$ ranks highest across facts for $o$ (only makes sense if we allow facts
-that are not claimed by anyone).
+\item Consensus-type axiom: if all sources claim $f$, then $f \fge f'$ for all
+$f' \ne f$. Or on a per-object basis: if $(s, f) \in E$ for all $s \in \S_o$
+then $f \fge f'$ for $f' \in F_o \setminus \{f\}$.
+
+Both only make sense if we allow facts that are not claimed by anyone.
 
 \item Principle that trustworthy sources claim believable facts, and vice
 versa: see `quasi-transitivity' above and in \cite{altman_personalised}.
@@ -393,6 +400,10 @@ should be more believable than the other. This could be for two facts about the
 same object, or any two facts.
 
 The other direction would be similar.
+
+This together with anti-symmetry of $\sle$, $\fle$ implies that sources with
+the same facts (respectively, facts with the same sources) are ranked equally.
+This equality version could perhaps be stated as a weaker version of the above.
 
 \item Making many false claims should not improve trust ranking (this is the
 problem that \emph{Average${\cdot}$Log} tackles)
@@ -413,6 +424,13 @@ $s' \in \S$ such that $s' <_N s$ and $s \sle_{N'} s'$.
 
 Or we could assign each source a number according to which position they rank,
 and use this number to compare positions after a change in input.
+
+\item Consider changing a network's graph from $G$ to $G'$ and $G''$ where in
+$G'$ we add to a source $s$ a fact $f'$, and in $G''$ we add $f''$. If $f'
+\fle_G f''$ then $s$'s ranking should not be better in $G'$ than in $G''$.
+
+This seems similar to the previous idea. It has the same problem with
+\emph{how} we measure when a source is worse when comparing on different graphs.
 
 \end{itemize}
 
