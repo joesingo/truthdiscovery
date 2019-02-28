@@ -29,16 +29,21 @@ class SupervisedData:
 
         :param results: a :any:`Result` object
         :return: accuracy as a number in [0, 1]: 1 is best accuracy, 0 is worst
+        :raises ValueError: if no true values are known, or if all variables
+                            have only one claimed value
         """
+        if not self.values:
+            raise ValueError("No known true values")
         total = 0
         count = 0
+
         for var_label, true_value in self.values.items():
             # Skip if there is only one claimed value
             try:
                 if len(results.belief[var_label]) == 1:
                     continue
             except KeyError:
-                raise KeyError("Unknown variable '{}'".format(var_label))
+                continue
 
             total += 1
             # Note: select value randomly if more than one most-believed value

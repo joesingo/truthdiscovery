@@ -273,7 +273,7 @@ class TestSupervisedData:
         assert sup.get_accuracy(res) in (1 / 3, 2 / 3)
 
     def test_unknown_variable(self, dataset):
-        sup = SupervisedData(dataset, {"hello": 42})
+        sup = SupervisedData(dataset, {"hello": 42, "x": 4})
         res = Result(
             trust={"s1": 1.5, "s2": 0.5, "s3": 0.5},
             belief={
@@ -284,14 +284,34 @@ class TestSupervisedData:
             },
             time_taken=None
         )
-        with pytest.raises(KeyError):
-            sup.get_accuracy(res)
+        # The variable "hello" should be ignored
+        assert sup.get_accuracy(res) == 1
 
     def test_no_true_values_known(self, dataset):
         sup = SupervisedData(dataset, {})
         res = Result(
             trust={0: 0.5, 1: 0.5, 2: 0.5},
             belief={i: {4: 1} for i in range(4)},
+            time_taken=None
+        )
+        with pytest.raises(ValueError):
+            sup.get_accuracy(res)
+
+    def test_not_enough_claimed_values(self):
+        # If all variables have only one claimed value, the accuracy
+        # calculation cannot be performed: an exception should be raised
+        dataset = Dataset([
+            ("s1", "x", 4),
+            ("s2", "x", 4),
+            ("s3", "x", 4),
+            ("s1", "y", 1),
+            ("s2", "y", 1),
+            ("s3", "y", 1)
+        ])
+        sup = SupervisedData(dataset, {"x": 4, "y": 2})
+        res = Result(
+            trust={"s1": 0.3, "s2": 0.4, "s3": 0.4},
+            belief={"x": {4: 1}, "y": {1: 1}},
             time_taken=None
         )
         with pytest.raises(ValueError):

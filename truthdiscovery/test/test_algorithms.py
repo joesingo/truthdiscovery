@@ -543,7 +543,6 @@ class TestOnLargeData:
             err_msg = "Incorrect trust for {}, source {}".format(
                 exp_results_filename, source
             )
-            # assert res.trust[source] == trust_val, err_msg
             assert np.isclose(res.trust[source], trust_val), err_msg
 
         for var, beliefs in exp_res["belief"].items():
