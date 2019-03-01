@@ -67,7 +67,7 @@ class Dataset:
 
         # Keep track of all claims IDs for each variable, to populate the
         # mutual exclusion matrix. The keys are variable IDs, and values are
-        # lists of claim IDs
+        # sets of claim IDs
         mut_ex_claims = {}
 
         for source_label, var_label, val in triples:
@@ -80,8 +80,8 @@ class Dataset:
             sc_entries.append((s_id, claim_id))
 
             if var_id not in mut_ex_claims:
-                mut_ex_claims[var_id] = []
-            mut_ex_claims[var_id].append(claim_id)
+                mut_ex_claims[var_id] = set()
+            mut_ex_claims[var_id].add(claim_id)
 
         self.num_sources = len(self.source_ids)
         self.num_variables = len(self.var_ids)
