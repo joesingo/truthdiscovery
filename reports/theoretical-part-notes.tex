@@ -25,11 +25,9 @@
 % Maths environments
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
-
 \theoremstyle{plain}
 \newtheorem{axiom}{Axiom}
-
-\theoremstyle{remark}
+\theoremstyle{plain}
 \newtheorem{remark}{Remark}
 
 % Commands
@@ -45,6 +43,8 @@
 \newcommand{\fle}{\preceq}
 \newcommand{\sge}{\ge}
 \newcommand{\fge}{\succeq}
+\newcommand{\tdn}{truth-discovery network}
+\newcommand{\tda}{truth-discovery algorithm}
 
 \begin{document}
 \maketitle
@@ -227,83 +227,88 @@ My graph-theoretic formulation of truth-discovery is as follows.
 % Input network definition
 \begin{definition}
 
-A \emph{truth-discovery network} consists of non-empty sets $\S$ (sources),
-$\O$ (objects), $\F$ (facts), and a directed graph $G=(V, E)$ where
-$V = \S \cup \F \cup \O$, and $E \subseteq (\S \times \F) \cup (\F \times \O)$
-satisfies the following properties:
+A \emph{truth-discovery network} is a directed graph of the form $N = (\S \cup
+\F \cup \O, E)$ where $\S$, $\F$ and $\O$ are finite, disjoint, non-empty sets
+(of \emph{sources}, \emph{facts} and \emph{objects} respectively) and $E
+\subseteq (\S \times \F) \cup (\F \times \O)$ satisfies the following
+properties:
 
 \begin{enumerate}
-
 \item Each $f \in \F$ has a unique successor node in $\O$, denoted $O_f$ (i.e.
-each fact relates to a single object)
+each fact relates to a single object).
 
-\item For $s \in \S$ and $o \in \O$, there is at most one $f \in \F$ such that
-$(s, f) \in E$ and $O_f = o$ (i.e. sources can only claim one fact per object)
+\item For $s \in \S$ and $o \in \O$, there is at most one directed path from
+$s$ to $o$ (i.e. sources can only claim one fact per object).
 
 \end{enumerate}
-
 For $o \in \O$ we denote by $F_o$ the set $\{f \in \F : O_f = o \}$, and by
 $S_o$ the set $\{s \in \S : \exists f \in F_o : (s, f) \in E\}$.
 
 \end{definition}
 
+\begin{remark}
+For a network $N$ we may refer to $\S$, $\F$ and $\O$ implicitly without
+defining them each time.
+
+Note that the definition above does not rule out a source $s$ making no claims,
+a fact $f$ being claimed by no sources, or an object $o$ having no associated
+facts or sources.
+\end{remark}
+
 % Algorithm definition
 \begin{definition}
 \label{def:truth_discovery_algorithm}
 
-A \emph{truth-discovery algorithm} $A$ assigns to each truth-discovery network
-$N=(\S, \O, \F, G)$ a pair $(\sle_N^A, \fle_N^A)$
-of total (weak) orderings on the sets $\S$ and $\F$
-respectively.
+A \emph{\tda} $A$ assigns to each truth-discovery network
+$N$ a pair $A(N) = (\sle_N^A, \fle_N^A)$ of total (weak) orderings on the sets
+$\S$ and $\F$ respectively.
 
-Sub- and super-scripts can be omitted when the context is clear. $s_1 \sle s_2$
-means $s_2$ is ranked as \emph{more trustworthy} than $s_1$ in the network $N$
-according to $A$; $f_1 \fle f_2$ means $f_2$ is ranked as \emph{more
-believable} than $f_1$.
+$s_1 \sle_N^A s_2$ means $s_2$ is ranked as \emph{more trustworthy} than $s_1$
+in the network $N$ according to $A$; $f_1 \fle_N^A f_2$ means $f_2$ is ranked
+as \emph{more believable} than $f_1$. Sub- and super-scripts can be omitted
+when clear from context.
 
 \end{definition}
 
 \begin{definition}
 \label{def:numerical}
 
-A \emph{numerical truth-discovery algorithm} $A$ assigns to each
-truth-discovery network $N=(\S, \O, \F, G)$ a \emph{source trust} mapping
-$\tau: \S \rightarrow [0, 1]$ and \emph{fact belief} mapping
-$\phi: \F \rightarrow [0, 1]$.
+A \emph{numerical \tda} $A$ assigns to each
+truth-discovery network $N$ a \emph{source trust} mapping $\tau: \S \rightarrow
+[0, 1]$ and \emph{fact belief} mapping $\phi: \F \rightarrow [0, 1]$.
 
 \end{definition}
 
 \begin{remark}
-    Any numerical truth-discovery algorithm $A$ naturally induces a truth-discovery
-    algorithm $A'$, where for any truth-discovery network $N$ we define
+    Any numerical \tda $A$ naturally induces a \tda $A'$, where for any
+    truth-discovery network $N$ we define
     \begin{align*}
     s_1 \sle_N^{A'} s_2 & \iff \tau(s_1) \le \tau(s2) \\
     f_1 \fle_N^{A'} f_2 & \iff \phi(f_1) \le \phi(f_2)
     \end{align*}
     for $s_1, s_2 \in \S$ and $f_1, f_2 \in \F$.
-
-    In this work we deal primarily with truth-discovery algorithms as defined
-    in definition \ref{def:truth_discovery_algorithm}, instead of working
-    directly with numeric trust and belief scores. This is because we are
-    interested in the qualitative ranking of sources and facts, rather than
-    quantitative values. This approach is common in axiomatic treatment of
-    ranking systems{\cite{altman,altman_personalised}}. \todo{find more
-    references for this (e.g. Arrow, 1951, p17)}
-
-    Dispensing with numeric values is further justified by the fact that
-    trust/belief scores produced by numeric algorithms often do not have any
-    semantic meaning\cite{pasternack}, and so only the \emph{ranking} of
-    sources/facts is important.
-
-    One downside to this approach is that whilst we can tell whether or not
-    $s_1$ is more trustworthy than $s_2$, we cannot tell by \emph{how much}.
-    For example, consider two numeric algorithms $A$ and $A'$ and
-    $\S=\{s_1, s_2\}$ such that $\tau(s_1)=0.5, \tau(s_2)=0.51$, and
-    $\tau'(s_1)=0.01, \tau'(s_2)=0.99$. Both algorithms induce the same ranking
-    on $\S$, yet $A$ considers the two sources to have similar trust values
-    while $A'$ considers $s_2$ to be much more trustworthy than $s_1$.
-
 \end{remark}
+
+In this work we deal primarily with truth-discovery algorithms as defined in
+definition \ref{def:truth_discovery_algorithm}, instead of working directly
+with numeric trust and belief scores. This is because we are interested in the
+qualitative ranking of sources and facts, rather than quantitative values. This
+approach is common in axiomatic treatment of ranking
+systems{\cite{altman,altman_personalised}}. \todo{find more references for this
+(e.g. Arrow, 1951, p17)}
+
+Dispensing with numeric values is further justified by the fact that
+trust/belief scores produced by numeric algorithms often do not have any
+semantic meaning\cite{pasternack}, and so only the \emph{ranking} of
+sources/facts is important.
+
+One downside to this approach is that whilst we can tell whether or not $s_1$
+is more trustworthy than $s_2$, we cannot tell by \emph{how much}.  For
+example, consider two numeric algorithms $A$ and $A'$ and $\S=\{s_1, s_2\}$
+such that $\tau(s_1)=0.5, \tau(s_2)=0.51$, and $\tau'(s_1)=0.01,
+\tau'(s_2)=0.99$. Both algorithms induce the same ranking on $\S$, yet $A$
+considers the two sources to have similar trust values while $A'$ considers
+$s_2$ to be much more trustworthy than $s_1$.
 
 \textbf{Notes:}
 \begin{itemize}
@@ -386,8 +391,8 @@ is not connected to the rest of the graph, then changes outside this subset
 should not affect the results on the subset.
 
 \item Consensus-type axiom: if all sources claim $f$, then $f \fge f'$ for all
-$f' \ne f$. Or on a per-object basis: if $(s, f) \in E$ for all $s \in \S_o$
-then $f \fge f'$ for $f' \in F_o \setminus \{f\}$.
+$f' \ne f$. Or on a per-object basis: if $o = O_f$ and $(s, f) \in E$ for all
+$s \in \S_o$ then $f \fge f'$ for $f' \in F_o \setminus \{f\}$.
 
 Both only make sense if we allow facts that are not claimed by anyone.
 
@@ -433,6 +438,40 @@ This seems similar to the previous idea. It has the same problem with
 \emph{how} we measure when a source is worse when comparing on different graphs.
 
 \end{itemize}
+
+\section{Formal axioms}
+
+\begin{definition}
+Let $N = (V, E)$ be a \tdn, $U \subseteq V$ and $\pi: U \rightarrow U$ be a
+permutation. Then $\tilde{\pi}$ will denote the extension of $\pi$ from $V$
+into $V$ where $\tilde{\pi}(x) = x$ for $x \in V \setminus U$.
+\end{definition}
+
+\begin{axiom}
+
+For a truth-discovery network $N = (V, E)$ and permutation $\pi$ defined on
+either $\S$, $\F$ or $\O$, let $N_\pi$ denote the network $(V, E_\pi)$ where
+$E_\pi=\{(\tilde{\pi}(x), \tilde{\pi}(y)) : (x, y) \in E\}$. Write $\pi(A(N))$
+for $(\tilde{\pi}(\sle_N^A), \tilde{\pi}(\fle_N^A))$.
+
+A truth-discovery algorithm $A$ satisfies \emph{source symmetry} if for any
+truth-discovery network $N=(V, E)$, permutation $\pi:\S \rightarrow \S$,
+$A(N_\pi) = \pi(A(N))$.
+
+Similarly we define \emph{fact symmetry} and \emph{object symmetry}.
+
+\end{axiom}
+
+\begin{remark}
+If $A$ satisfies source symmetry then $\tilde{\pi}(\sle_N^A) = \sle_{N_\pi}^A$,
+so
+$s_1 \sle_N^A s_2 \iff \pi(s_1) \sle_{N_\pi}^A \pi(s_2)$, i.e. $A$ preserves
+the order of sources after re-labelling.
+
+Also note that if $\pi$ is only defined on $\S$ then $\tilde{\pi}(\F)=\F$, so
+source symmetry implies $\fle_{N_\pi}^A = \tilde{\pi}(\fle_N^A) = \fle_N^A$,
+i.e. fact ranking is left unchanged after permuting sources.
+\end{remark}
 
 \bibliography{references}{}
 \bibliographystyle{plain}
