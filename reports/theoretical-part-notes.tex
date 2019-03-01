@@ -6,13 +6,17 @@
 }
 
 % Packages:
-\usepackage{xcolor}
-\usepackage{multicol}
-\usepackage{cite}
-\usepackage{hyperref}
-\usepackage{amsthm}
 \usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{caption}
+\usepackage{cite}
 % \usepackage[top=1cm, bottom=1cm, left=2cm, right=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{multicol}
+\usepackage{xcolor}
+
+\graphicspath{ {./images/} }
 
 % Settings
 \hypersetup{
@@ -442,36 +446,62 @@ This seems similar to the previous idea. It has the same problem with
 \section{Formal axioms}
 
 \begin{definition}
-Let $N = (V, E)$ be a \tdn, $U \subseteq V$ and $\pi: U \rightarrow U$ be a
-permutation. Then $\tilde{\pi}$ will denote the extension of $\pi$ from $V$
-into $V$ where $\tilde{\pi}(x) = x$ for $x \in V \setminus U$.
+For any set $X$, a relation $R \subseteq X \times X$, and permutation $\pi: X
+\rightarrow X$, we denote by $\pi(R)$ the relation
+$$ \pi(R) = \{(\pi(x), \pi(y)) : x \mathbin{R} y\} $$
+That is, $(u, v) \in \pi(R)$ if and only if $(\pi^{-1}(u), \pi^{-1}(v)) \in R$.
 \end{definition}
 
+Note that if $R$ is an order relation then so too is $\pi(R)$ \todo{state
+properly what I mean here: which properties are preserved?}. If we view $\pi$
+as relabelling the elements of $X$, then $\pi(R)$ is the same ordering as $R$,
+but given in terms of the new labels.
+
+\begin{definition}
+For a graph $G=(V, E)$ and a permutation $\pi: V \rightarrow V$, the graph
+\emph{isomorphic to $G$} under $\pi$ is $\pi(G) = (V, \pi(E))$.
+\end{definition}
+
+Two nodes $u$ and $v$ are adjacent in $\pi(G)$ if and only if their pre-images
+$\pi^{-1}(u)$ and $\pi^{-1}(v)$ are adjacent in $G$. Going from $G$ to $\pi(G)$
+can therefore be seen as \emph{relabelling} the nodes in $G$ without changing
+the structure of the graph.
+
+The first axiom states that the ordering of sources and facts should not depend
+on the `names' of the sources, facts and objects in the input.
+
 \begin{axiom}
+Let $A$ be a \tda. $A$ satisfies \emph{symmetry} if for any truth-discovery
+network $N = (V, E)$ and permutation $\pi: V \rightarrow V$ such that $\pi(N)$
+is a truth-discovery network, we have
+$$ \pi(\sle_N^A) = \sle_{\pi(N)}^A $$
+and
+$$ \pi(\fle_N^A) = \fle_{\pi(N)}^A $$
 
-For a truth-discovery network $N = (V, E)$ and permutation $\pi$ defined on
-either $\S$, $\F$ or $\O$, let $N_\pi$ denote the network $(V, E_\pi)$ where
-$E_\pi=\{(\tilde{\pi}(x), \tilde{\pi}(y)) : (x, y) \in E\}$. Write $\pi(A(N))$
-for $(\tilde{\pi}(\sle_N^A), \tilde{\pi}(\fle_N^A))$.
-
-A truth-discovery algorithm $A$ satisfies \emph{source symmetry} if for any
-truth-discovery network $N=(V, E)$, permutation $\pi:\S \rightarrow \S$,
-$A(N_\pi) = \pi(A(N))$.
-
-Similarly we define \emph{fact symmetry} and \emph{object symmetry}.
-
+$A$ satisfies \emph{source symmetry} if the above holds for any network $N$ and
+permutation $\pi$ that only permutes sources, i.e. $\pi(f)=f$ and $\pi(o)=o$
+for all $f \in \F$ and $o \in \O$. \emph{Fact symmetry} and \emph{object
+symmetry} are defined similarly.
 \end{axiom}
 
 \begin{remark}
-If $A$ satisfies source symmetry then $\tilde{\pi}(\sle_N^A) = \sle_{N_\pi}^A$,
-so
-$s_1 \sle_N^A s_2 \iff \pi(s_1) \sle_{N_\pi}^A \pi(s_2)$, i.e. $A$ preserves
-the order of sources after re-labelling.
+Clearly symmetry implies source, fact and object symmetry.
 
-Also note that if $\pi$ is only defined on $\S$ then $\tilde{\pi}(\F)=\F$, so
-source symmetry implies $\fle_{N_\pi}^A = \tilde{\pi}(\fle_N^A) = \fle_N^A$,
-i.e. fact ranking is left unchanged after permuting sources.
+\todo{Is this an if and only if? I think so, because if $\pi$ is such that
+$N(\pi)$ is a valid \tdn then surely $\S, \F$ and $\O$ should each be closed
+under $\pi$. Then we could consider $\pi$ as the composition of three mappings,
+each of which only affects one of the groups. Applying the separate symmetries
+would give the result.}
+
+\todo{Think about whether the three weaker symmetries are independent (I think
+they are). If so provide an example of an algorithm satisfying one but not the
+others.}
 \end{remark}
+
+\centering
+\includegraphics[width=\linewidth]{symmetry_example}
+\captionof{figure}{Example of a permutation of a truth-discovery network}
+\label{img:permutation}
 
 \bibliography{references}{}
 \bibliographystyle{plain}

@@ -74,3 +74,23 @@
 * Sketch possible formalisms of truth-discovery
 * Research existing work on axioms of ranking systems
 * Come up with a few basic ideas for axioms, which are not fully detailed yet
+
+26-02-2019:
+-----------
+* *MEETING*
+* Return time taken for algorithms to run
+* Add example script for running algorithms on different sizes datasets,
+  recording the run time, and plotting results on a graph
+* Tidy up notes on potential formal definitions, following feedback
+
+27-02-2019:
+-----------
+* Investigate returning memory usage of algorithms
+* Add more to documentation for giving input
+
+28-02-2019:
+-----------
+* Try algorithms on real-world stock data
+* Investigate using sparse matrices
+* Read about judgement aggregation, collective annotation, social choice
+* Try to formulate symmetry axiom for my truth-discovery framework
