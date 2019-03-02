@@ -6,6 +6,7 @@ from truthdiscovery.algorithm import MajorityVoting
 from truthdiscovery.input import (
     Dataset,
     FileDataset,
+    FileSupervisedData,
     IDMapping,
     MatrixDataset,
     SupervisedData,
@@ -576,3 +577,38 @@ class TestFileDataset:
             [0, 0, 0.5, 0]
         ])
         assert np.array_equal(dataset.imp.toarray(), expected_imp)
+
+
+class TestFileSupervisedData:
+    @pytest.fixture
+    def example_cls(self):
+        class ExampleSupervisedData(FileSupervisedData):
+            def get_pairs(self, fileobj):
+                for line in map(str.strip, fileobj):
+                    var, true_val = line.split(" | ")
+                    yield (var, true_val)
+        return ExampleSupervisedData
+
+    @pytest.fixture
+    def file_contents(self):
+        return "\n".join([
+            "speed of light | c",
+            "best programming language | python",
+            "favourite cheese | cheddar"
+        ])
+
+    def test_base(self, file_contents, tmpdir):
+        input_file = tmpdir.join("sup.dataset")
+        input_file.write(file_contents)
+        with pytest.raises(NotImplementedError):
+            FileSupervisedData(None, str(input_file))
+
+    def test_basic(self, example_cls, file_contents, tmpdir):
+        input_file = tmpdir.join("sup.dataset")
+        input_file.write(file_contents)
+        sup = example_cls(None, str(input_file))
+        assert sup.values == {
+            "speed of light": "c",
+            "best programming language": "python",
+            "favourite cheese": "cheddar"
+        }

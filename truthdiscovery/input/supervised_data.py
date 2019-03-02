@@ -12,7 +12,7 @@ class SupervisedData:
     """
     def __init__(self, dataset, true_values):
         """
-        :param dataset:     an :any:`Dataset` (or sub-class) object
+        :param dataset:     a :any:`Dataset` (or sub-class) object
         :param true_values: dict of the form ``{var_label: true_value, ...}``
                             pairs for the known true values
         """
