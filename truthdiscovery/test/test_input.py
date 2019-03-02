@@ -48,7 +48,7 @@ class TestDataset:
             [0, 0, 1, 1, 0, 0, 0],
         ])
         assert data.sc.shape == expected_claim_mat.shape
-        assert np.array_equal(data.sc, expected_claim_mat)
+        assert np.array_equal(data.sc.toarray(), expected_claim_mat)
 
     def test_mut_ex_matrix(self, data):
         expected_mut_ex = np.array([
@@ -60,7 +60,7 @@ class TestDataset:
             [0, 0, 0, 0, 0, 1, 1],
             [0, 0, 0, 0, 0, 1, 1],
         ])
-        assert np.array_equal(data.mut_ex, expected_mut_ex)
+        assert np.array_equal(data.mut_ex.toarray(), expected_mut_ex)
 
 
 class TestIDMapping:
@@ -130,7 +130,7 @@ class TestMatrixDataset:
         assert data.num_sources == 5
         assert data.num_variables == 5
         assert data.num_claims == 15
-        assert (data.sv.mask == expected_matrix.mask).all()
+        assert np.array_equal(data.sv.mask, expected_matrix.mask)
         assert (data.sv == expected_matrix).all()
 
     def test_claims_matrix(self):
@@ -149,7 +149,7 @@ class TestMatrixDataset:
             [0, 0, 0, 0, 1, 0, 0, 1]
         ])
         assert data.sc.shape == expected_claim_mat.shape
-        assert (data.sc == expected_claim_mat).all()
+        assert np.array_equal(data.sc.toarray(), expected_claim_mat)
 
     def test_mutual_exclusion_matrix(self):
         data = MatrixDataset(ma.masked_values([
@@ -177,7 +177,7 @@ class TestMatrixDataset:
             [0, 0, 1, 0, 0, 0, 1, 1],
         ])
         assert data.mut_ex.shape == expected_mut_ex_mat.shape
-        assert (data.mut_ex == expected_mut_ex_mat).all()
+        assert np.array_equal(data.mut_ex.toarray(), expected_mut_ex_mat)
 
     def test_export_to_csv(self):
         data = MatrixDataset(ma.masked_values([
@@ -407,7 +407,10 @@ class TestSyntheticData:
         filename.write(csv_string)
         loaded = SupervisedData.from_csv(str(filename))
         assert np.array_equal(loaded.values, synth.values)
-        assert np.array_equal(loaded.data.sc, synth.data.sc)
+        assert np.array_equal(
+            loaded.data.sc.toarray(),
+            synth.data.sc.toarray()
+        )
 
 
 class TestImplications:
@@ -476,7 +479,7 @@ class TestImplications:
             [0, 0.0001, 0, 0, 0, 0, 0, 0]
         ])
         assert data.imp.shape == (8, 8)
-        assert np.array_equal(data.imp, expected_imp)
+        assert np.array_equal(data.imp.toarray(), expected_imp)
 
     def test_invalid_implication_values(self, triples):
         def too_big(var, val1, val2):
@@ -535,7 +538,7 @@ class TestFileDataset:
             [0, 1, 0, 1],
             [0, 0, 1, 0]
         ])
-        assert np.array_equal(dataset.sc, expected_sc)
+        assert np.array_equal(dataset.sc.toarray(), expected_sc)
 
         # Use voting algorithm to get results, and check they are as expected
         res = MajorityVoting().run(dataset)
@@ -572,5 +575,4 @@ class TestFileDataset:
             [0, 0, 0, -0.5],
             [0, 0, 0.5, 0]
         ])
-        print(dataset.imp)
-        assert np.array_equal(dataset.imp, expected_imp)
+        assert np.array_equal(dataset.imp.toarray(), expected_imp)

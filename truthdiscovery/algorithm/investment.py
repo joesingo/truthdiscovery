@@ -31,14 +31,18 @@ class Investment(BaseIterativeAlgorithm):
         investment_amounts = old_trust / claim_counts
         # The amount each claim receives in investment from its sources
         claim_investments = sc_mat.T @ investment_amounts
-        # Trust update can be expressed as the of entry-wise product of
-        # investment amounts and the following matrix, which is obtained
-        # by entry-wise division
         if np.any(claim_investments == 0):
             raise EarlyFinishError(
                 "Investment in at least one claim has become zero"
             )
-        mat = sc_mat / claim_investments
+        # Trust update can be expressed as the of entry-wise product of
+        # investment amounts and the following matrix, which is obtained
+        # by column-wise division (each column in sc is divided by the
+        # corresponding entry in claim_investments)
+
+        # (Note: using '/' here will result in a dense numpy array: we use
+        # multiply() to get a sparse result instead)
+        mat = sc_mat.multiply(1 / claim_investments)
         return investment_amounts * (mat @ belief)
 
     def _run(self, data):

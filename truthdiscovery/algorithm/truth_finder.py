@@ -58,7 +58,9 @@ class TruthFinder(BaseIterativeAlgorithm):
     def _run(self, data):
         trust = np.zeros((data.num_sources,))
 
-        a_mat = (data.sc.T / (data.sc @ np.ones((data.num_claims),))).T
+        claim_counts = data.sc @ np.ones((data.num_claims),)
+        # As in Investment, use multiply() to make sure the result is sparse
+        a_mat = data.sc.T.multiply(1 / claim_counts).T
         b_mat = data.sc.T + self.influence_param * (data.imp.T @ data.sc.T)
 
         trust = np.full((data.num_sources,), self.initial_trust)

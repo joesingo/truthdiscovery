@@ -4,7 +4,6 @@ variable increases
 """
 from collections import OrderedDict
 import json
-from os import path
 import sys
 
 import numpy as np

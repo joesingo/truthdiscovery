@@ -1,7 +1,7 @@
 import itertools
 
 from bidict import bidict
-import numpy as np
+import scipy.sparse
 
 
 class IDMapping(bidict):
@@ -62,8 +62,11 @@ class Dataset:
         self.claim_ids = IDMapping()   # (var_id, val_hash) tuples to IDs
 
         # Keep track of (source_id, claim_id) pairs to populate the
-        # source-claims matrix
-        sc_entries = []
+        # source-claims matrix. Source and claim IDs for each pair are stored
+        # in the same position in *separate lists*, since this is the format
+        # the sparse matrix constructor requires
+        sc_rows = []
+        sc_cols = []
 
         # Keep track of all claims IDs for each variable, to populate the
         # mutual exclusion matrix. The keys are variable IDs, and values are
@@ -77,7 +80,8 @@ class Dataset:
 
             claim = (var_id, val_hash)
             claim_id = self.claim_ids.get_id(claim)
-            sc_entries.append((s_id, claim_id))
+            sc_rows.append(s_id)
+            sc_cols.append(claim_id)
 
             if var_id not in mut_ex_claims:
                 mut_ex_claims[var_id] = set()
@@ -89,21 +93,32 @@ class Dataset:
 
         # Create source-claim matrix: entry (i, j) is 1 if source i makes claim
         # j, and 0 otherwise
-        self.sc = np.zeros((self.num_sources, self.num_claims))
-        for source, claim in sc_entries:
-            self.sc[source, claim] = 1
+        self.sc = scipy.sparse.csr_matrix(
+            ([1] * len(sc_rows), (sc_rows, sc_cols)),
+            shape=(self.num_sources, self.num_claims)
+        )
 
         # Create mutual exclusion matrix: entry (i, j) is 1 if claims i and j
         # relate to the same variable (including when i=j) and 0 otherwise
-        self.mut_ex = np.zeros((self.num_claims, self.num_claims))
+        mut_ex_rows = []  # Construct in the same way as for sc
+        mut_ex_cols = []
         for claim_ids in mut_ex_claims.values():
             for i, j in itertools.product(claim_ids, repeat=2):
-                self.mut_ex[i, j] = 1
+                mut_ex_rows.append(i)
+                mut_ex_cols.append(j)
+
+        self.mut_ex = scipy.sparse.csr_matrix(
+            ([1] * len(mut_ex_rows), (mut_ex_rows, mut_ex_cols)),
+            shape=(self.num_claims, self.num_claims)
+        )
 
         # Create implication matrix, for implications between claims
-        self.imp = np.zeros((self.num_claims, self.num_claims))
+        imp_rows = []
+        imp_cols = []
+        imp_entries = []
         if implication_function is not None:
-            for j1, j2 in np.argwhere(self.mut_ex == 1):
+            # Iterate over non-zero entries in mut ex
+            for j1, j2 in zip(*self.mut_ex.nonzero()):
                 if j1 == j2:
                     continue
                 # Note that claims j1 and j2 are for the same variable, since
@@ -121,7 +136,19 @@ class Dataset:
                         raise ValueError(
                             "Implication values must be in [-1, 1]"
                         )
-                    self.imp[j1, j2] = imp_value
+                    imp_entries.append(imp_value)
+                    imp_rows.append(j1)
+                    imp_cols.append(j2)
+
+        if imp_entries:
+            self.imp = scipy.sparse.csr_matrix(
+                (imp_entries, (imp_rows, imp_cols)),
+                shape=(self.num_claims, self.num_claims)
+            )
+        else:
+            self.imp = scipy.sparse.csr_matrix(
+                (self.num_claims, self.num_claims)
+            )
 
     def get_belief_dict(self, claim_beliefs):
         """
