@@ -10,10 +10,11 @@
 \usepackage{amsthm}
 \usepackage{caption}
 \usepackage{cite}
-% \usepackage[top=1cm, bottom=1cm, left=2cm, right=2cm]{geometry}
+\usepackage[top=2cm, bottom=2cm, left=3cm, right=3cm]{geometry}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{multicol}
+\usepackage{tgbonum}  % For cool font
 \usepackage{xcolor}
 
 \graphicspath{ {./images/} }
@@ -33,6 +34,8 @@
 \newtheorem{axiom}{Axiom}
 \theoremstyle{plain}
 \newtheorem{remark}{Remark}
+\theoremstyle{remark}
+\newtheorem{notation}{Notation}
 
 % Commands
 \newcommand{\todo}[1] {
@@ -55,6 +58,7 @@
 % \begin{multicols}{2}
 
 \section{Frameworks for truth-discovery used in existing literature}
+\label{sec:existing_frameworks}
 
 \subsection{Li et. al. survey}
 \label{sec:li}
@@ -213,136 +217,6 @@ over time{\cite{zhao}}
 
 \end{itemize}
 
-\section{Model for the development of axioms}
-
-The input seems to be essentially equivalent in all approaches, with the
-exception of \ref{sec:galland} which has the concept of negative claims.
-
-Output differs: in \ref{sec:li} a single true fact is selected for each object,
-and in the others all facts are given a belief score in $[0, 1]$. Both
-approaches ultimately \emph{rank} the facts of each object.
-
-The framework I choose should be general enough that all (or at least most)
-algorithms in the literature can fit into it. The framework will then
-facilitate comparison between the algorithms.
-
-My graph-theoretic formulation of truth-discovery is as follows.
-
-% Input network definition
-\begin{definition}
-
-A \emph{truth-discovery network} is a directed graph of the form $N = (\S \cup
-\F \cup \O, E)$ where $\S$, $\F$ and $\O$ are finite, disjoint, non-empty sets
-(of \emph{sources}, \emph{facts} and \emph{objects} respectively) and $E
-\subseteq (\S \times \F) \cup (\F \times \O)$ satisfies the following
-properties:
-
-\begin{enumerate}
-\item Each $f \in \F$ has a unique successor node in $\O$, denoted $O_f$ (i.e.
-each fact relates to a single object).
-
-\item For $s \in \S$ and $o \in \O$, there is at most one directed path from
-$s$ to $o$ (i.e. sources can only claim one fact per object).
-
-\end{enumerate}
-For $o \in \O$ we denote by $F_o$ the set $\{f \in \F : O_f = o \}$, and by
-$S_o$ the set $\{s \in \S : \exists f \in F_o : (s, f) \in E\}$.
-
-\end{definition}
-
-\begin{remark}
-For a network $N$ we may refer to $\S$, $\F$ and $\O$ implicitly without
-defining them each time.
-
-Note that the definition above does not rule out a source $s$ making no claims,
-a fact $f$ being claimed by no sources, or an object $o$ having no associated
-facts or sources.
-\end{remark}
-
-\begin{definition}
-A \emph{preorder} on a set $X$ is a relation $\preceq$ that is reflexive and
-transitive:
-\begin{enumerate}
-\item $x \preceq x$ for all $x \in X$ (reflexivity)
-\item If $x \preceq y$ and $y \preceq z$, then $x \preceq z$ for all $x, y, z
-\in X$ (transitivity)
-\end{enumerate}
-
-A \emph{total preorder} is a preorder that is complete, i.e. for all $x, y \in
-X$, $x \preceq y$ or $y \preceq x$.
-
-\end{definition}
-
-% Algorithm definition
-\begin{definition}
-\label{def:truth_discovery_algorithm}
-
-A \emph{\tda} $A$ assigns to each truth-discovery network
-$N$ in its domain $\mathcal{D}_A$ a pair $A(N) = (\sle_N^A, \fle_N^A)$ of total
-preorders on the sets $\S$ and $\F$ respectively.
-
-$s_1 \sle_N^A s_2$ means $s_2$ is ranked as \emph{more trustworthy} than $s_1$
-in the network $N$ according to $A$; $f_1 \fle_N^A f_2$ means $f_2$ is ranked
-as \emph{more believable} than $f_1$. Sub- and super-scripts can be omitted
-when clear from context.
-
-\end{definition}
-
-\begin{definition}
-\label{def:numerical}
-
-A \emph{numerical \tda} $A$ assigns to each
-truth-discovery network $N$ a \emph{source trust} mapping $\tau: \S \rightarrow
-[0, 1]$ and \emph{fact belief} mapping $\phi: \F \rightarrow [0, 1]$.
-
-\end{definition}
-
-\begin{remark}
-    Any numerical \tda $A$ naturally induces a \tda $A'$, where for any
-    truth-discovery network $N$ we define
-    \begin{align*}
-    s_1 \sle_N^{A'} s_2 & \iff \tau(s_1) \le \tau(s2) \\
-    f_1 \fle_N^{A'} f_2 & \iff \phi(f_1) \le \phi(f_2)
-    \end{align*}
-    for $s_1, s_2 \in \S$ and $f_1, f_2 \in \F$.
-\end{remark}
-
-In this work we deal primarily with truth-discovery algorithms as defined in
-definition \ref{def:truth_discovery_algorithm}, instead of working directly
-with numeric trust and belief scores. This is because we are interested in the
-qualitative ranking of sources and facts, rather than quantitative values. This
-approach is common in axiomatic treatment of ranking
-systems{\cite{altman,altman_personalised}}. \todo{find more references for this
-(e.g. Arrow, 1951, p17)}
-
-Dispensing with numeric values is further justified by the fact that
-trust/belief scores produced by numeric algorithms often do not have any
-semantic meaning\cite{pasternack}, and so only the \emph{ranking} of
-sources/facts is important.
-
-One downside to this approach is that whilst we can tell whether or not $s_1$
-is more trustworthy than $s_2$, we cannot tell by \emph{how much}.  For
-example, consider two numeric algorithms $A$ and $A'$ and $\S=\{s_1, s_2\}$
-such that $\tau(s_1)=0.5, \tau(s_2)=0.51$, and $\tau'(s_1)=0.01,
-\tau'(s_2)=0.99$. Both algorithms induce the same ranking on $\S$, yet $A$
-considers the two sources to have similar trust values while $A'$ considers
-$s_2$ to be much more trustworthy than $s_1$.
-
-\textbf{Notes:}
-\begin{itemize}
-
-\item Some algorithms only give most believed values as output (neither a
-ranking nor belief score for each fact) (e.g. \cite{li_conflicts}). However we
-can view such an algorithm in the above framework by considering it to rank the
-discovered true facts above all others, and ranking false facts equally.
-
-\item Some algorithms may give most-believed values for facts that are not
-claimed by any sources, e.g. if values are continuous could perform a weighted
-average of claimed facts (I believe this is done in \cite{li_conflicts} for
-continuous data types). Neither of the definitions above support this.
-
-\end{itemize}
-
 \section{Ideas for axioms}
 
 \subsection{Existing work}
@@ -473,10 +347,50 @@ p6).
 
 \end{itemize}
 
-\section{Formal axioms}
+\section{Theory of truth-discovery}
+
+The input seems to be essentially equivalent in all approaches listed in
+section \ref{sec:existing_frameworks}, with the exception of \ref{sec:galland}
+which has the concept of negative claims.
+
+Output differs: in \ref{sec:li} a single true fact is selected for each object,
+and in the others all facts are given a belief score in $[0, 1]$. Both
+approaches ultimately \emph{rank} the facts of each object.
+
+The framework I choose should be general enough that all (or at least most)
+algorithms in the literature can fit into it. The framework will then
+facilitate comparison between the algorithms.
+
+First we state some standard definitions, and then give a graph-theoretic
+formulation of truth-discovery.
+
+\subsection{Standard definitions}
 
 \begin{definition}
-For any set $X$, a relation $R \subseteq X \times X$, and permutation $\pi: X
+A \emph{relation} $R$ on a set $X$ is a subset $R \subseteq X \times X$. We
+use the infix notation $x \mathbin{R} y$ to mean $(x, y) \in R$.
+\end{definition}
+
+\begin{definition}
+A \emph{preorder} on a set $X$ is a relation $\preceq$ that is reflexive and
+transitive:
+\begin{enumerate}
+\item $x \preceq x$ for all $x \in X$ (reflexivity)
+\item If $x \preceq y$ and $y \preceq z$, then $x \preceq z$ for all $x, y, z
+\in X$ (transitivity)
+\end{enumerate}
+
+A \emph{total preorder} is a preorder that is complete: for all $x, y \in X$,
+$x \preceq y$ or $y \preceq x$.
+
+\end{definition}
+
+\begin{definition}
+A \emph{permutation} of a set $X$ is a bijective mapping $X \rightarrow X$
+\end{definition}
+
+\begin{definition}
+For any set $X$, relation $R \subseteq X \times X$, and permutation $\pi: X
 \rightarrow X$, we denote by $\pi(R)$ the relation
 $$ \pi(R) = \{(\pi(x), \pi(y)) : x \mathbin{R} y\} $$
 That is, $(u, v) \in \pi(R)$ if and only if $(\pi^{-1}(u), \pi^{-1}(v)) \in R$.
@@ -487,14 +401,129 @@ as relabelling the elements of $X$, then $\pi(R)$ is the same ordering as $R$,
 but given in terms of the new labels.
 
 \begin{definition}
-For a graph $G=(V, E)$ and a permutation $\pi: V \rightarrow V$, the graph
-\emph{isomorphic to $G$} under $\pi$ is $\pi(G) = (V, \pi(E))$.
+
+Two graphs $G=(V, E)$ and $G'=(V', E')$ are \emph{isomorphic} if there is a
+bijective mapping $\phi: V \rightarrow V'$ such that $(u, v) \in E \iff
+(\phi(u), \phi(v)) \in E'$.
+
 \end{definition}
 
-Two nodes $u$ and $v$ are adjacent in $\pi(G)$ if and only if their pre-images
-$\pi^{-1}(u)$ and $\pi^{-1}(v)$ are adjacent in $G$. Going from $G$ to $\pi(G)$
-can therefore be seen as \emph{relabelling} the nodes in $G$ without changing
-the structure of the graph.
+\subsection{Truth-discovery definitions}
+
+% Input network defintion
+\begin{definition}
+
+A \emph{truth-discovery network} is a directed graph of the form $N = (\S \cup
+\F \cup \O, E)$ where $\S$, $\F$ and $\O$ are finite, disjoint, non-empty sets
+(of \emph{sources}, \emph{facts} and \emph{objects} respectively) and $E
+\subseteq (\S \times \F) \cup (\F \times \O)$ satisfies the following
+properties:
+
+\begin{enumerate}
+\item Each $f \in \F$ has a unique successor node in $\O$, denoted $O_f$ (i.e.
+each fact relates to a single object).
+
+\item For $s \in \S$ and $o \in \O$, there is at most one directed path from
+$s$ to $o$ (i.e. sources can only claim one fact per object).
+
+\end{enumerate}
+For $o \in \O$ we denote by $F_o$ the set $\{f \in \F : O_f = o \}$, and by
+$S_o$ the set $\{s \in \S : \exists f \in F_o : (s, f) \in E\}$.
+
+\end{definition}
+
+\begin{remark}
+For a network $N$ we may refer to $\S$, $\F$ and $\O$ implicitly without
+defining them each time.
+
+Note that the definition above does not rule out a source $s$ making no claims,
+a fact $f$ being claimed by no sources, or an object $o$ having no associated
+facts or sources.
+\end{remark}
+
+% Algorithm definition
+\begin{definition}
+\label{def:truth_discovery_algorithm}
+
+A \emph{\tda} $A$ assigns to each truth-discovery network
+$N$ in its domain $\mathcal{D}_A$ a pair $A(N) = (\sle_N^A, \fle_N^A)$ of total
+preorders on the sets $\S$ and $\F$ respectively.
+
+$s_1 \sle_N^A s_2$ means $s_2$ is ranked as \emph{more trustworthy} than $s_1$
+in the network $N$ according to $A$; $f_1 \fle_N^A f_2$ means $f_2$ is ranked
+as \emph{more believable} than $f_1$. Sub- and super-scripts can be omitted
+when clear from context.
+
+\end{definition}
+
+\begin{definition}
+\label{def:numerical}
+
+A \emph{numerical \tda} $A$ assigns to each
+truth-discovery network $N$ a \emph{source trust} mapping $\tau: \S \rightarrow
+[0, 1]$ and \emph{fact belief} mapping $\phi: \F \rightarrow [0, 1]$.
+
+\end{definition}
+
+\begin{remark}
+    Any numerical \tda $A$ naturally induces a \tda $A'$, where for any
+    truth-discovery network $N$ we define
+    \begin{align*}
+    s_1 \sle_N^{A'} s_2 & \iff \tau(s_1) \le \tau(s2) \\
+    f_1 \fle_N^{A'} f_2 & \iff \phi(f_1) \le \phi(f_2)
+    \end{align*}
+    for $s_1, s_2 \in \S$ and $f_1, f_2 \in \F$.
+\end{remark}
+
+In this work we deal primarily with truth-discovery algorithms as defined in
+definition \ref{def:truth_discovery_algorithm}, instead of working directly
+with numeric trust and belief scores. This is because we are interested in the
+qualitative ranking of sources and facts, rather than quantitative values. This
+approach is common in axiomatic treatment of ranking
+systems{\cite{altman,altman_personalised}}. \todo{find more references for this
+(e.g. Arrow, 1951, p17)}
+
+Dispensing with numeric values is further justified by the fact that
+trust/belief scores produced by numeric algorithms often do not have any
+semantic meaning\cite{pasternack}, and so only the \emph{ranking} of
+sources/facts is important.
+
+One downside to this approach is that whilst we can tell whether or not $s_1$
+is more trustworthy than $s_2$, we cannot tell by \emph{how much}.  For
+example, consider two numeric algorithms $A$ and $A'$ and $\S=\{s_1, s_2\}$
+such that $\tau(s_1)=0.5, \tau(s_2)=0.51$, and $\tau'(s_1)=0.01,
+\tau'(s_2)=0.99$. Both algorithms induce the same ranking on $\S$, yet $A$
+considers the two sources to have similar trust values while $A'$ considers
+$s_2$ to be much more trustworthy than $s_1$.
+
+\textbf{Notes:}
+\begin{itemize}
+
+\item Some algorithms only give most believed values as output (neither a
+ranking nor belief score for each fact) (e.g. \cite{li_conflicts}). However we
+can view such an algorithm in the above framework by considering it to rank the
+discovered true facts above all others, and ranking false facts equally.
+
+\item Some algorithms may give most-believed values for facts that are not
+claimed by any sources, e.g. if values are continuous could perform a weighted
+average of claimed facts (I believe this is done in \cite{li_conflicts} for
+continuous data types). Neither of the definitions above support this.
+
+\end{itemize}
+
+\subsection{Axioms}
+
+\subsubsection{Inspired by ranking systems}
+
+\begin{notation}
+For a truth-discovery network $N = (V, E)$ and a bijection $\pi: V \rightarrow
+V$, we will denote by $\pi(N)$ the truth-discovery network isomorphic to $N$
+under $\pi$. Note that $\pi(N)$ is unique, and the sources, facts and objects
+in $\pi(N)$ are $\pi(\S)$, $\pi(\F)$ and $\pi(\O)$ respectively.
+\end{notation}
+
+Figure \ref{img:permutation_of_a_tdn} shows an example of a permutation of a
+truth-discovery network.
 
 The first axiom states that the ordering of sources and facts should not depend
 on the `names' of the sources, facts and objects in the input.
@@ -525,10 +554,16 @@ they are). If so provide an example of an algorithm satisfying one but not the
 others.}
 \end{remark}
 
-\centering
-\includegraphics[width=\linewidth]{symmetry_example}
-\captionof{figure}{Example of a permutation of a truth-discovery network}
-\label{img:permutation}
+\subsubsection{Inspired by social choice}
+
+\todo{write some stuff here}
+
+{
+    \centering
+    \includegraphics[width=\linewidth]{symmetry_example}
+    \captionof{figure}{Example of a permutation of a truth-discovery network}
+    \label{img:permutation_of_a_tdn}
+}
 
 \bibliography{references}{}
 \bibliographystyle{plain}
