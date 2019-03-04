@@ -14,3 +14,5 @@ htmlcov
 .coverage
 tags
 doc/_build/*
+truthdiscovery/examples/stock/data/*.tsv
+truthdiscovery/examples/stock/truth/*.tsv
