@@ -94,3 +94,10 @@
 * Investigate using sparse matrices
 * Read about judgement aggregation, collective annotation, social choice
 * Try to formulate symmetry axiom for my truth-discovery framework
+
+
+[01-03]-03-2019:
+----------------
+* Fully implement sparse matrices
+* Get stock example working and finalised
+* Read about social choice, update axiom notes
