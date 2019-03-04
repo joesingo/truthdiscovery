@@ -259,13 +259,27 @@ a fact $f$ being claimed by no sources, or an object $o$ having no associated
 facts or sources.
 \end{remark}
 
+\begin{definition}
+A \emph{preorder} on a set $X$ is a relation $\preceq$ that is reflexive and
+transitive:
+\begin{enumerate}
+\item $x \preceq x$ for all $x \in X$ (reflexivity)
+\item If $x \preceq y$ and $y \preceq z$, then $x \preceq z$ for all $x, y, z
+\in X$ (transitivity)
+\end{enumerate}
+
+A \emph{total preorder} is a preorder that is complete, i.e. for all $x, y \in
+X$, $x \preceq y$ or $y \preceq x$.
+
+\end{definition}
+
 % Algorithm definition
 \begin{definition}
 \label{def:truth_discovery_algorithm}
 
 A \emph{\tda} $A$ assigns to each truth-discovery network
-$N$ a pair $A(N) = (\sle_N^A, \fle_N^A)$ of total (weak) orderings on the sets
-$\S$ and $\F$ respectively.
+$N$ in its domain $\mathcal{D}_A$ a pair $A(N) = (\sle_N^A, \fle_N^A)$ of total
+preorders on the sets $\S$ and $\F$ respectively.
 
 $s_1 \sle_N^A s_2$ means $s_2$ is ranked as \emph{more trustworthy} than $s_1$
 in the network $N$ according to $A$; $f_1 \fle_N^A f_2$ means $f_2$ is ranked
@@ -379,6 +393,11 @@ There can be a dual property where sources and facts are swapped.
 Walks}{\cite{lev}}. Set up is similar to trust-based, but recommendations are
 given to \emph{sets} of agents.
 
+\item General social choice (e.g. see Handbook chapter 1 for overview). It
+sounds like the fact ordering part of truth-discovery could be a special case
+of a social welfare function, where sources rank their claims strictly above
+all others (but they would have to rank their own facts equally\ldots).
+
 \end{itemize}
 
 It seems like there is a lot of existing work on things like ranking systems,
@@ -398,7 +417,8 @@ should not affect the results on the subset.
 $f' \ne f$. Or on a per-object basis: if $o = O_f$ and $(s, f) \in E$ for all
 $s \in \S_o$ then $f \fge f'$ for $f' \in F_o \setminus \{f\}$.
 
-Both only make sense if we allow facts that are not claimed by anyone.
+Both only make sense if we allow facts that are not claimed by anyone. Compare
+to \emph{weakly Paretian} in Handbook to COMSOC, p6.
 
 \item Principle that trustworthy sources claim believable facts, and vice
 versa: see `quasi-transitivity' above and in \cite{altman_personalised}.
@@ -441,6 +461,16 @@ $G'$ we add to a source $s$ a fact $f'$, and in $G''$ we add $f''$. If $f'
 This seems similar to the previous idea. It has the same problem with
 \emph{how} we measure when a source is worse when comparing on different graphs.
 
+\item Dictatorship: if there is a source $s^* \in \S$ (the dictator) such that
+for all $f,f^* \in \F$, $f^* \in F_{s^*} \implies f \fle f^*$ and $s \sle s^*$
+for all $s \in \S$.
+
+In plain English, there is a dictator source that is more (or equally) trusted
+than all other sources, and whose facts are believed more than all other facts.
+
+Compare to other dictatorship concepts, such as for social choice (Handbook,
+p6).
+
 \end{itemize}
 
 \section{Formal axioms}
@@ -452,8 +482,7 @@ $$ \pi(R) = \{(\pi(x), \pi(y)) : x \mathbin{R} y\} $$
 That is, $(u, v) \in \pi(R)$ if and only if $(\pi^{-1}(u), \pi^{-1}(v)) \in R$.
 \end{definition}
 
-Note that if $R$ is an order relation then so too is $\pi(R)$ \todo{state
-properly what I mean here: which properties are preserved?}. If we view $\pi$
+Note that if $R$ is an total preorder then so too is $\pi(R)$. If we view $\pi$
 as relabelling the elements of $X$, then $\pi(R)$ is the same ordering as $R$,
 but given in terms of the new labels.
 
@@ -472,8 +501,7 @@ on the `names' of the sources, facts and objects in the input.
 
 \begin{axiom}
 Let $A$ be a \tda. $A$ satisfies \emph{symmetry} if for any truth-discovery
-network $N = (V, E)$ and permutation $\pi: V \rightarrow V$ such that $\pi(N)$
-is a truth-discovery network, we have
+network $N = (V, E)$ and permutation $\pi: V \rightarrow V$, we have
 $$ \pi(\sle_N^A) = \sle_{\pi(N)}^A $$
 and
 $$ \pi(\fle_N^A) = \fle_{\pi(N)}^A $$
@@ -487,11 +515,10 @@ symmetry} are defined similarly.
 \begin{remark}
 Clearly symmetry implies source, fact and object symmetry.
 
-\todo{Is this an if and only if? I think so, because if $\pi$ is such that
-$N(\pi)$ is a valid \tdn then surely $\S, \F$ and $\O$ should each be closed
-under $\pi$. Then we could consider $\pi$ as the composition of three mappings,
-each of which only affects one of the groups. Applying the separate symmetries
-would give the result.}
+\todo{Is this an if and only if? Need to consider what symmetry means for
+permutations where $\S$, $\F$ and $\O$ are not closed under $\pi$, e.g. a
+source is swapped with an object. Clearly the set of sources in $\pi(N)$ would
+be different from $\S$.}
 
 \todo{Think about whether the three weaker symmetries are independent (I think
 they are). If so provide an example of an algorithm satisfying one but not the
