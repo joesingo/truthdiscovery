@@ -46,6 +46,19 @@ variables, and an entry at position ``(i, j)`` is the value that source ``i``
 claims for variable ``j`` (the matrix may contain empty cells in cases where a
 source does not make a claim about a variable).
 
+## Installation
+
+This package should be installed with `pip` (using Python 3). It is recommended
+to work in a [virtualenv](https://docs.python.org/3/tutorial/venv.html) to
+avoid conflicts with globally-installed packages:
+
+```
+$ cd <repo root>
+$ python3 -m venv venv
+$ source venv/bin/activate
+$ pip install -e .
+```
+
 ## Usage
 
 TODO
