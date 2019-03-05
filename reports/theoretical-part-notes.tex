@@ -10,11 +10,11 @@
 \usepackage{amsthm}
 \usepackage{caption}
 \usepackage{cite}
-\usepackage[top=2cm, bottom=2cm, left=3cm, right=3cm]{geometry}
+% \usepackage[top=2cm, bottom=2cm, left=3cm, right=3cm]{geometry}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{multicol}
-\usepackage{tgbonum}  % For cool font
+\usepackage{charter}  % For cool font
 \usepackage{xcolor}
 
 \graphicspath{ {./images/} }
@@ -28,14 +28,13 @@
 }
 
 % Maths environments
-\theoremstyle{definition}
-\newtheorem{definition}{Definition}
-\theoremstyle{plain}
-\newtheorem{axiom}{Axiom}
-\theoremstyle{plain}
-\newtheorem{remark}{Remark}
-\theoremstyle{remark}
-\newtheorem{notation}{Notation}
+\theoremstyle{definition} \newtheorem{definition}{Definition}
+\theoremstyle{definition} \newtheorem{example}{Example}
+\theoremstyle{plain} \newtheorem{axiom}{Axiom}
+\theoremstyle{plain} \newtheorem*{remark}{Remark}
+\theoremstyle{remark} \newtheorem*{notation}{Notation}
+\theoremstyle{plain} \newtheorem{lemma}{Lemma}
+\theoremstyle{plain} \newtheorem{proposition}{Proposition}
 
 % Commands
 \newcommand{\todo}[1] {
@@ -43,13 +42,23 @@
         \textbf{TODO:} #1
     }
 }
+% Sets
 \renewcommand{\S}{\mathcal{S}}  % Note: overrides existing command
 \renewcommand{\O}{\mathcal{O}}  % Note: overrides existing command
 \newcommand{\F}{\mathcal{F}}
+% Source and fact orderings: less-equal, less-than, greater-equal, equal
 \newcommand{\sle}{\le}
-\newcommand{\fle}{\preceq}
+\newcommand{\slt}{<}
 \newcommand{\sge}{\ge}
+\newcommand{\seq}{\simeq}
+\newcommand{\fle}{\preceq}
+\newcommand{\flt}{\prec}
 \newcommand{\fge}{\succeq}
+\newcommand{\feq}{\approx}
+
+\newcommand{\src}{\texttt{src}}
+\newcommand{\fact}{\texttt{facts}}
+\newcommand{\orderings}{\mathcal{L}}
 \newcommand{\tdn}{truth-discovery network}
 \newcommand{\tda}{truth-discovery algorithm}
 
@@ -281,8 +290,6 @@ truth-discovery.
 \subsection{Ideas for truth-discovery}
 \begin{itemize}
 
-\item Symmetry/isomorphism: isomorphic input should give isomorphic output
-
 \item Independence of irrelevant claims: if a subset of sources, objects, facts
 is not connected to the rest of the graph, then changes outside this subset
 should not affect the results on the subset.
@@ -335,16 +342,6 @@ $G'$ we add to a source $s$ a fact $f'$, and in $G''$ we add $f''$. If $f'
 This seems similar to the previous idea. It has the same problem with
 \emph{how} we measure when a source is worse when comparing on different graphs.
 
-\item Dictatorship: if there is a source $s^* \in \S$ (the dictator) such that
-for all $f,f^* \in \F$, $f^* \in F_{s^*} \implies f \fle f^*$ and $s \sle s^*$
-for all $s \in \S$.
-
-In plain English, there is a dictator source that is more (or equally) trusted
-than all other sources, and whose facts are believed more than all other facts.
-
-Compare to other dictatorship concepts, such as for social choice (Handbook,
-p6).
-
 \end{itemize}
 
 \section{Theory of truth-discovery}
@@ -381,12 +378,26 @@ transitive:
 \end{enumerate}
 
 A \emph{total preorder} is a preorder that is complete: for all $x, y \in X$,
-$x \preceq y$ or $y \preceq x$.
+$x \preceq y$ or $y \preceq x$. $\orderings(X)$ is the set of all total
+preorders on $X$.
+
+The \emph{strict} order induced by $\preceq$ is $\prec$ where $x \prec y$ if
+and only if $x \preceq y$ but not $y \preceq x$. Note that $\prec$ is
+irreflexive, transitive (and hence asymmetric), and is not complete.
+
+The \emph{equality predicate} associated with $\preceq$ is $\simeq$, where $x
+\simeq y$ if and only if $x \preceq y$ and $y \preceq x$. Note that $\simeq$ is
+an equivalence relation on $X$.
 
 \end{definition}
 
 \begin{definition}
-A \emph{permutation} of a set $X$ is a bijective mapping $X \rightarrow X$
+A \emph{permutation} of a set $X$ is a bijective mapping $X \rightarrow X$. We
+use cyclic notation for permutations: $\pi=(a, b, c)$ is the mapping $\pi(a) =
+b$, $\pi(b) = c$, $\pi(c) = a$, and $\pi(x) = x$ for $x \notin \{a, b, c\}$.
+Juxtaposition of cycles denotes function composition. It is well known that any
+permutation can be expressed as a composition of disjoint cycles.\todo{find
+source for this if it will actually be used anywhere.}
 \end{definition}
 
 \begin{definition}
@@ -410,14 +421,16 @@ bijective mapping $\phi: V \rightarrow V'$ such that $(u, v) \in E \iff
 
 \subsection{Truth-discovery definitions}
 
+We consider fixed sets $\S$, $\F$ and $\O$, called the \emph{sources},
+\emph{facts} and \emph{objects} respectively. All definitions and axioms will
+be stated with respect to these sets.
+
 % Input network defintion
 \begin{definition}
 
-A \emph{truth-discovery network} is a directed graph of the form $N = (\S \cup
-\F \cup \O, E)$ where $\S$, $\F$ and $\O$ are finite, disjoint, non-empty sets
-(of \emph{sources}, \emph{facts} and \emph{objects} respectively) and $E
-\subseteq (\S \times \F) \cup (\F \times \O)$ satisfies the following
-properties:
+A \emph{truth-discovery network} is a directed graph $N = (V, E)$ where $V = \S
+\cup \F \cup \O$, and $E \subseteq (\S \times \F) \cup (\F \times \O)$
+satisfies the following properties:
 
 \begin{enumerate}
 \item Each $f \in \F$ has a unique successor node in $\O$, denoted $O_f$ (i.e.
@@ -427,27 +440,34 @@ each fact relates to a single object).
 $s$ to $o$ (i.e. sources can only claim one fact per object).
 
 \end{enumerate}
-For $o \in \O$ we denote by $F_o$ the set $\{f \in \F : O_f = o \}$, and by
-$S_o$ the set $\{s \in \S : \exists f \in F_o : (s, f) \in E\}$.
+Let $\mathcal{N}$ denote the set of all truth-discovery networks.
 
 \end{definition}
 
 \begin{remark}
-For a network $N$ we may refer to $\S$, $\F$ and $\O$ implicitly without
-defining them each time.
-
 Note that the definition above does not rule out a source $s$ making no claims,
 a fact $f$ being claimed by no sources, or an object $o$ having no associated
 facts or sources.
 \end{remark}
 
+\begin{notation}
+For convenience, for a network $N=(V, E)$, define:
+\begin{align*}
+    \fact(N, s) &= \{f \in \F : (s, f) \in E\} \\
+    \fact(N, o) &= \{f \in \F : (f, o) \in E\} \\
+    \src(N, f) &= \{s \in \S : (s, f) \in E\} \\
+    \src(N, o) &= \{s \in \S : \exists f \in \F : (s, f), (f, o) \in E\} \\
+\end{align*}
+\end{notation}
+
 % Algorithm definition
 \begin{definition}
 \label{def:truth_discovery_algorithm}
 
-A \emph{\tda} $A$ assigns to each truth-discovery network
-$N$ in its domain $\mathcal{D}_A$ a pair $A(N) = (\sle_N^A, \fle_N^A)$ of total
-preorders on the sets $\S$ and $\F$ respectively.
+A \emph{truth-discovery algorithm} $A$ is a mapping $A: \mathcal{N} \rightarrow
+\orderings(\S) \times \orderings(\F)$, i.e. $A$ assigns to each truth-discovery
+network a pair of total preorders $A(N) = (\sle_N^A, \fle_N^A)$ on the sets
+$\S$ and $\F$ respectively.
 
 $s_1 \sle_N^A s_2$ means $s_2$ is ranked as \emph{more trustworthy} than $s_1$
 in the network $N$ according to $A$; $f_1 \fle_N^A f_2$ means $f_2$ is ranked
@@ -459,15 +479,16 @@ when clear from context.
 \begin{definition}
 \label{def:numerical}
 
-A \emph{numerical \tda} $A$ assigns to each
+A \emph{numerical truth-discovery algorithm} $A$ assigns to each
 truth-discovery network $N$ a \emph{source trust} mapping $\tau: \S \rightarrow
 [0, 1]$ and \emph{fact belief} mapping $\phi: \F \rightarrow [0, 1]$.
 
 \end{definition}
 
 \begin{remark}
-    Any numerical \tda $A$ naturally induces a \tda $A'$, where for any
-    truth-discovery network $N$ we define
+    Any numerical truth-discovery algorithm $A$ naturally induces a
+    truth-discovery algorithm $A'$, where for any truth-discovery network $N$
+    we define
     \begin{align*}
     s_1 \sle_N^{A'} s_2 & \iff \tau(s_1) \le \tau(s2) \\
     f_1 \fle_N^{A'} f_2 & \iff \phi(f_1) \le \phi(f_2)
@@ -513,13 +534,34 @@ continuous data types). Neither of the definitions above support this.
 
 \subsection{Axioms}
 
-\subsubsection{Inspired by ranking systems}
+\subsubsection{Inspired by social choice}
+
+The fact-believability component of truth-discovery can be seen as a special
+case of voting in the theory of social choice, where agents are sources and
+alternatives are facts. Each source then ranks the facts it claims above all
+other facts, and ranks its claimed facts equally.\footnotemark
+
+\footnotetext{
+    Note that the formulation of social choice must allow for agents to have
+    \emph{weak} preferences for alternatives, where ties are allowed.
+}
+
+Several axioms applicable to social welfare and social choice functions from
+classical social choice can be directly adapted to truth-discovery.
 
 \begin{notation}
-For a truth-discovery network $N = (V, E)$ and a bijection $\pi: V \rightarrow
-V$, we will denote by $\pi(N)$ the truth-discovery network isomorphic to $N$
-under $\pi$. Note that $\pi(N)$ is unique, and the sources, facts and objects
-in $\pi(N)$ are $\pi(\S)$, $\pi(\F)$ and $\pi(\O)$ respectively.
+
+For a graph $G = (V, E)$ and a permutation $\pi: V \rightarrow V$, we will
+denote by $\pi(G)$ the graph isomorphic to $G$ under $\pi$. Note that $\pi(G)$
+is unique.
+
+\textbf{Conjecture}: For a truth-discovery network $N$, $\pi(N)$ is a valid
+truth-discovery network if and only if $\pi(s) \in S$, $\pi(f) \in \F$ and
+$\pi(o) \in \O$ for all $s, f, o$ in $N$ that have incoming or outgoing edges.
+\todo{
+    Think about this, and prove it if it is true
+}
+
 \end{notation}
 
 Figure \ref{img:permutation_of_a_tdn} shows an example of a permutation of a
@@ -529,11 +571,13 @@ The first axiom states that the ordering of sources and facts should not depend
 on the `names' of the sources, facts and objects in the input.
 
 \begin{axiom}
+\label{axiom:symmetry}
 Let $A$ be a \tda. $A$ satisfies \emph{symmetry} if for any truth-discovery
-network $N = (V, E)$ and permutation $\pi: V \rightarrow V$, we have
-$$ \pi(\sle_N^A) = \sle_{\pi(N)}^A $$
+network $N = (V, E)$ and permutation $\pi: V \rightarrow V$ such that $\pi(N)$
+is a truth-discovery network, we have
+$$ s_1 \sle_N^A s_2 \iff \pi(s_1) \sle_{\pi(N)}^A \pi(s_2) $$
 and
-$$ \pi(\fle_N^A) = \fle_{\pi(N)}^A $$
+$$ f_1 \fle_N^A f_2 \iff \pi(f_1) \fle_{\pi(N)}^A \pi(f_2) $$
 
 $A$ satisfies \emph{source symmetry} if the above holds for any network $N$ and
 permutation $\pi$ that only permutes sources, i.e. $\pi(f)=f$ and $\pi(o)=o$
@@ -542,21 +586,130 @@ symmetry} are defined similarly.
 \end{axiom}
 
 \begin{remark}
+Source symmetry is analogous to \emph{anonymity} in classical social choice,
+where all voters are treated identically. Fact and object symmetry are
+analogous to \emph{neutrality} in social choice, where the alternatives being
+voted on are treated identically (Handbook, definitions 2.4, 2.5).
+
+Note that source symmetry does not mean that sources are treated \emph{equally}
+per se, since some sources are presumed to be more trustworthy than others
+(this is more or less the central premise of truth-discovery). Instead it means
+that sources are judged solely by the facts that they claim, not their
+identities.
+
 Clearly symmetry implies source, fact and object symmetry.
 
-\todo{Is this an if and only if? Need to consider what symmetry means for
-permutations where $\S$, $\F$ and $\O$ are not closed under $\pi$, e.g. a
-source is swapped with an object. Clearly the set of sources in $\pi(N)$ would
-be different from $\S$.}
+\todo{Is this an if and only if? I think yes, since if the above conjecture is
+true then any permutation that results in a valid TDN can be expressed as a
+composition of three mappings, each of which leaves two of $\S$, $\F$ and $\O$
+unchanged (or something similar). Then applying the three symmetries to each
+mapping could give overall symmetry}
 
 \todo{Think about whether the three weaker symmetries are independent (I think
 they are). If so provide an example of an algorithm satisfying one but not the
 others.}
 \end{remark}
 
-\subsubsection{Inspired by social choice}
+\begin{definition}
 
-\todo{write some stuff here}
+A source $s^* \in \S$ is \emph{authoritative} for a network $N=(V, E)$ and
+algorithm $A$ if $s \sle_N^A s^*$ for all $s \in S$, and $(s^*, f^*) \in E$
+implies $f \fle_N^A f^*$ for all $f \in \F$.
+
+In other words, $s^*$ is more (or equally) trusted than all other sources, and
+its facts are more (or equally) believable than all others.
+
+We also define a strict version: $s^*$ is \emph{strictly authoritative} if
+additionally $s \slt_N^A s^*$ for all $s \ne s^*$, and $f \flt_N^A f^*$ for all
+$f, f^* \in \F$ such that $(s^*, f^*) \in E$ and $(s^*, f) \notin E$.
+
+\end{definition}
+
+\begin{axiom}
+\label{axiom:dict}
+An algorithm $A$ is a \emph{dictatorship} if there is a source $s^* \in S$ (the
+dictator) that is authoritative for all networks.
+\end{axiom}
+
+\begin{axiom}
+\label{axiom:strict_dict}
+An algorithm $A$ is a \emph{strict dictatorship} if there is a source $s^* \in
+S$ that is strictly authoritative for all networks.
+\end{axiom}
+
+\todo{
+    Maybe should also have an axiom for algorithms that have \emph{some}
+    authoritative source for each network, but not necessarily a fixed one;
+    e.g. could select the source that makes the most claims, and have that be
+    authoritative. This would be symmetric, which a dictatorship cannot be.
+}
+
+\begin{proposition}
+\label{prop:symm_and_dict}
+
+If an algorithm $A$ is both source-symmetric and a dictatorship, then for any
+network $N$:
+\begin{enumerate}
+\item All sources are ranked equally
+\item If $f_1$ is claimed by at least one source in $N$, then $f_2 \fle_N^A
+f_1$ for all facts $f_2$.
+\end{enumerate}
+
+In particular, there is no algorithm that is both source-symmetric and a strict
+dictatorship.
+\end{proposition}
+
+\begin{proof}
+Suppose $A$ is source-symmetric and a dictatorship with dictator $s^*$. Let
+$N=(V,E)$ be a truth-discovery network.
+\begin{enumerate}
+\item
+    Let $s_1, s_2 \in \S$. Without loss of generality $s_1 \sle_N^A s_2$, since
+    $\sle_N^A$ is complete. Consider the permutation $\pi=(s_1, s^*)$.  We have
+    $s_2 \sle_{\pi(N)}^A s^*$ by dictatorship in $\pi(N)$, which by symmetry
+    means $\pi^{-1}(s_2) \sle_N^A \pi^{-1}(s^*)$, i.e. $s_2 \sle_N^A s_1$.
+    Hence $s_1 \seq_N^A s_2$ as required.
+
+\item
+    Let $f_1, f_2 \in \F$ such that there is a source $s$ with $(s, f_1) \in E$.
+    Set $\sigma=(s, s^*)$. Then $\sigma(E)$ contains $(\sigma(s), \sigma(f_1))
+    = (s^*, f_1)$, so we have $\sigma(f_2) \fle_{\sigma(N)}^A f_1 =
+    \sigma(f_1)$ since the facts claimed by $s^*$ rank above all others.
+    Applying symmetry gives $f_2 \fle_N^A f_1$ as required.
+\end{enumerate}
+
+This implies there is no source-symmetric strict dictatorship. If $A$ were such
+an algorithm then $A$ is also a non-strict dictatorship, so symmetry implies
+all sources are ranked equally, but this contradicts $s \slt_N^A s^*$ for all
+$s \ne s^*$.
+
+\end{proof}
+
+\begin{example}
+A trivial algorithm that satisfies symmetry and non-strict dictatorship is one
+that always ranks all sources and facts equally: $A_{triv}(N) = (\S^2, \F^2)$.
+
+If we restrict $\mathcal{N}$ to those networks where all facts are claimed by
+at least one source, then proposition \ref{prop:symm_and_dict} shows that $A$
+satisfies source-symmetry and dictatorship if and only if $A=A_{triv}$.
+
+Without this restriction, facts not claimed by any source may be ranked
+strictly below other facts. Indeed, consider $A$ defined as follows. For any
+network $N$ write $F_{+} = \{f \in \F : \src(N, f) \ne \emptyset \}$, and
+define $A$ by $s_1 \seq_N^{A} s_2 \text{ for all } s_1, s_2 \in \S$, and
+$$
+    f_1 \fle_N^{A} f_2 \iff f_2 \in F_{+} \text{ or } f_1 \notin F_{+}
+    \text{ for all } f_1, f_2 \in \F
+$$
+
+$A$ is trivially a dictatorship for \emph{any} $s^* \in \S$. It can be easily
+checked that $\fle_N^A$ is a well-defined total preorder, and that $A$ is also
+symmetric. However any fact in $\F \setminus F_+$ ranks strictly below any fact
+in $F_+$.
+\end{example}
+
+\subsubsection{Inspired by ranking systems}
+\todo{write stuff}
 
 {
     \centering
