@@ -1,8 +1,6 @@
 import json
 import math
 from os import path
-from unittest.mock import Mock, patch
-import time
 
 import numpy as np
 import numpy.ma as ma
@@ -602,27 +600,3 @@ class TestIteratorsForAlgorithms:
                                    obj.iterator.__class__.__name__,
                                    it_cls.__name__))
                 assert isinstance(obj.iterator, it_cls), err_msg
-
-
-# Make a mocked time.time() function that returns increasing multiples of 5
-MockedTime = Mock(side_effect=range(1, 100000, 5))
-
-
-class TestResult(BaseTest):
-    def test_num_iterations(self, data):
-        voting_res = MajorityVoting().run(data)
-        assert voting_res.iterations is None
-
-        sums_res = Sums(iterator=FixedIterator(13)).run(data)
-        assert sums_res.iterations == 13
-
-    @patch("time.time", MockedTime)
-    def test_time_taken(self, data):
-        """
-        Test run time in Result objects for iterative and non-iterative
-        algorithms
-        """
-        res = MajorityVoting().run(data)
-        assert res.time_taken == 5
-        res = Sums().run(data)
-        assert res.time_taken == 5

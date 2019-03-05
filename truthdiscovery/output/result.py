@@ -1,3 +1,8 @@
+import copy
+
+from truthdiscovery.utils import filter_dict
+
+
 class Result:
     """
     Object to hold the results of truth-discovery.
@@ -33,3 +38,27 @@ class Result:
             if belief < max_belief:
                 break
             yield val
+
+    def filter(self, sources=None, variables=None):
+        """
+        Filter a set of results to only include trust and belief scores for
+        subsets of the sources and variables
+
+        :param sources:   iterable of source labels to narrow the trust scores
+                          down to, or None to perform no source filtering
+        :param variables: iterable of variable labels to narrow the belief
+                          scores down to, or None to perform no variable
+                          filtering
+        :return: a :any:`Result` object with trust/belief scores for only the
+                 requested sources and variables
+        """
+        new_scores = []
+        filters = ((sources, self.trust), (variables, self.belief))
+        for filter_set, full_scores in filters:
+            if filter_set is not None:
+                new_scores.append(dict(filter_dict(full_scores, filter_set)))
+            else:
+                new_scores.append(copy.deepcopy(full_scores))
+        new_trust, new_belief = new_scores
+
+        return Result(new_trust, new_belief, self.time_taken, self.iterations)

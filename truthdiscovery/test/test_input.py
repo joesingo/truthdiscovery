@@ -319,23 +319,6 @@ class TestSupervisedData:
             sup.get_accuracy(res)
 
 
-class TestResult:
-    """
-    Test the Result class
-    """
-    def test_most_believed_values(self):
-        test_data = (
-            ({10: 0.5, 11: 0.7, 12: 0.7}, {11, 12}),
-            ({-1: 0.1, -2: 0.1, 3: 0.05}, {-1, -2}),
-            ({5: 0.9, 5000: 0.8}, {5}),
-            ({123.456: 0.0001}, {123.456})
-        )
-        trust = [0.5] * 10
-        for var_belief, exp in test_data:
-            res = Result(trust, [var_belief], time_taken=None)
-            assert set(res.get_most_believed_values(0)) == exp
-
-
 class TestSyntheticData:
     """
     Test the SyntheticData class
