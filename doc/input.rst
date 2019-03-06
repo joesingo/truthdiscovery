@@ -200,10 +200,81 @@ supervised data) with the
 Custom dataset formats
 ----------------------
 
-TODO:
+In a real-world application of truth-discovery, data will most likely be loaded
+from a file in a bespoke format. The most suitable format for storing datasets
+in files may be domain-specific, or the format may be already fixed if applying
+truth-discovery to existing datasets.
 
-- Explain FileDataset
-- Give examples
+For these reasons, this library does not attempt to provide a standard format
+for loading files from disk (except for the CSV format for matrix datasets
+described above, which is of limited use in real-world data scenarios where
+variable values are not always integers).
+
+Instead, there are two helper classes :any:`FileDataset` and
+:any:`FileSupervisedData` that allow the user to specify only the
+format-specific details, and abstract away other details.
+
+.. This is done by creating a subclass and implementing
+.. :meth:`~truthdiscovery.input.file_helpers.FileDataset.get_tuples` in the case
+.. of :any:`FileDataset`, and
+.. :meth:`~truthdiscovery.input.file_helpers.FileSupervisedData.get_pairs` in the
+.. case of :any:`FileSupervisedData`. For example, suppose ``mydata.txt``
+.. contains::
+
+For example, suppose ``mydata.txt`` contains::
+
+    source 1: x=4, y=7
+    source 2: y=7, x=8
+    source 3: x=3, z=5
+    source 4: x=3, y=6, z=8
+
+To load this file we can create a sub-class of :any:`FileDataset` and implement
+the :meth:`~truthdiscovery.input.file_helpers.FileDataset.get_tuples` method::
+
+    class DemoFileDataset(FileDataset):
+        def get_tuples(self, fileobj):
+            """
+            Read each line of the file, and extract source label and claims (note
+            that no error checking is performed, since this is just a demo)
+            """
+            for line in fileobj:
+                line = line.strip()
+                source, claims = line.split(": ")
+                for claim in claims.split(", "):
+                    var, value = claim.split("=")
+                    yield (source, var, value)
+
+:meth:`~truthdiscovery.input.file_helpers.FileDataset.get_tuples` simply yields
+data tuples of the form required for the :any:`Dataset` constructor. To load
+the file we simply pass the file path to the constructor::
+
+    >>> mydata = DemoFileDataset("mydata.txt")
+    >>> mydata.num_sources
+    4
+    >>> mydata.num_variables
+    3
+    >>> from truthdiscovery import MajorityVoting
+    >>> results = MajorityVoting().run(mydata)
+    >>> results.trust
+    {'source 1': 1, 'source 2': 1, 'source 3': 1, 'source 4': 1}
+    >>> results.belief
+    {'x': {'4': 1.0, '8': 1.0, '3': 2.0}, 'y': {'7': 2.0, '6': 1.0}, 'z': {'5':
+    1.0, '8': 1.0}}
+    >>>
+
+The results of majority voting (where the belief score for a claim is simply
+the number of sources making that claim, and all sources receive trust score 1)
+shows that the data was loaded as expected.
+
+Loading supervised data from a file is similar: we may create a sub-class of
+:any:`FileSupervisedData` and implement
+:meth:`~truthdiscovery.input.file_helpers.FileSupervisedData.get_pairs`, which
+yields pairs ``(var, true_value)``. An object is then constructed with::
+
+    mysup = DemoSupervisedFileData(dataset, "true_values.txt")
+
+For another example, see ``stock_dataset.py`` in the ``examples`` directory in
+the repository.
 
 References
 ----------

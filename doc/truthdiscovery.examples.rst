@@ -28,6 +28,14 @@ truthdiscovery.examples.synthetic\_experiment module
     :undoc-members:
     :show-inheritance:
 
+truthdiscovery.examples.timing\_test module
+-------------------------------------------
+
+.. automodule:: truthdiscovery.examples.timing_test
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

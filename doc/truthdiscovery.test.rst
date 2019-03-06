@@ -36,6 +36,14 @@ truthdiscovery.test.test\_iterators module
     :undoc-members:
     :show-inheritance:
 
+truthdiscovery.test.test\_result module
+---------------------------------------
+
+.. automodule:: truthdiscovery.test.test_result
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

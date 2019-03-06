@@ -12,6 +12,14 @@ truthdiscovery.input.dataset module
     :undoc-members:
     :show-inheritance:
 
+truthdiscovery.input.file\_helpers module
+-----------------------------------------
+
+.. automodule:: truthdiscovery.input.file_helpers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 truthdiscovery.input.matrix\_dataset module
 -------------------------------------------
 
