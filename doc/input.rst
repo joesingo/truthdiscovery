@@ -214,13 +214,6 @@ Instead, there are two helper classes :any:`FileDataset` and
 :any:`FileSupervisedData` that allow the user to specify only the
 format-specific details, and abstract away other details.
 
-.. This is done by creating a subclass and implementing
-.. :meth:`~truthdiscovery.input.file_helpers.FileDataset.get_tuples` in the case
-.. of :any:`FileDataset`, and
-.. :meth:`~truthdiscovery.input.file_helpers.FileSupervisedData.get_pairs` in the
-.. case of :any:`FileSupervisedData`. For example, suppose ``mydata.txt``
-.. contains::
-
 For example, suppose ``mydata.txt`` contains::
 
     source 1: x=4, y=7
