@@ -11,6 +11,8 @@ class PriorBelief(Enum):
     """
     Enumeration of possible choices for prior beliefs, used in iterative
     algorithms
+
+    TODO: need to write a brief explanation of each choice
     """
     FIXED = 1
     VOTED = 2

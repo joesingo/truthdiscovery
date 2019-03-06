@@ -3,9 +3,11 @@
 Input Data
 ==========
 
-In this library, the input to a truth-discovery algorithm is a :any:`Dataset`
-object. A dataset object is constructed by passing an iterable of tuples of the
-form ``(source_label, var_label, value)`` for each claim that is made.
+In this library, objects are referred to as *variables*, and *claims* are
+statements asserting that a given variable takes a given value. Input data is
+represented by a :any:`Dataset` object, which is constructed by passing an
+iterable of tuples of the form ``(source_label, var_label, value)``
+for each claim that is made.
 
 For example, consider the following situation:
 

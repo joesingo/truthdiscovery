@@ -7,6 +7,7 @@ Welcome to truthdiscovery's documentation!
 
    input
    algorithms
+   output
 
 Overview
 --------
@@ -35,48 +36,49 @@ believably claims, and believable claims are made my trustworthy sources.
 Most approaches are *unsupervised*, in that they do not use any prior knowledge
 for the trustworthiness of sources etc.
 
-Supported algorithms
---------------------
-- Majority voting (baseline algorithm)
-- Sums [1]_
-- Average.Log [1]_
-- Investment [1]_
-- PooledInvestment [1]_
-- TruthFinder [2]_
+Installation
+------------
 
-See :ref:`algorithms-page` for more detail.
+This package should be installed with ``pip`` (using Python 3). It is recommended
+to work in a `virtualenv <https://docs.python.org/3/tutorial/venv.html>`_ to
+avoid conflicts with globally-installed packages::
 
-Input
------
-
-In this library, objects are referred to as *variables*, and claims are
-statements asserting that a given variable takes a given value.
-
-The data is then given as a list (or other iterable) of tuples of the form
-``(source_label, var_label, value)``.
-
-Alternatively, if all values are numeric, the source/claim/variable network can
-be encoded as a matrix where rows correspond to sources, columns correspond to
-variables, and an entry at position ``(i, j)`` is the value that source ``i``
-claims for variable ``j`` (the matrix may contain empty cells in cases where a
-source does not make a claim about a variable).
-
-See :ref:`input-page` for more detail.
+    $ cd <repo root>
+    $ python3 -m venv venv
+    $ source venv/bin/activate
+    $ pip install -e .
 
 Usage
 -----
 
-TODO!
+::
 
-References
-----------
-.. [1] Pasternack, Jeff and Roth, Dan, `Knowing What to Believe (When You
-   Already Know Something)
-   <http://dl.acm.org/citation.cfm?id=1873781.1873880>`_.
+    >>> from truthdiscovery import Dataset, TruthFinder
+    >>> mydata = Dataset([
+    ...     ("source 1", "x", 4),
+    ...     ("source 1", "y", 7),
+    ...     ("source 2", "y", 7),
+    ...     ("source 2", "z", 5),
+    ...     ("source 3", "x", 3),
+    ...     ("source 3", "z", 5),
+    ...     ("source 4", "x", 3),
+    ...     ("source 4", "y", 6),
+    ...     ("source 4", "z", 8)
+    ... ])
+    >>> alg = TruthFinder()
+    >>> results = alg.run(mydata)
+    >>> # What is most likely value for x?
+    ... set(results.get_most_believed_values("x"))
+    {3}
+    >>> # How trustworthy are the sources?
+    ... results.trust
+    {'source 1': 0.6519911420410474, 'source 2': 0.715051359018607, 'source 3':
+    0.7125585145162463, 'source 4': 0.6283823616003958}
 
-.. [2] X. Yin and J. Han and P. S. Yu, `Truth Discovery with Multiple Conflicting
-   Information Providers on the Web
-   <http://ieeexplore.ieee.org/document/4415269/>`_.
+See :ref:`input-page` for how to construct different types of datasets,
+:ref:`algorithms-page` to see which algorithms are available and the parameters
+they can accept, and :ref:`output-page` for how to use the results returned
+from an algorithm.
 
 Indices and tables
 ==================
