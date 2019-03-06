@@ -47,7 +47,7 @@
 \renewcommand{\O}{\mathcal{O}}  % Note: overrides existing command
 \newcommand{\F}{\mathcal{F}}
 % Source and fact orderings: less-equal, less-than, greater-equal, equal
-\newcommand{\sle}{\le}
+\newcommand{\sle}{\sqsubseteq}
 \newcommand{\slt}{<}
 \newcommand{\sge}{\ge}
 \newcommand{\seq}{\simeq}
@@ -549,20 +549,17 @@ other facts, and ranks its claimed facts equally.\footnotemark
 Several axioms applicable to social welfare and social choice functions from
 classical social choice can be directly adapted to truth-discovery.
 
-\begin{notation}
+\begin{definition}
+Two truth-discovery networks $N$ and $N'$ are \emph{equivalent} if there is a
+graph isomorphism $\pi$ between them that preserves sources, facts and objects:
+\begin{enumerate}
+\item $\pi(s) \in \S$ for all $s \in \S$
+\item $\pi(f) \in \F$ for all $f \in \F$
+\item $\pi(o) \in \O$ for all $o \in O$
+\end{enumerate}
 
-For a graph $G = (V, E)$ and a permutation $\pi: V \rightarrow V$, we will
-denote by $\pi(G)$ the graph isomorphic to $G$ under $\pi$. Note that $\pi(G)$
-is unique.
-
-\textbf{Conjecture}: For a truth-discovery network $N$, $\pi(N)$ is a valid
-truth-discovery network if and only if $\pi(s) \in S$, $\pi(f) \in \F$ and
-$\pi(o) \in \O$ for all $s, f, o$ in $N$ that have incoming or outgoing edges.
-\todo{
-    Think about this, and prove it if it is true
-}
-
-\end{notation}
+In such case we write $\pi(N)$ for $N'$.
+\end{definition}
 
 Figure \ref{img:permutation_of_a_tdn} shows an example of a permutation of a
 truth-discovery network.
@@ -572,38 +569,72 @@ on the `names' of the sources, facts and objects in the input.
 
 \begin{axiom}
 \label{axiom:symmetry}
-Let $A$ be a \tda. $A$ satisfies \emph{symmetry} if for any truth-discovery
-network $N = (V, E)$ and permutation $\pi: V \rightarrow V$ such that $\pi(N)$
-is a truth-discovery network, we have
-$$ s_1 \sle_N^A s_2 \iff \pi(s_1) \sle_{\pi(N)}^A \pi(s_2) $$
+Let $A$ be a \tda. $A$ satisfies \emph{symmetry} if for any equivalent
+truth-discovery networks $N$ and $N' = \pi(N)$, we have
+$$ s_1 \sle_N^A s_2 \iff \pi(s_1) \sle_{N'}^A \pi(s_2) $$
 and
-$$ f_1 \fle_N^A f_2 \iff \pi(f_1) \fle_{\pi(N)}^A \pi(f_2) $$
+$$ f_1 \fle_N^A f_2 \iff \pi(f_1) \fle_{N'}^A \pi(f_2) $$
 
-$A$ satisfies \emph{source symmetry} if the above holds for any network $N$ and
-permutation $\pi$ that only permutes sources, i.e. $\pi(f)=f$ and $\pi(o)=o$
-for all $f \in \F$ and $o \in \O$. \emph{Fact symmetry} and \emph{object
-symmetry} are defined similarly.
+$A$ satisfies \emph{source-symmetry} if both the above statements hold in cases
+where $\pi$ only permutes sources, i.e. $\pi(f)=f$ and $\pi(o)=o$ for all $f
+\in \F$ and $o \in \O$. \emph{Fact-symmetry} and \emph{object-symmetry} are
+defined similarly.
 \end{axiom}
 
+\begin{proposition}
+$A$ satisfies symmetry if and only if it satisfies source, fact and object
+symmetry.
+\end{proposition}
+
+\begin{proof}
+The `only if' direction is clear. For the converse, suppose $A$ is source, fact
+and object symmetric, and let $N$, $N'=\pi(N)$ be equivalent networks. Define
+\begin{equation*}
+\pi_\S(x) = \begin{cases}
+    \pi(x) & \text{ if } x \in \S \\
+    x      & \text{ if } x \in \F \cup \O
+\end{cases}
+\end{equation*}
+Define $\pi_\F$, $\pi_\O$ similarly, and set $\sigma = \pi_\S \circ \pi_\F
+\circ \pi_\O$. Then for $s \in \S$,
+\begin{align*}
+\sigma(s) &= \pi_\S(\pi_\F(\pi_\O(s))) \\
+          &= \pi_\S(\pi_\F(s)) \\
+          &= \pi_\S(s) \\
+          &= \pi(s)
+\end{align*}
+Similarly $\sigma(f)=\pi(f)$ and $\sigma(o)=\pi(o)$ for $f \in \F$ and $o \in
+\O$. Hence $\sigma=\pi$.
+% Since each of $\pi_\S$, $\pi_\F$ and $\pi_\O$ only
+% permute one of $\S$, $\F$ and $\O$, we have symmetry for $A$ between any two
+% networks equivalent under them.
+
+Let $s_1, s_2 \in \S$. Since $\pi_\O$ only permutes objects, we may apply
+object-symmetry to get
+$$ s_1 \sle_N^A s_2 \iff \pi_\O(s_1) \sle_{\pi_\O(N)} \pi_\O(s_2) $$
+Then since $\pi_\F$ only permutes facts and $\pi_\S$ only permutes sources, we
+may successively apply fact and object symmetry to the right hand side to get
+\begin{align*}
+s_1 \sle_N^A s_2 & \iff \sigma(s_1) \sle_{\sigma(N)} \sigma(s_2) \\
+                 & \iff \pi(s_1) \sle_{\pi(N)} \pi(s_2) \\
+                 & \iff \pi(s_1) \sle_{N'} \pi(s_2)
+\end{align*}
+An identical argument for fact ranking gives $f_1 \fle_N^A f_2 \iff \pi(f_1)
+\fle_{N'}^A f_2$. Hence $A$ is symmetric.
+
+\end{proof}
+
 \begin{remark}
-Source symmetry is analogous to \emph{anonymity} in classical social choice,
+Source-symmetry is analogous to \emph{anonymity} in classical social choice,
 where all voters are treated identically. Fact and object symmetry are
 analogous to \emph{neutrality} in social choice, where the alternatives being
 voted on are treated identically (Handbook, definitions 2.4, 2.5).
 
-Note that source symmetry does not mean that sources are treated \emph{equally}
+Note that source-symmetry does not mean that sources are treated \emph{equally}
 per se, since some sources are presumed to be more trustworthy than others
 (this is more or less the central premise of truth-discovery). Instead it means
 that sources are judged solely by the facts that they claim, not their
 identities.
-
-Clearly symmetry implies source, fact and object symmetry.
-
-\todo{Is this an if and only if? I think yes, since if the above conjecture is
-true then any permutation that results in a valid TDN can be expressed as a
-composition of three mappings, each of which leaves two of $\S$, $\F$ and $\O$
-unchanged (or something similar). Then applying the three symmetries to each
-mapping could give overall symmetry}
 
 \todo{Think about whether the three weaker symmetries are independent (I think
 they are). If so provide an example of an algorithm satisfying one but not the
