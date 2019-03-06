@@ -1,5 +1,7 @@
 import copy
 
+import numpy as np
+
 from truthdiscovery.utils import filter_dict
 
 
@@ -62,3 +64,29 @@ class Result:
         new_trust, new_belief = new_scores
 
         return Result(new_trust, new_belief, self.time_taken, self.iterations)
+
+    def _get_stats(self, scores_dict):
+        """
+        :return: ``(mean, stddev)`` of values in ``scores_dict``
+        """
+        scores_vec = np.fromiter(
+            scores_dict.values(), dtype=np.float64, count=len(scores_dict)
+        )
+        return (np.mean(scores_vec), np.std(scores_vec))
+
+    def get_trust_stats(self):
+        """
+        :return: a tuple ``(mean, stddev)`` of the mean and standard deviation
+                 of trust scores
+        """
+        return self._get_stats(self.trust)
+
+    def get_belief_stats(self):
+        """
+        :return: a dictionary of the form ``{var_label: (mean, stddev), ...}``
+                 containing mean and standard deviation of belief scores for
+                 each variable
+        """
+        return {
+            var: self._get_stats(scores) for var, scores in self.belief.items()
+        }

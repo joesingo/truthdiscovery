@@ -1,9 +1,8 @@
 from unittest.mock import Mock, patch
-import time
 
+import numpy as np
 import pytest
 
-from truthdiscovery.algorithm import MajorityVoting, Sums
 from truthdiscovery.algorithm import MajorityVoting, Sums
 from truthdiscovery.input import Dataset
 from truthdiscovery.output import Result
@@ -120,8 +119,11 @@ class TestResult:
         assert stddev_trust == 0.2494438257849294
 
         belief_stats = res.get_belief_stats()
-        exp_x =  (0.6, 0.21602468994692867)
-        exp_y =  (0.3, 0.3559026084010437)
-        exp_z =  (0.8, 0.14142135623730953)
+        exp_x = (0.6, 0.21602468994692867)
+        exp_y = (0.3, 0.3559026084010437)
+        exp_z = (0.8, 0.14142135623730953)
 
-        # TODO: assertions
+        assert set(belief_stats.keys()) == {"x", "y", "z"}
+        assert np.isclose(belief_stats["x"], exp_x).all()
+        assert np.isclose(belief_stats["y"], exp_y).all()
+        assert np.isclose(belief_stats["z"], exp_z).all()
