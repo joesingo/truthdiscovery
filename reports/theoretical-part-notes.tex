@@ -2,7 +2,7 @@
 \date{February 2019}
 \author{Joe Singleton}
 \title{
-    Notes on theory of truth discovery algorithms
+    Notes on theory of truth discovery
 }
 
 % Packages:
@@ -59,8 +59,6 @@
 \newcommand{\src}{\texttt{src}}
 \newcommand{\fact}{\texttt{facts}}
 \newcommand{\orderings}{\mathcal{L}}
-\newcommand{\tdn}{truth-discovery network}
-\newcommand{\tda}{truth-discovery algorithm}
 
 \begin{document}
 \maketitle
@@ -326,7 +324,7 @@ Dual axiom for facts: if a new source is added that ranks higher for trust than
 existing sources for a fact, that fact's belief ranking should not get worse.
 Similar for opposite situation.
 
-\textbf{Note:} Under definition \ref{def:truth_discovery_algorithm} only the
+\textbf{Note:} Under definition \ref{def:truth_discovery_operator} only the
 \emph{relative} position of sources can be judged as getting better or worse.
 Something like the following would check if $s$ gets worse than \emph{some}
 other source after a change: $s$ ranks worse in $N'$ than in $N$ if there is
@@ -421,11 +419,11 @@ bijective mapping $\phi: V \rightarrow V'$ such that $(u, v) \in E \iff
 
 \subsection{Truth-discovery definitions}
 
-We consider fixed sets $\S$, $\F$ and $\O$, called the \emph{sources},
+We consider fixed finite sets $\S$, $\F$ and $\O$, called the \emph{sources},
 \emph{facts} and \emph{objects} respectively. All definitions and axioms will
 be stated with respect to these sets.
 
-% Input network defintion
+% Input network definition
 \begin{definition}
 
 A \emph{truth-discovery network} is a directed graph $N = (V, E)$ where $V = \S
@@ -462,15 +460,15 @@ For convenience, for a network $N=(V, E)$, define:
 
 % Algorithm definition
 \begin{definition}
-\label{def:truth_discovery_algorithm}
+\label{def:truth_discovery_operator}
 
-A \emph{truth-discovery algorithm} $A$ is a mapping $A: \mathcal{N} \rightarrow
-\orderings(\S) \times \orderings(\F)$, i.e. $A$ assigns to each truth-discovery
-network a pair of total preorders $A(N) = (\sle_N^A, \fle_N^A)$ on the sets
+A \emph{truth-discovery operator} $T$ is a mapping $T: \mathcal{N} \rightarrow
+\orderings(\S) \times \orderings(\F)$, i.e. $T$ assigns to each truth-discovery
+network a pair of total preorders $T(N) = (\sle_N^T, \fle_N^T)$ on the sets
 $\S$ and $\F$ respectively.
 
-$s_1 \sle_N^A s_2$ means $s_2$ is ranked as \emph{more trustworthy} than $s_1$
-in the network $N$ according to $A$; $f_1 \fle_N^A f_2$ means $f_2$ is ranked
+$s_1 \sle_N^T s_2$ means $s_2$ is ranked as \emph{more trustworthy} than $s_1$
+in the network $N$ according to $T$; $f_1 \fle_N^T f_2$ means $f_2$ is ranked
 as \emph{more believable} than $f_1$. Sub- and super-scripts can be omitted
 when clear from context.
 
@@ -479,25 +477,25 @@ when clear from context.
 \begin{definition}
 \label{def:numerical}
 
-A \emph{numerical truth-discovery algorithm} $A$ assigns to each
+A \emph{numerical truth-discovery operator} $T$ assigns to each
 truth-discovery network $N$ a \emph{source trust} mapping $\tau: \S \rightarrow
 [0, 1]$ and \emph{fact belief} mapping $\phi: \F \rightarrow [0, 1]$.
 
 \end{definition}
 
 \begin{remark}
-    Any numerical truth-discovery algorithm $A$ naturally induces a
-    truth-discovery algorithm $A'$, where for any truth-discovery network $N$
+    Any numerical truth-discovery operator $T$ naturally induces a
+    truth-discovery operator $T'$, where for any truth-discovery network $N$
     we define
     \begin{align*}
-    s_1 \sle_N^{A'} s_2 & \iff \tau(s_1) \le \tau(s2) \\
-    f_1 \fle_N^{A'} f_2 & \iff \phi(f_1) \le \phi(f_2)
+    s_1 \sle_N^{T'} s_2 & \iff \tau(s_1) \le \tau(s2) \\
+    f_1 \fle_N^{T'} f_2 & \iff \phi(f_1) \le \phi(f_2)
     \end{align*}
     for $s_1, s_2 \in \S$ and $f_1, f_2 \in \F$.
 \end{remark}
 
-In this work we deal primarily with truth-discovery algorithms as defined in
-definition \ref{def:truth_discovery_algorithm}, instead of working directly
+In this work we deal primarily with truth-discovery operators as defined in
+definition \ref{def:truth_discovery_operator}, instead of working directly
 with numeric trust and belief scores. This is because we are interested in the
 qualitative ranking of sources and facts, rather than quantitative values. This
 approach is common in axiomatic treatment of ranking
@@ -505,27 +503,27 @@ systems{\cite{altman,altman_personalised}}. \todo{find more references for this
 (e.g. Arrow, 1951, p17)}
 
 Dispensing with numeric values is further justified by the fact that
-trust/belief scores produced by numeric algorithms often do not have any
+trust/belief scores produced by numeric operators often do not have any
 semantic meaning\cite{pasternack}, and so only the \emph{ranking} of
 sources/facts is important.
 
 One downside to this approach is that whilst we can tell whether or not $s_1$
 is more trustworthy than $s_2$, we cannot tell by \emph{how much}.  For
-example, consider two numeric algorithms $A$ and $A'$ and $\S=\{s_1, s_2\}$
+example, consider two numeric operators $T$ and $T'$ and $\S=\{s_1, s_2\}$
 such that $\tau(s_1)=0.5, \tau(s_2)=0.51$, and $\tau'(s_1)=0.01,
-\tau'(s_2)=0.99$. Both algorithms induce the same ranking on $\S$, yet $A$
-considers the two sources to have similar trust values while $A'$ considers
+\tau'(s_2)=0.99$. Both operators induce the same ranking on $\S$, yet $T$
+considers the two sources to have similar trust values while $T'$ considers
 $s_2$ to be much more trustworthy than $s_1$.
 
 \textbf{Notes:}
 \begin{itemize}
 
-\item Some algorithms only give most believed values as output (neither a
+\item Some operators only give most believed values as output (neither a
 ranking nor belief score for each fact) (e.g. \cite{li_conflicts}). However we
-can view such an algorithm in the above framework by considering it to rank the
+can view such an operator in the above framework by considering it to rank the
 discovered true facts above all others, and ranking false facts equally.
 
-\item Some algorithms may give most-believed values for facts that are not
+\item Some operators may give most-believed values for facts that are not
 claimed by any sources, e.g. if values are continuous could perform a weighted
 average of claimed facts (I believe this is done in \cite{li_conflicts} for
 continuous data types). Neither of the definitions above support this.
@@ -569,25 +567,25 @@ on the `names' of the sources, facts and objects in the input.
 
 \begin{axiom}
 \label{axiom:symmetry}
-Let $A$ be a \tda. $A$ satisfies \emph{symmetry} if for any equivalent
-truth-discovery networks $N$ and $N' = \pi(N)$, we have
-$$ s_1 \sle_N^A s_2 \iff \pi(s_1) \sle_{N'}^A \pi(s_2) $$
+Let $T$ be a truth-discovery operator. $T$ satisfies \emph{symmetry} if for
+any equivalent truth-discovery networks $N$ and $N' = \pi(N)$, we have
+$$ s_1 \sle_N^T s_2 \iff \pi(s_1) \sle_{N'}^T \pi(s_2) $$
 and
-$$ f_1 \fle_N^A f_2 \iff \pi(f_1) \fle_{N'}^A \pi(f_2) $$
+$$ f_1 \fle_N^T f_2 \iff \pi(f_1) \fle_{N'}^T \pi(f_2) $$
 
-$A$ satisfies \emph{source-symmetry} if both the above statements hold in cases
+$T$ satisfies \emph{source-symmetry} if both the above statements hold in cases
 where $\pi$ only permutes sources, i.e. $\pi(f)=f$ and $\pi(o)=o$ for all $f
 \in \F$ and $o \in \O$. \emph{Fact-symmetry} and \emph{object-symmetry} are
 defined similarly.
 \end{axiom}
 
 \begin{proposition}
-$A$ satisfies symmetry if and only if it satisfies source, fact and object
+$T$ satisfies symmetry if and only if it satisfies source, fact and object
 symmetry.
 \end{proposition}
 
 \begin{proof}
-The `only if' direction is clear. For the converse, suppose $A$ is source, fact
+The `only if' direction is clear. For the converse, suppose $T$ is source, fact
 and object symmetric, and let $N$, $N'=\pi(N)$ be equivalent networks. Define
 \begin{equation*}
 \pi_\S(x) = \begin{cases}
@@ -605,22 +603,19 @@ Define $\pi_\F$, $\pi_\O$ similarly, and set $\sigma = \pi_\S \circ \pi_\F
 \end{align*}
 Similarly $\sigma(f)=\pi(f)$ and $\sigma(o)=\pi(o)$ for $f \in \F$ and $o \in
 \O$. Hence $\sigma=\pi$.
-% Since each of $\pi_\S$, $\pi_\F$ and $\pi_\O$ only
-% permute one of $\S$, $\F$ and $\O$, we have symmetry for $A$ between any two
-% networks equivalent under them.
 
 Let $s_1, s_2 \in \S$. Since $\pi_\O$ only permutes objects, we may apply
 object-symmetry to get
-$$ s_1 \sle_N^A s_2 \iff \pi_\O(s_1) \sle_{\pi_\O(N)} \pi_\O(s_2) $$
+$$ s_1 \sle_N^T s_2 \iff \pi_\O(s_1) \sle_{\pi_\O(N)}^T \pi_\O(s_2) $$
 Then since $\pi_\F$ only permutes facts and $\pi_\S$ only permutes sources, we
 may successively apply fact and object symmetry to the right hand side to get
 \begin{align*}
-s_1 \sle_N^A s_2 & \iff \sigma(s_1) \sle_{\sigma(N)} \sigma(s_2) \\
-                 & \iff \pi(s_1) \sle_{\pi(N)} \pi(s_2) \\
-                 & \iff \pi(s_1) \sle_{N'} \pi(s_2)
+s_1 \sle_N^T s_2 & \iff \sigma(s_1) \sle_{\sigma(N)}^T \sigma(s_2) \\
+                 & \iff \pi(s_1) \sle_{\pi(N)}^T \pi(s_2) \\
+                 & \iff \pi(s_1) \sle_{N'}^T \pi(s_2)
 \end{align*}
-An identical argument for fact ranking gives $f_1 \fle_N^A f_2 \iff \pi(f_1)
-\fle_{N'}^A f_2$. Hence $A$ is symmetric.
+An identical argument for fact ranking gives $f_1 \fle_N^T f_2 \iff \pi(f_1)
+\fle_{N'}^T f_2$. Hence $T$ is symmetric.
 
 \end{proof}
 
@@ -637,39 +632,39 @@ that sources are judged solely by the facts that they claim, not their
 identities.
 
 \todo{Think about whether the three weaker symmetries are independent (I think
-they are). If so provide an example of an algorithm satisfying one but not the
+they are). If so provide an example of an operator satisfying one but not the
 others.}
 \end{remark}
 
 \begin{definition}
 
 A source $s^* \in \S$ is \emph{authoritative} for a network $N=(V, E)$ and
-algorithm $A$ if $s \sle_N^A s^*$ for all $s \in S$, and $(s^*, f^*) \in E$
-implies $f \fle_N^A f^*$ for all $f \in \F$.
+operator $T$ if $s \sle_N^T s^*$ for all $s \in S$, and $(s^*, f^*) \in E$
+implies $f \fle_N^T f^*$ for all $f \in \F$.
 
 In other words, $s^*$ is more (or equally) trusted than all other sources, and
 its facts are more (or equally) believable than all others.
 
 We also define a strict version: $s^*$ is \emph{strictly authoritative} if
-additionally $s \slt_N^A s^*$ for all $s \ne s^*$, and $f \flt_N^A f^*$ for all
+additionally $s \slt_N^T s^*$ for all $s \ne s^*$, and $f \flt_N^T f^*$ for all
 $f, f^* \in \F$ such that $(s^*, f^*) \in E$ and $(s^*, f) \notin E$.
 
 \end{definition}
 
 \begin{axiom}
 \label{axiom:dict}
-An algorithm $A$ is a \emph{dictatorship} if there is a source $s^* \in S$ (the
+An operator $T$ is a \emph{dictatorship} if there is a source $s^* \in S$ (the
 dictator) that is authoritative for all networks.
 \end{axiom}
 
 \begin{axiom}
 \label{axiom:strict_dict}
-An algorithm $A$ is a \emph{strict dictatorship} if there is a source $s^* \in
+An operator $T$ is a \emph{strict dictatorship} if there is a source $s^* \in
 S$ that is strictly authoritative for all networks.
 \end{axiom}
 
 \todo{
-    Maybe should also have an axiom for algorithms that have \emph{some}
+    Maybe should also have an axiom for operators that have \emph{some}
     authoritative source for each network, but not necessarily a fixed one;
     e.g. could select the source that makes the most claims, and have that be
     authoritative. This would be symmetric, which a dictatorship cannot be.
@@ -678,63 +673,63 @@ S$ that is strictly authoritative for all networks.
 \begin{proposition}
 \label{prop:symm_and_dict}
 
-If an algorithm $A$ is both source-symmetric and a dictatorship, then for any
+If an operator $T$ is both source-symmetric and a dictatorship, then for any
 network $N$:
 \begin{enumerate}
 \item All sources are ranked equally
-\item If $f_1$ is claimed by at least one source in $N$, then $f_2 \fle_N^A
+\item If $f_1$ is claimed by at least one source in $N$, then $f_2 \fle_N^T
 f_1$ for all facts $f_2$.
 \end{enumerate}
 
-In particular, there is no algorithm that is both source-symmetric and a strict
+In particular, there is no operator that is both source-symmetric and a strict
 dictatorship.
 \end{proposition}
 
 \begin{proof}
-Suppose $A$ is source-symmetric and a dictatorship with dictator $s^*$. Let
+Suppose $T$ is source-symmetric and a dictatorship with dictator $s^*$. Let
 $N=(V,E)$ be a truth-discovery network.
 \begin{enumerate}
 \item
-    Let $s_1, s_2 \in \S$. Without loss of generality $s_1 \sle_N^A s_2$, since
-    $\sle_N^A$ is complete. Consider the permutation $\pi=(s_1, s^*)$.  We have
-    $s_2 \sle_{\pi(N)}^A s^*$ by dictatorship in $\pi(N)$, which by symmetry
-    means $\pi^{-1}(s_2) \sle_N^A \pi^{-1}(s^*)$, i.e. $s_2 \sle_N^A s_1$.
-    Hence $s_1 \seq_N^A s_2$ as required.
+    Let $s_1, s_2 \in \S$. Without loss of generality $s_1 \sle_N^T s_2$, since
+    $\sle_N^T$ is complete. Consider the permutation $\pi=(s_1, s^*)$.  We have
+    $s_2 \sle_{\pi(N)}^T s^*$ by dictatorship in $\pi(N)$, which by symmetry
+    means $\pi^{-1}(s_2) \sle_N^T \pi^{-1}(s^*)$, i.e. $s_2 \sle_N^T s_1$.
+    Hence $s_1 \seq_N^T s_2$ as required.
 
 \item
     Let $f_1, f_2 \in \F$ such that there is a source $s$ with $(s, f_1) \in E$.
     Set $\sigma=(s, s^*)$. Then $\sigma(E)$ contains $(\sigma(s), \sigma(f_1))
-    = (s^*, f_1)$, so we have $\sigma(f_2) \fle_{\sigma(N)}^A f_1 =
+    = (s^*, f_1)$, so we have $\sigma(f_2) \fle_{\sigma(N)}^T f_1 =
     \sigma(f_1)$ since the facts claimed by $s^*$ rank above all others.
-    Applying symmetry gives $f_2 \fle_N^A f_1$ as required.
+    Applying symmetry gives $f_2 \fle_N^T f_1$ as required.
 \end{enumerate}
 
-This implies there is no source-symmetric strict dictatorship. If $A$ were such
-an algorithm then $A$ is also a non-strict dictatorship, so symmetry implies
-all sources are ranked equally, but this contradicts $s \slt_N^A s^*$ for all
+This implies there is no source-symmetric strict dictatorship. If $T$ were such
+an operator then $T$ is also a non-strict dictatorship, so symmetry implies
+all sources are ranked equally, but this contradicts $s \slt_N^T s^*$ for all
 $s \ne s^*$.
 
 \end{proof}
 
 \begin{example}
-A trivial algorithm that satisfies symmetry and non-strict dictatorship is one
-that always ranks all sources and facts equally: $A_{triv}(N) = (\S^2, \F^2)$.
+A trivial operator that satisfies symmetry and non-strict dictatorship is one
+that always ranks all sources and facts equally: $T_{triv}(N) = (\S^2, \F^2)$.
 
 If we restrict $\mathcal{N}$ to those networks where all facts are claimed by
-at least one source, then proposition \ref{prop:symm_and_dict} shows that $A$
-satisfies source-symmetry and dictatorship if and only if $A=A_{triv}$.
+at least one source, then proposition \ref{prop:symm_and_dict} shows that $T$
+satisfies source-symmetry and dictatorship if and only if $T=T_{triv}$.
 
 Without this restriction, facts not claimed by any source may be ranked
-strictly below other facts. Indeed, consider $A$ defined as follows. For any
+strictly below other facts. Indeed, consider $T$ defined as follows. For any
 network $N$ write $F_{+} = \{f \in \F : \src(N, f) \ne \emptyset \}$, and
-define $A$ by $s_1 \seq_N^{A} s_2 \text{ for all } s_1, s_2 \in \S$, and
+define $T$ by $s_1 \seq_N^{T} s_2 \text{ for all } s_1, s_2 \in \S$, and
 $$
-    f_1 \fle_N^{A} f_2 \iff f_2 \in F_{+} \text{ or } f_1 \notin F_{+}
+    f_1 \fle_N^{T} f_2 \iff f_2 \in F_{+} \text{ or } f_1 \notin F_{+}
     \text{ for all } f_1, f_2 \in \F
 $$
 
-$A$ is trivially a dictatorship for \emph{any} $s^* \in \S$. It can be easily
-checked that $\fle_N^A$ is a well-defined total preorder, and that $A$ is also
+$T$ is trivially a dictatorship for \emph{any} $s^* \in \S$. It can be easily
+checked that $\fle_N^T$ is a well-defined total preorder, and that $T$ is also
 symmetric. However any fact in $\F \setminus F_+$ ranks strictly below any fact
 in $F_+$.
 \end{example}
