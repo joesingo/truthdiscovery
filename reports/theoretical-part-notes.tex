@@ -299,6 +299,11 @@ $s \in \S_o$ then $f \fge f'$ for $f' \in F_o \setminus \{f\}$.
 Both only make sense if we allow facts that are not claimed by anyone. Compare
 to \emph{weakly Paretian} in Handbook to COMSOC, p6.
 
+\item As sort of a dual notion to the above: if a fact is ranked highest (for
+an object, or overall) then it must have been claimed by at least one source.
+This is similar to an axiom in judgement aggregation. \todo{find the JA
+version}
+
 \item Principle that trustworthy sources claim believable facts, and vice
 versa: see `quasi-transitivity' above and in \cite{altman_personalised}.
 
@@ -309,9 +314,9 @@ same object, or any two facts.
 
 The other direction would be similar.
 
-This together with anti-symmetry of $\sle$, $\fle$ implies that sources with
-the same facts (respectively, facts with the same sources) are ranked equally.
-This equality version could perhaps be stated as a weaker version of the above.
+This would imply that sources with the same facts (respectively, facts with the
+same sources) are ranked equally. This equality version could perhaps be
+stated as a weaker version of the above.
 
 \item Making many false claims should not improve trust ranking (this is the
 problem that \emph{Average${\cdot}$Log} tackles)
@@ -446,6 +451,12 @@ Let $\mathcal{N}$ denote the set of all truth-discovery networks.
 Note that the definition above does not rule out a source $s$ making no claims,
 a fact $f$ being claimed by no sources, or an object $o$ having no associated
 facts or sources.
+
+In the special case where each object has exactly two associated facts, the
+objects can be seen as \emph{binary variables} taking one of two values, e.g.
+true or false. The truth-discovery network is then similar to a set of
+judgements in \emph{judgement aggregation}\cite{handbook_ja} for an agenda
+consisting only of propositional variables.
 \end{remark}
 
 \begin{notation}
