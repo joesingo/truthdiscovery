@@ -70,7 +70,8 @@ class CommandLineClient:
             ),
             required=True,
             dest="alg_cls",
-            type=CommandLineClient.get_algorithm_cls,
+            metavar="ALGORITHM",
+            type=CommandLineClient.algorithm_cls,
         )
         run_parser.add_argument(
             "-p", "--param",
@@ -84,6 +85,7 @@ class CommandLineClient:
                 optional maximum number 'limit' iterations.
             """),
             dest="alg_params",
+            metavar="PARAM",
             type=CommandLineClient.algorithm_parameter,
             default=[],
             action="append"
@@ -93,10 +95,28 @@ class CommandLineClient:
             help="CSV file to run the algorithm on",
             required=True
         )
+        run_parser.add_argument(
+            "--sources",
+            help=("Sources to restrict results to. Unknown sources are "
+                  "ignored"),
+            dest="sources",
+            metavar="SOURCE",
+            nargs="+",
+            type=int
+        )
+        run_parser.add_argument(
+            "--variables",
+            help=("Variables to restrict results to. Unknown variables are "
+                  "ignored"),
+            dest="variables",
+            metavar="VAR",
+            nargs="+",
+            type=int
+        )
         return parser
 
     @staticmethod
-    def get_algorithm_cls(alg_label):
+    def algorithm_cls(alg_label):
         """
         Function used as argparse type for algorithm class
 
@@ -189,12 +209,19 @@ class CommandLineClient:
         except ValueError as ex:
             parser.error(ex)
 
-        results = alg_obj.run(MatrixDataset.from_csv(args.dataset))
+        results = alg_obj.run(MatrixDataset.from_csv(args.dataset)).filter(
+            sources=args.sources, variables=args.variables
+        )
+
         display_results = {
             "time_taken": results.time_taken,
             "iterations": results.iterations,
             "trust": results.trust,
             "belief": results.belief
+        }
+        # Remove keys whose value is False-y
+        display_results = {
+            key: value for key, value in display_results.items() if value
         }
         print(yaml.dump(display_results, indent=2, default_flow_style=False))
 

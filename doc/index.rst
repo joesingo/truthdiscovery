@@ -74,6 +74,10 @@ format: ::
     truthdiscovery run --algorithm truthfinder --dataset mydata.csv \
         --param iterator=l_inf-convergence-0.01-limit-200
 
+    # Restrict results to a subset of sources/variables
+    truthdiscovery run --algorithm sums --dataset mydata.csv \
+        --sources 0 3 --variables 1 2
+
 See ``truthdiscovery --help`` and ``truthdiscovery run --help`` for detailed
 usage.
 

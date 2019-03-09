@@ -152,3 +152,41 @@ class TestCommandLineClient:
             "invalid algorithm label 'joesalgorithm'"
             in capsys.readouterr().err
         )
+
+    def test_filter_sources_variables(self, csv_dataset, capsys):
+        # Filter sources
+        self.run(
+            "run", "-a", "sums", "-f", csv_dataset, "--sources", "0", "3",
+        )
+        results1 = yaml.load(capsys.readouterr().out)
+        assert set(results1["trust"].keys()) == {0, 3}
+        assert set(results1["belief"].keys()) == {0, 1, 2, 3}
+
+        # Filter both
+        self.run(
+            "run", "-a", "sums", "-f", csv_dataset, "--sources", "0", "3",
+            "--variables", "1", "2"
+        )
+        results2 = yaml.load(capsys.readouterr().out)
+        assert set(results2["trust"].keys()) == {0, 3}
+        assert set(results2["belief"].keys()) == {1, 2}
+
+        # Special case where only one source/variable
+        self.run(
+            "run", "-a", "sums", "-f", csv_dataset, "--sources", "1",
+            "--variables", "0"
+        )
+        results3 = yaml.load(capsys.readouterr().out)
+        assert set(results3["trust"].keys()) == {1}
+        assert set(results3["belief"].keys()) == {0}
+
+        # Unknown sources/vars should not cause trouble
+        self.run(
+            "run", "-a", "sums", "-f", csv_dataset, "--sources", "3", "1000",
+            "--variables", "499", "666"
+        )
+        results3 = yaml.load(capsys.readouterr().out)
+        assert set(results3["trust"].keys()) == {3}
+        # We didn't give any valid variables: belief should be absent from
+        # results
+        assert "belief" not in results3
