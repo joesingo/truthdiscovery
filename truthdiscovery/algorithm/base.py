@@ -14,9 +14,9 @@ class PriorBelief(Enum):
 
     TODO: need to write a brief explanation of each choice
     """
-    FIXED = 1
-    VOTED = 2
-    UNIFORM = 3
+    FIXED = "fixed"
+    VOTED = "voted"
+    UNIFORM = "uniform"
 
 
 class BaseAlgorithm:

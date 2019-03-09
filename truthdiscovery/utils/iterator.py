@@ -12,13 +12,13 @@ class DistanceMeasures(Enum):
     sense of metric spaces.
     """
     #: L1 norm (Manhattan distance)
-    L1 = 1
+    L1 = "l1"
     #: L2 norm (Euclidean distance)
-    L2 = 2
+    L2 = "l2"
     #: Infinity norm
-    L_INF = 3
+    L_INF = "l_inf"
     #: 1 - cosine similarity
-    COSINE = 4
+    COSINE = "cosine"
 
 
 class Iterator:

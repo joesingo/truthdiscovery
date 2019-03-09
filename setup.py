@@ -27,5 +27,10 @@ setup(
     python_requires=">=3.5",
     # Note: this includes test and code style packages and requirements, which
     # should really go in extras_require...
-    install_requires=REQUIREMENTS
+    install_requires=REQUIREMENTS,
+    entry_points={
+        "console_scripts": [
+            "truthdiscovery=truthdiscovery.client.cli:main"
+        ]
+    }
 )

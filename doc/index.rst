@@ -51,7 +51,33 @@ avoid conflicts with globally-installed packages::
 Usage
 -----
 
-::
+The command-line client can be used to run truth-discovery on a dataset in CSV
+format: ::
+
+    truthdiscovery run --algorithm sums --dataset mydata.csv
+
+    # Change the default parameters
+    truthdiscovery run --algorithm average_log --dataset mydata.csv \
+        --param priors=uniform
+
+    # Can use --param multiple times
+    truthdiscovery run --algorithm investment --dataset mydata.csv \
+        --param g=1.15 --param priors=fixed
+
+    # Can use fixed or till-convergence iteration
+    truthdiscovery run --algorithm truthfinder --dataset mydata.csv \
+        --param iterator=fixed-200
+
+    truthdiscovery run --algorithm truthfinder --dataset mydata.csv \
+        --param iterator=l1-convergence-0.01
+
+    truthdiscovery run --algorithm truthfinder --dataset mydata.csv \
+        --param iterator=l_inf-convergence-0.01-limit-200
+
+See ``truthdiscovery --help`` and ``truthdiscovery run --help`` for detailed
+usage.
+
+Python API: ::
 
     >>> from truthdiscovery import Dataset, TruthFinder
     >>> mydata = Dataset([
