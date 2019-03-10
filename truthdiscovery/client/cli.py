@@ -2,6 +2,8 @@
 Command-line interface to truthdiscovery library
 """
 import argparse
+from enum import Enum
+from operator import attrgetter
 import re
 import sys
 
@@ -33,6 +35,16 @@ def numpy_float_yaml_representer(dumper, val):
 
 
 yaml.add_representer(np.float64, numpy_float_yaml_representer)
+
+
+class OutputFields(Enum):
+    ITERATIONS = "iterations"
+    TIME = "time"
+    TRUST = "trust"
+    BELIEF = "belief"
+    TRUST_STATS = "trust-stats"
+    BELIEF_STATS = "belief-stats"
+    MOST_BELIEVED = "most-believed-values"
 
 
 class CommandLineClient:
@@ -94,7 +106,12 @@ class CommandLineClient:
             help="CSV file to run the algorithm on",
             required=True
         )
-        run_parser.add_argument(
+        # Output options
+        output_group = run_parser.add_argument_group(
+            title="output options",
+            description="options for controlling what output is given"
+        )
+        output_group.add_argument(
             "--sources",
             help=("Sources to restrict results to. Unknown sources are "
                   "ignored"),
@@ -103,7 +120,7 @@ class CommandLineClient:
             nargs="+",
             type=int
         )
-        run_parser.add_argument(
+        output_group.add_argument(
             "--variables",
             help=("Variables to restrict results to. Unknown variables are "
                   "ignored"),
@@ -111,6 +128,22 @@ class CommandLineClient:
             metavar="VAR",
             nargs="+",
             type=int
+        )
+        output_field_choices = [f.value for f in OutputFields]
+        output_group.add_argument(
+            "-o", "--output",
+            help=(
+                "Fields to include in the output: choose from {}"
+                .format(", ".join(output_field_choices))
+            ),
+            metavar="OUTPUT_FIELD",
+            dest="output_fields",
+            nargs="+",
+            type=OutputFields,
+            default=[
+                OutputFields.TRUST, OutputFields.BELIEF,
+                OutputFields.ITERATIONS, OutputFields.TIME
+            ]
         )
         return parser
 
@@ -212,16 +245,37 @@ class CommandLineClient:
             sources=args.sources, variables=args.variables
         )
 
-        display_results = {
-            "time_taken": results.time_taken,
-            "iterations": results.iterations,
-            "trust": results.trust,
-            "belief": results.belief
-        }
-        # Remove keys whose value is False-y
-        display_results = {
-            key: value for key, value in display_results.items() if value
-        }
+        # Get results to display
+        display_results = {}
+        if OutputFields.TIME in args.output_fields:
+            display_results["time_taken"] = results.time_taken
+
+        if OutputFields.ITERATIONS in args.output_fields:
+            display_results["iterations"] = results.iterations
+
+        if OutputFields.TRUST in args.output_fields:
+            display_results["trust"] = results.trust
+
+        if OutputFields.BELIEF in args.output_fields:
+            display_results["belief"] = results.belief
+
+        if OutputFields.TRUST_STATS in args.output_fields:
+            mean, stddev = results.get_trust_stats()
+            display_results["trust_stats"] = {"mean": mean, "stddev": stddev}
+
+        if OutputFields.BELIEF_STATS in args.output_fields:
+            belief_stats = results.get_belief_stats()
+            display_results["belief_stats"] = {
+                var: {"mean": mean, "stddev": stddev}
+                for var, (mean, stddev) in belief_stats.items()
+            }
+
+        if OutputFields.MOST_BELIEVED in args.output_fields:
+            most_bel = {}
+            for var in results.belief:
+                most_bel[var] = sorted(results.get_most_believed_values(var))
+            display_results["most_believed_values"] = most_bel
+
         print(yaml.dump(display_results, indent=2, default_flow_style=False))
 
 

@@ -23,7 +23,7 @@ class TestCommandLineClient:
     def csv_dataset(self, tmpdir):
         csvfile = tmpdir.join("data.csv")
         dataset = MatrixDataset(ma.masked_values([
-            [1, 2, 3, 0],
+            [1, 2, 3, 2],
             [3, 0, 1, 2],
             [2, 2, 0, 0],
             [0, 1, 0, 3]
@@ -197,6 +197,69 @@ class TestCommandLineClient:
         )
         results3 = yaml.load(capsys.readouterr().out)
         assert set(results3["trust"].keys()) == {3}
-        # We didn't give any valid variables: belief should be absent from
-        # results
-        assert "belief" not in results3
+        # We didn't give any valid variables: belief should be empty
+        assert results3["belief"] == {}
+
+    def test_default_output(self, csv_dataset, capsys):
+        self.run("run", "-a", "voting", "-f", csv_dataset)
+        results = yaml.load(capsys.readouterr().out)
+        assert set(results.keys()) == {
+            "time_taken", "iterations", "trust", "belief"
+        }
+
+    def test_custom_output(self, csv_dataset, capsys):
+        self.run("run", "-a", "sums", "-f", csv_dataset, "-o", "time")
+        results = yaml.load(capsys.readouterr().out)
+        assert set(results.keys()) == {"time_taken"}
+
+        self.run(
+            "run", "-a", "sums", "-f", csv_dataset, "-o", "time",
+            "iterations"
+        )
+        results = yaml.load(capsys.readouterr().out)
+        assert set(results.keys()) == {"time_taken", "iterations"}
+
+        self.run(
+            "run", "-a", "sums", "-f", csv_dataset, "-o", "trust",
+            "trust-stats"
+        )
+        results = yaml.load(capsys.readouterr().out)
+        assert set(results.keys()) == {"trust", "trust_stats"}
+        exp_mean, exp_stddev = (Sums().run(MatrixDataset.from_csv(csv_dataset))
+                                .get_trust_stats())
+        assert results["trust_stats"] == {
+            "mean": exp_mean, "stddev": exp_stddev
+        }
+
+    def test_show_most_believed_values(self, csv_dataset, capsys):
+        self.run(
+            "run", "-a", "voting", "-f", csv_dataset, "--output",
+            "most-believed-values"
+        )
+        results = yaml.load(capsys.readouterr().out)
+        assert results == {
+            "most_believed_values": {0: [1, 2, 3], 1: [2], 2: [1, 3], 3: [2]}
+        }
+        # Test with variable filtering
+        self.run(
+            "run", "-a", "voting", "-f", csv_dataset, "-o",
+            "most-believed-values", "--variables", "0", "3"
+        )
+        results = yaml.load(capsys.readouterr().out)
+        assert "belief" not in results
+        assert "most_believed_values" in results
+        assert results["most_believed_values"] == {
+            0: [1, 2, 3],
+            3: [2]
+        }
+
+    def test_belief_stats(self, csv_dataset, capsys):
+        self.run("run", "-a", "sums", "-f", csv_dataset, "-o", "belief-stats")
+        results = yaml.load(capsys.readouterr().out)
+        assert set(results.keys()) == {"belief_stats"}
+        exp_belief_stats = (Sums().run(MatrixDataset.from_csv(csv_dataset))
+                            .get_belief_stats())
+        assert results["belief_stats"] == {
+            var: {"mean": mean, "stddev": stddev}
+            for var, (mean, stddev) in exp_belief_stats.items()
+        }

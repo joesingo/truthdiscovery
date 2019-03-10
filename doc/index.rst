@@ -50,37 +50,6 @@ avoid conflicts with globally-installed packages::
 
 Usage
 -----
-
-The command-line client can be used to run truth-discovery on a dataset in CSV
-format: ::
-
-    truthdiscovery run --algorithm sums --dataset mydata.csv
-
-    # Change the default parameters
-    truthdiscovery run --algorithm average_log --dataset mydata.csv \
-        --params priors=uniform
-
-    # Can give multiple parameters
-    truthdiscovery run --algorithm investment --dataset mydata.csv \
-        --params g=1.15 priors=fixed
-
-    # Can use fixed or till-convergence iteration
-    truthdiscovery run --algorithm truthfinder --dataset mydata.csv \
-        --params iterator=fixed-200
-
-    truthdiscovery run --algorithm truthfinder --dataset mydata.csv \
-        --params iterator=l1-convergence-0.01
-
-    truthdiscovery run --algorithm truthfinder --dataset mydata.csv \
-        --params iterator=l_inf-convergence-0.01-limit-200
-
-    # Restrict results to a subset of sources/variables
-    truthdiscovery run --algorithm sums --dataset mydata.csv \
-        --sources 0 3 --variables 1 2
-
-See ``truthdiscovery --help`` and ``truthdiscovery run --help`` for detailed
-usage.
-
 Python API: ::
 
     >>> from truthdiscovery import Dataset, TruthFinder
@@ -109,6 +78,41 @@ See :ref:`input-page` for how to construct different types of datasets,
 :ref:`algorithms-page` to see which algorithms are available and the parameters
 they can accept, and :ref:`output-page` for how to use the results returned
 from an algorithm.
+
+The command-line client can be used to run truth-discovery on a dataset in CSV
+format: ::
+
+    truthdiscovery run --algorithm sums --dataset mydata.csv
+
+    # Change the default parameters
+    truthdiscovery run --algorithm average_log --dataset mydata.csv \
+        --params priors=uniform
+
+    # Can give multiple parameters
+    truthdiscovery run --algorithm investment --dataset mydata.csv \
+        --params g=1.15 priors=fixed
+
+    # Can use fixed or till-convergence iteration
+    truthdiscovery run --algorithm truthfinder --dataset mydata.csv \
+        --params iterator=fixed-200
+
+    truthdiscovery run --algorithm truthfinder --dataset mydata.csv \
+        --params iterator=l1-convergence-0.01
+
+    truthdiscovery run --algorithm truthfinder --dataset mydata.csv \
+        --params iterator=l_inf-convergence-0.01-limit-200
+
+    # Restrict results to a subset of sources/variables
+    truthdiscovery run --algorithm sums --dataset mydata.csv \
+        --sources 0 3 --variables 1 2
+
+    # Fields to show in the output can be selected with --output
+    truthdiscovery run --algorithm sums --dataset mydata.csv \
+        --output time iterations belief most-believed-values
+
+See ``truthdiscovery --help`` and ``truthdiscovery run --help`` for detailed
+usage and all the available options.
+
 
 Indices and tables
 ==================
