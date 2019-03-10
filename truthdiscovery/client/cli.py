@@ -74,21 +74,20 @@ class CommandLineClient:
             type=CommandLineClient.algorithm_cls,
         )
         run_parser.add_argument(
-            "-p", "--param",
+            "-p", "--params",
             help=("""
-                Parameter to pass to the algorithm, in the form 'key=value'.
-                May be specified multiple times to give multiple parameters.
-                For 'priors', see the PriorBelief enumeration for valid values.
-                For 'iterator', use the format 'fixed-<N>' for fixed N
-                iterations, or '<measure>-convergence-<threshold>[-limit-<N>]'
-                for convergence in 'measure' within 'threshold', up to an
-                optional maximum number 'limit' iterations.
+                Parameters to pass to the algorithm, each in the form
+                'key=value'. For 'priors', see the PriorBelief enumeration for
+                valid values. For 'iterator', use the format 'fixed-<N>' for
+                fixed N iterations, or
+                '<measure>-convergence-<threshold>[-limit-<N>]' for convergence
+                in 'measure' within 'threshold', up to an optional maximum
+                number 'limit' iterations.
             """),
             dest="alg_params",
             metavar="PARAM",
             type=CommandLineClient.algorithm_parameter,
-            default=[],
-            action="append"
+            nargs="+",
         )
         run_parser.add_argument(
             "-f", "--dataset",
@@ -192,7 +191,7 @@ class CommandLineClient:
         instance to use
         """
         cls = parsed_args.alg_cls
-        params = dict(parsed_args.alg_params)
+        params = dict(parsed_args.alg_params or [])
         try:
             return cls(**params)
         except TypeError:

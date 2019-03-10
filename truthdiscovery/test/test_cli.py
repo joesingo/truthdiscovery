@@ -46,10 +46,16 @@ class TestCommandLineClient:
         assert got_results["belief"] == exp_results.belief
         assert got_results["iterations"] == exp_results.iterations
 
+    def test_multiple_parameters(self, csv_dataset):
+        self.run(
+            "run", "--algorithm", "pooled_investment", "-p", "g=1.1234",
+            "iterator=fixed-11", "priors=uniform", "-f", csv_dataset
+        )
+
     def test_get_algorithm_instance(self, csv_dataset):
         args = self.get_parsed_args(
             "run", "--algorithm", "truthfinder", "-p", "dampening_factor=0.1",
-            "-p", "influence_param=0.77", "-f", csv_dataset
+            "influence_param=0.77", "-f", csv_dataset
         )
         alg = CommandLineClient.get_algorithm_object(args)
         assert isinstance(alg, TruthFinder)
@@ -78,14 +84,18 @@ class TestCommandLineClient:
 
     def test_set_iterator(self, csv_dataset, capsys):
         # Fixed iterator
-        args1 = self.get_parsed_args(
+        raw_args1 = (
             "run", "--algorithm", "sums", "-p", "iterator=fixed-123", "-f",
             csv_dataset
         )
+        args1 = self.get_parsed_args(*raw_args1)
         alg1 = CommandLineClient.get_algorithm_object(args1)
         assert isinstance(alg1, Sums)
         assert isinstance(alg1.iterator, FixedIterator)
         assert alg1.iterator.limit == 123
+        self.run(*raw_args1)
+        results = yaml.load(capsys.readouterr().out)
+        assert results["iterations"] == 123
 
         # Convergence iterator
         args2 = self.get_parsed_args(
@@ -119,8 +129,8 @@ class TestCommandLineClient:
         # Invalid iterator specification
         with pytest.raises(SystemExit):
             self.run(
-                "run", "--algorithm", "sums", "-p",
-                "iterator=hello", "-f", csv_dataset
+                "run", "--algorithm", "sums", "-p", "iterator=hello", "-f",
+                csv_dataset
             )
         assert "invalid iterator specification" in capsys.readouterr().err
 

@@ -58,21 +58,21 @@ format: ::
 
     # Change the default parameters
     truthdiscovery run --algorithm average_log --dataset mydata.csv \
-        --param priors=uniform
+        --params priors=uniform
 
-    # Can use --param multiple times
+    # Can give multiple parameters
     truthdiscovery run --algorithm investment --dataset mydata.csv \
-        --param g=1.15 --param priors=fixed
+        --params g=1.15 priors=fixed
 
     # Can use fixed or till-convergence iteration
     truthdiscovery run --algorithm truthfinder --dataset mydata.csv \
-        --param iterator=fixed-200
+        --params iterator=fixed-200
 
     truthdiscovery run --algorithm truthfinder --dataset mydata.csv \
-        --param iterator=l1-convergence-0.01
+        --params iterator=l1-convergence-0.01
 
     truthdiscovery run --algorithm truthfinder --dataset mydata.csv \
-        --param iterator=l_inf-convergence-0.01-limit-200
+        --params iterator=l_inf-convergence-0.01-limit-200
 
     # Restrict results to a subset of sources/variables
     truthdiscovery run --algorithm sums --dataset mydata.csv \
