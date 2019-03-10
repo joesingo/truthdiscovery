@@ -24,28 +24,6 @@ believably claims, and believable claims are made my trustworthy sources.
 Most approaches are *unsupervised*, in that they do not use any prior knowledge
 for the trustworthiness of sources etc.
 
-## Supported algorithms
-* Majority voting (baseline algorithm)
-* Sums [1]
-* Average.Log [1]
-* Investment [1]
-* PooledInvestment [1]
-* TruthFinder [2]
-
-## Input
-
-In this library, objects are referred to as *variables*, and claims are
-statements asserting that a given variable takes a given value.
-
-The data is then given as a list (or other iterable) of tuples of the form
-``(source_label, var_label, value)``.
-
-Alternatively, if all values are numeric, the source/claim/variable network can
-be encoded as a matrix where rows correspond to sources, columns correspond to
-variables, and an entry at position ``(i, j)`` is the value that source ``i``
-claims for variable ``j`` (the matrix may contain empty cells in cases where a
-source does not make a claim about a variable).
-
 ## Installation
 
 This package should be installed with `pip` (using Python 3). It is recommended
@@ -59,13 +37,7 @@ $ source venv/bin/activate
 $ pip install -e .
 ```
 
-## Usage
+## Usage and documentation
 
-TODO
-
-## References
-1. Pasternack, Jeff and Roth, Dan, [*"Knowing What to Believe (when You Already
-   Know Something)"*](http://dl.acm.org/citation.cfm?id=1873781.1873880)
-
-1. X. Yin and J. Han and P. S. Yu [*"Truth Discovery with Multiple Conflicting
-   Information Providers on the Web"*](http://ieeexplore.ieee.org/document/4415269/)
+See the full documentation at [some-web-page](#) (**TODO**: host documentation
+somewhere)
