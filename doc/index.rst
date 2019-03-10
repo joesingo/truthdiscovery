@@ -110,8 +110,12 @@ format: ::
     truthdiscovery run --algorithm sums --dataset mydata.csv \
         --output time iterations belief most-believed-values
 
-See ``truthdiscovery --help`` and ``truthdiscovery run --help`` for detailed
-usage and all the available options.
+    # Synthetic data generation
+    truthdiscovery synth --trust 0.5 0.6 0.7 --num-vars 5 --domain-size 10 \
+        --claim-prob 0.8
+
+See ``truthdiscovery --help`` and ``truthdiscovery <COMMAND> --help`` for
+detailed usage and all the available options.
 
 
 Indices and tables

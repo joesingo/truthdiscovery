@@ -3,7 +3,6 @@ Command-line interface to truthdiscovery library
 """
 import argparse
 from enum import Enum
-from operator import attrgetter
 import re
 import sys
 
@@ -19,7 +18,7 @@ from truthdiscovery.algorithm import (
     Sums,
     TruthFinder
 )
-from truthdiscovery.input import MatrixDataset
+from truthdiscovery.input import MatrixDataset, SyntheticData
 from truthdiscovery.utils import (
     ConvergenceIterator,
     DistanceMeasures,
@@ -65,8 +64,9 @@ class CommandLineClient:
         parser = argparse.ArgumentParser(description=__doc__)
         subparsers = parser.add_subparsers(
             dest="command",
-            metavar="COMMAND"
+            metavar="COMMAND",
         )
+        # Run sub-command
         run_parser = subparsers.add_parser(
             "run",
             help="Run a truth-discovery algorithm on a CSV dataset",
@@ -144,6 +144,46 @@ class CommandLineClient:
                 OutputFields.TRUST, OutputFields.BELIEF,
                 OutputFields.ITERATIONS, OutputFields.TIME
             ]
+        )
+
+        # Synthetic data generation sub-command
+        synth_parser = subparsers.add_parser(
+            "synth",
+            help="Generate a synthetic CSV dataset",
+            description="""
+                Randomly generate a CSV dataset based on a given list of source
+                trust scores, which are interpreted as the probability that
+                each source makes a correct claim. The first row in the output
+                gives the true values, and the subsequent rows are the source
+                claims.
+            """
+        )
+        synth_parser.add_argument(
+            "--trust",
+            help="Trust scores for sources in [0, 1]",
+            metavar="TRUST_SCORE",
+            nargs="+",
+            required=True,
+            type=float
+        )
+        synth_parser.add_argument(
+            "--num-vars",
+            help="The number of variables to generate",
+            metavar="NUM_VARS",
+            type=int
+        )
+        synth_parser.add_argument(
+            "--claim-prob",
+            help=("The probability that a given source will make a claim for "
+                  "a given variable"),
+            metavar="CLAIM_PROB",
+            type=float
+        )
+        synth_parser.add_argument(
+            "--domain-size",
+            help="The number of possible values for each variable",
+            metavar="DOMAIN_SIZE",
+            type=int
         )
         return parser
 
@@ -236,6 +276,16 @@ class CommandLineClient:
     def run(cli_args):
         parser = CommandLineClient.get_parser()
         args = parser.parse_args(cli_args)
+
+        if args.command == "run":
+            CommandLineClient.run_algorithm(args, parser)
+        elif args.command == "synth":
+            CommandLineClient.generate_synthetic(args, parser)
+        else:
+            parser.print_help()
+
+    @staticmethod
+    def run_algorithm(args, parser):
         try:
             alg_obj = CommandLineClient.get_algorithm_object(args)
         except ValueError as ex:
@@ -277,6 +327,20 @@ class CommandLineClient:
             display_results["most_believed_values"] = most_bel
 
         print(yaml.dump(display_results, indent=2, default_flow_style=False))
+
+    @staticmethod
+    def generate_synthetic(args, parser):
+        kwargs = {
+            "trust": args.trust,
+            "num_variables": args.num_vars,
+            "claim_probability": args.claim_prob,
+            "domain_size": args.domain_size
+        }
+        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+        try:
+            print(SyntheticData(**kwargs).to_csv())
+        except ValueError as ex:
+            parser.error(ex)
 
 
 def main():  # pragma: no cover

@@ -31,6 +31,11 @@ class TestCommandLineClient:
         csvfile.write(dataset.to_csv())
         return str(csvfile)
 
+    def test_no_commands(self, capsys):
+        self.run()
+        out = capsys.readouterr().out
+        assert "Command-line interface to truthdiscovery library" in out
+
     def test_basic(self, csv_dataset):
         self.run(
             "run", "--algorithm", "sums", "-f", csv_dataset
@@ -263,3 +268,45 @@ class TestCommandLineClient:
             var: {"mean": mean, "stddev": stddev}
             for var, (mean, stddev) in exp_belief_stats.items()
         }
+
+    def test_synthetic_generation(self, capsys):
+        self.run(
+            "synth", "--trust", "0.5", "0.6", "0.7", "--num-vars", "10",
+            "--domain-size", "5"
+        )
+        output = capsys.readouterr().out.strip()
+        lines = output.split("\n")
+        print(output)
+        assert len(lines) == 4  # first row is true values, then 3 source rows
+        for line in lines:
+            columns = line.split(",")
+            assert len(columns) == 10
+            for col in columns:
+                assert col == "" or float(col) in {0, 1, 2, 3, 4}
+
+    def test_synthetic_generation_claim_prob_1(self, capsys):
+        self.run(
+            "synth", "--trust", "0.5", "0.6", "0.7", "--num-vars", "10",
+            "--domain-size", "2", "--claim-prob", "1"
+        )
+        output = capsys.readouterr().out.strip()
+        lines = output.split("\n")
+        assert len(lines) == 4
+        for line in lines:
+            columns = line.split(",")
+            for col in columns:
+                assert float(col) in {0, 1}
+
+    def test_synthetic_generation_source_trust_1(self, capsys):
+        self.run("synth", "--trust", "1", "--claim-prob", "1")
+        output = capsys.readouterr().out.strip()
+        true_vals, claims = output.split("\n")
+        assert true_vals == claims
+
+    def test_synthetic_generation_invalid_params(self, capsys):
+        # Check that invalid param errors are caught by the parser, not raised
+        # as Python exceptions
+        with pytest.raises(SystemExit):
+            self.run("synth", "--trust", "2")
+        exp_err_msg = "error: Trust values must be in [0, 1]"
+        assert exp_err_msg in capsys.readouterr().err
