@@ -424,6 +424,13 @@ bijective mapping $\phi: V \rightarrow V'$ such that $(u, v) \in E \iff
 
 \end{definition}
 
+\begin{definition}
+Let $G=(V, E)$ be an undirected graph, and define a relation $\sim$ on $V$ by
+$u \sim v$ iff there is a path from $u$ to $v$ in $G$. It is easily checked
+that $\sim$ is an equivalence relation. A \emph{connected component} of $G$
+is an induced subgraph of an equivalence class of $\sim$.
+\end{definition}
+
 \subsection{Truth-discovery definitions}
 
 We consider fixed finite sets $\S$, $\F$ and $\O$, called the \emph{sources},
@@ -877,6 +884,19 @@ groundedness.
 Reversing the fact ordering of $T$ gives an operator satisfying groundedness
 but not unanimity.
 \end{proof}
+
+\todo{introductory text for independence ideas}
+
+In what follows we consider a connected component of a truth-discovery network
+$N$ to be a connected component of the undirected version of $N$.
+
+\begin{axiom}
+A truth-discovery operator $T$ satisfies \emph{independence of irrelevant
+stuff} if for any truth-discovery networks $N_1$, $N_2$ with a common connected
+component $G$, the restictions of $\sle_{N_1}^T$ and $\sle_{N_2}^T$ to $G \cap
+\S$ are equal, and the restictions of $\fle_{N_1}^T$ and $\fle_{N_2}^T$ to $G
+\cap \F$ are equal.
+\end{axiom}
 
 \subsubsection{Inspired by ranking systems}
 \todo{write stuff}
