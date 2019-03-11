@@ -18,7 +18,7 @@ from truthdiscovery.algorithm import (
     Sums,
     TruthFinder
 )
-from truthdiscovery.input import MatrixDataset, SyntheticData
+from truthdiscovery.input import MatrixDataset, SupervisedData, SyntheticData
 from truthdiscovery.utils import (
     ConvergenceIterator,
     DistanceMeasures,
@@ -37,13 +37,14 @@ yaml.add_representer(np.float64, numpy_float_yaml_representer)
 
 
 class OutputFields(Enum):
+    ACCURACY = "accuracy"
+    BELIEF = "belief"
+    BELIEF_STATS = "belief-stats"
     ITERATIONS = "iterations"
+    MOST_BELIEVED = "most-believed-values"
     TIME = "time"
     TRUST = "trust"
-    BELIEF = "belief"
     TRUST_STATS = "trust-stats"
-    BELIEF_STATS = "belief-stats"
-    MOST_BELIEVED = "most-believed-values"
 
 
 class CommandLineClient:
@@ -105,6 +106,13 @@ class CommandLineClient:
             "-f", "--dataset",
             help="CSV file to run the algorithm on",
             required=True
+        )
+        run_parser.add_argument(
+            "-s", "--supervised",
+            help=("Interpret the CSV as a supervised dataset, i.e. treat the "
+                  "first row as known true values"),
+            action="store_true",
+            dest="supervised"
         )
         # Output options
         output_group = run_parser.add_argument_group(
@@ -291,9 +299,20 @@ class CommandLineClient:
         except ValueError as ex:
             parser.error(ex)
 
-        results = alg_obj.run(MatrixDataset.from_csv(args.dataset)).filter(
-            sources=args.sources, variables=args.variables
-        )
+        sup_data = None
+        dataset = None
+        if args.supervised:
+            sup_data = SupervisedData.from_csv(args.dataset)
+            dataset = sup_data.data
+        else:
+            # Catch error early if accuracy requested in output but dataset is
+            # not supervised
+            if OutputFields.ACCURACY in args.output_fields:
+                parser.error("cannot calculate accuracy without --supervised")
+            dataset = MatrixDataset.from_csv(args.dataset)
+
+        results = alg_obj.run(dataset).filter(sources=args.sources,
+                                              variables=args.variables)
 
         # Get results to display
         display_results = {}
@@ -319,6 +338,13 @@ class CommandLineClient:
                 var: {"mean": mean, "stddev": stddev}
                 for var, (mean, stddev) in belief_stats.items()
             }
+
+        if OutputFields.ACCURACY in args.output_fields:
+            try:
+                acc = sup_data.get_accuracy(results)
+            except ValueError:
+                acc = None
+            display_results["accuracy"] = acc
 
         if OutputFields.MOST_BELIEVED in args.output_fields:
             most_bel = {}

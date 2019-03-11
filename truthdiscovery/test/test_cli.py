@@ -310,3 +310,38 @@ class TestCommandLineClient:
             self.run("synth", "--trust", "2")
         exp_err_msg = "error: Trust values must be in [0, 1]"
         assert exp_err_msg in capsys.readouterr().err
+
+    def test_supervised_dataset_and_accuracy(self, csv_dataset, capsys):
+        self.run(
+            "run", "-a", "voting", "-f", csv_dataset, "--supervised", "-o",
+            "trust", "belief", "accuracy"
+        )
+        results = yaml.load(capsys.readouterr().out)
+        assert results["trust"] == {0: 1, 1: 1, 2: 1}
+        assert results["belief"] == {
+            0: {2: 1, 3: 1},
+            1: {1: 1, 2: 1},
+            2: {1: 1},
+            3: {2: 1, 3: 1}
+        }
+        # accuracy is not deterministic when there are ties for most-believed
+        # values
+        assert results["accuracy"] in (1 / 3, 2 / 3, 0)
+
+    def test_accuracy_not_supervised(self, csv_dataset, capsys):
+        with pytest.raises(SystemExit):
+            self.run(
+                "run", "-a", "voting", "-f", csv_dataset, "-o", "accuracy"
+            )
+        err_msg = "cannot calculate accuracy without --supervised"
+        assert err_msg in capsys.readouterr().err
+
+    def test_accuracy_undefined(self, capsys, tmpdir):
+        ds = tmpdir.join("newdata.csv")
+        ds.write("\n".join((
+            "1,2,3,4",
+            "1,2,3,4",
+        )))
+        self.run("run", "-a", "voting", "-f", str(ds), "-s", "-o", "accuracy")
+        results = yaml.load(capsys.readouterr().out)
+        assert results["accuracy"] is None

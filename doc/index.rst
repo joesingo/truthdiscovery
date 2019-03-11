@@ -114,6 +114,10 @@ format: ::
     truthdiscovery synth --trust 0.5 0.6 0.7 --num-vars 5 --domain-size 10 \
         --claim-prob 0.8
 
+    # --supervised treats the first row of the dataset as known true values,
+    # and allows accuracy to be calculated
+    truthdiscovery run -a sums -f mydata.csv --supervised -o accuracy
+
 See ``truthdiscovery --help`` and ``truthdiscovery <COMMAND> --help`` for
 detailed usage and all the available options.
 
