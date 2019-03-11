@@ -797,6 +797,87 @@ symmetric. However any fact in $\F \setminus F_+$ ranks strictly below any fact
 in $F_+$.
 \end{example}
 
+The next axioms formalise the idea that if all sources are in agreement about
+the status of a fact, then a truth-discovery operator should respect this in
+its verdict. Two obvious ways in which sources can be in agreement are when
+\emph{all} sources believe a fact is true, and when \emph{no} sources believe a
+fact is true.
+
+\begin{axiom}
+A truth-discovery operator $T$ satisfies \emph{unanimity} if $\src(N, f) = \S$
+implies $f' \fle_N^T f$ for all $f' \in \F$, for each truth-discovery network
+$N$.
+\end{axiom}
+
+\begin{axiom}
+A truth-discovery operator $T$ is \emph{grounded} if $\src(N, f) = \emptyset$
+implies $f \fle_N^T f'$ for all $f' \in \F$, for each truth-discovery network
+$N$.
+\end{axiom}
+
+\todo{Think about whether `grounded' is the best name here...}
+
+That is, a fact cannot do better than to be claimed by all sources when $T$
+satisfies unanimity, and cannot do worse than to be claimed by no sources when
+$T$ is grounded.
+
+Note that we do not require strict inequlities here, so as to not be too
+restrictive. For unanimity in particular, requiring $f$ to rank strictly above
+all other facts would require $T$ to choose a highest-ranking fact arbitrarily
+in the case where there are multiple facts claimed by all sources.
+
+\begin{remark}
+Unanimity is similar to the \emph{weak Paretian}
+property\cite{create_the_citation...} in social choice, which states that
+whenever each individual prefers an alternative $a$ over $b$, the social
+preference order prefers $a$ over $b$ also. It can also be compared to
+unanimity in judegement aggregation\cite{handbook_ja}.
+
+Axioms similar to groundedness have been proposed for collective annotation
+(e.g. see \emph{groundedness} in \cite{kruger}) \todo{check social choice and
+JA incarnations of these principles}.
+\end{remark}
+
+\begin{example}
+The \emph{majority voting} operator, which ranks a fact by the number of
+sources claiming it, satisfies unanimity and groundedness. Indeed, define
+$T_{vote}$ by $s_1 \seq_N^{T_{vote}} s_2$ for all $s_1, s_2 \in \S$, and
+    $$ f_1 \fle_N^{T_{vote}} f_2 \iff |\src(N, f_1)| \le |\src(N, f_2)| $$
+
+If $\src(N, f) = \S$ then for all $f'$ we have $\src(N, f') \subseteq \S =
+\src(N, f)$, so $f' \fle_N^T f$. Also, if $\src(N, f) = \emptyset$ then
+$\src(N, f) \subseteq \src(N, f')$ for all $f'$, so $f \fle_N^T f'$. Hence
+$T_{vote}$ is unanamous and grounded.
+\end{example}
+
+A consequence of groundedness is that any fact ranking strictly above all
+others must have been claimed by at least one source (assuming $|\F|>1$).
+
+\begin{proposition}
+Unanimity and groundedness are independent.
+\end{proposition}
+
+\begin{proof}
+An operator that saitisfies unanimity but not groundedness is $T$ that ranks
+facts according to the function
+$$
+    r_N(f) = \begin{cases}
+        1 & \text{ if } \src(N, f) \in \{\S, \emptyset\} \\
+        0 & \text{ otherwise}
+    \end{cases}
+    \quad (f \in \F)
+$$
+i.e. $f_1 \fle_N^T f_2$ iff $r_N(f_1) \le r_N(f_2)$ (note that $T$'s ranking of
+sources is irrelevant). Clearly $T$ saitsfies unanimity but not groundedness:
+consider any network $N$ in which there is a fact $f_1$ with no corresponding
+sources, and a fact $f_2$ with at least one source, but whose sources are not
+the whole of $\S$. Then $f_1 \not\fle_N^T f_2$ contrary to the requirements of
+groundedness.
+
+Reversing the fact ordering of $T$ gives an operator satisfying groundedness
+but not unanimity.
+\end{proof}
+
 \subsubsection{Inspired by ranking systems}
 \todo{write stuff}
 
