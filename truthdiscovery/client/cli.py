@@ -21,24 +21,22 @@ def numpy_float_yaml_representer(dumper, val):
 yaml.add_representer(np.float64, numpy_float_yaml_representer)
 
 
-def make_argparse_type(func):
-    """
-    Decorate a function to catch any ValueError and convert it to argparse's
-    ArgumentTypeError
-    """
-    def inner(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except ValueError as ex:
-            raise argparse.ArgumentTypeError(ex)
-    # Function name is used in argparse's error message, so update it
-    inner.__name__ = func.__name__
-    return inner
-
-
 class CommandLineClient(BaseClient):
-    @staticmethod
-    def get_parser():
+    def make_argparse_type(self, method):
+        """
+        Decorate a function to catch any ValueError and convert it to
+        argparse's ArgumentTypeError
+        """
+        def inner(*args, **kwargs):
+            try:
+                return method(*args, **kwargs)
+            except ValueError as ex:
+                raise argparse.ArgumentTypeError(ex)
+        # Function name is used in argparse's error message, so update it
+        inner.__name__ = method.__name__
+        return inner
+
+    def get_parser(self):
         """
         :return: argparse ArgumentParser object
         """
@@ -59,12 +57,12 @@ class CommandLineClient(BaseClient):
         run_parser.add_argument(
             "-a", "--algorithm",
             help="The algorithm to run: choose from {}".format(
-                ", ".join(CommandLineClient.ALG_LABEL_MAPPING.keys())
+                ", ".join(self.ALG_LABEL_MAPPING.keys())
             ),
             required=True,
             dest="alg_cls",
             metavar="ALGORITHM",
-            type=make_argparse_type(BaseClient.algorithm_cls),
+            type=self.make_argparse_type(self.algorithm_cls),
         )
         run_parser.add_argument(
             "-p", "--params",
@@ -79,7 +77,7 @@ class CommandLineClient(BaseClient):
             """),
             dest="alg_params",
             metavar="PARAM",
-            type=make_argparse_type(BaseClient.algorithm_parameter),
+            type=self.make_argparse_type(self.algorithm_parameter),
             nargs="+",
         )
         run_parser.add_argument(
@@ -175,8 +173,7 @@ class CommandLineClient(BaseClient):
         )
         return parser
 
-    @staticmethod
-    def get_algorithm_object(parsed_args):
+    def get_algorithm_object(self, parsed_args):
         """
         Process the parsed command-line arguments and return the algorithm
         instance to use
@@ -190,22 +187,20 @@ class CommandLineClient(BaseClient):
                 "invalid parameters {} for {}".format(params, cls.__name__)
             )
 
-    @staticmethod
-    def run(cli_args):
-        parser = CommandLineClient.get_parser()
+    def run(self, cli_args):
+        parser = self.get_parser()
         args = parser.parse_args(cli_args)
 
         if args.command == "run":
-            CommandLineClient.run_algorithm(args, parser)
+            self.run_algorithm(args, parser)
         elif args.command == "synth":
-            CommandLineClient.generate_synthetic(args, parser)
+            self.generate_synthetic(args, parser)
         else:
             parser.print_help()
 
-    @staticmethod
-    def run_algorithm(args, parser):
+    def run_algorithm(self, args, parser):
         try:
-            alg_obj = CommandLineClient.get_algorithm_object(args)
+            alg_obj = self.get_algorithm_object(args)
         except ValueError as ex:
             parser.error(ex)
 
@@ -225,15 +220,14 @@ class CommandLineClient(BaseClient):
                                               variables=args.variables)
 
         # Get results to display
-        display_results = BaseClient.get_output_obj(
+        display_results = self.get_output_obj(
             results,
             output_fields=args.output_fields,
             sup_data=sup_data
         )
         print(yaml.dump(display_results, indent=2, default_flow_style=False))
 
-    @staticmethod
-    def generate_synthetic(args, parser):
+    def generate_synthetic(self, args, parser):
         kwargs = {
             "trust": args.trust,
             "num_variables": args.num_vars,
@@ -248,4 +242,5 @@ class CommandLineClient(BaseClient):
 
 
 def main():  # pragma: no cover
-    CommandLineClient.run(sys.argv[1:])
+    client = CommandLineClient()
+    client.run(sys.argv[1:])

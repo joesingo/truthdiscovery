@@ -44,20 +44,18 @@ class BaseClient:
         "voting": MajorityVoting
     }
 
-    @staticmethod
-    def algorithm_cls(alg_label):
+    def algorithm_cls(self, alg_label):
         """
         Return the algorithm class corresponding to a string label
         """
         try:
-            return BaseClient.ALG_LABEL_MAPPING[alg_label]
+            return self.ALG_LABEL_MAPPING[alg_label]
         except KeyError:
             raise ValueError(
                 "invalid algorithm label '{}'".format(alg_label)
             )
 
-    @staticmethod
-    def algorithm_parameter(param_string):
+    def algorithm_parameter(self, param_string):
         """
         Parse a string representation of a parameter to construct an algorithm
         object with
@@ -72,14 +70,13 @@ class BaseClient:
             )
         # Map param name to a callable to convert string to correct type
         type_mapping = {
-            "iterator": BaseClient.get_iterator,
+            "iterator": self.get_iterator,
             "priors": PriorBelief
         }
         type_convertor = type_mapping.get(param, float)
         return (param, type_convertor(value))
 
-    @staticmethod
-    def get_iterator(it_string):
+    def get_iterator(self, it_string):
         """
         Parse an :any:`Iterator` object from a string representation
         """
@@ -111,8 +108,7 @@ class BaseClient:
             "invalid iterator specification '{}'".format(it_string)
         )
 
-    @staticmethod
-    def get_output_obj(results, output_fields=None, sup_data=None):
+    def get_output_obj(self, results, output_fields=None, sup_data=None):
         """
         Format a :any:`Result` class as a dictionary to present as output to
         the user. If ``output_fields`` is None, include all available fields

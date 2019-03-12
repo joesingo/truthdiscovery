@@ -31,16 +31,18 @@ class ClientTestsBase:
 
 class TestBaseClient(ClientTestsBase):
     def test_get_iterator(self):
-        fixed_145 = BaseClient.get_iterator("fixed-145")
+        fixed_145 = BaseClient().get_iterator("fixed-145")
         assert isinstance(fixed_145, FixedIterator)
         assert fixed_145.limit == 145
 
-        l1_conv = BaseClient.get_iterator("l1-convergence-0.234")
+        l1_conv = BaseClient().get_iterator("l1-convergence-0.234")
         assert isinstance(l1_conv, ConvergenceIterator)
         assert l1_conv.distance_measure == DistanceMeasures.L1
         assert l1_conv.threshold == 0.234
 
-        l2_with_limit = BaseClient.get_iterator("l2-convergence-0.234-limit-9")
+        l2_with_limit = BaseClient().get_iterator(
+            "l2-convergence-0.234-limit-9"
+        )
         assert isinstance(l2_with_limit, ConvergenceIterator)
         assert l2_with_limit.distance_measure == DistanceMeasures.L2
         assert l2_with_limit.threshold == 0.234
@@ -63,27 +65,27 @@ class TestBaseClient(ClientTestsBase):
         )
         for it_string in invalid_it_strings:
             with pytest.raises(ValueError):
-                BaseClient.get_iterator(it_string)
+                BaseClient().get_iterator(it_string)
 
     def test_get_algorithm_parameter(self):
         # Iterator param
-        name1, val1 = BaseClient.algorithm_parameter("iterator=fixed-99")
+        name1, val1 = BaseClient().algorithm_parameter("iterator=fixed-99")
         assert name1 == "iterator"
         assert isinstance(val1, FixedIterator)
         assert val1.limit == 99
 
         # Priors
-        name2, val2 = BaseClient.algorithm_parameter("priors=voted")
+        name2, val2 = BaseClient().algorithm_parameter("priors=voted")
         assert name2 == "priors"
         assert val2 == PriorBelief.VOTED
 
         # Anything else should be a float
-        name3, val3 = BaseClient.algorithm_parameter("g=1.4")
+        name3, val3 = BaseClient().algorithm_parameter("g=1.4")
         assert name3 == "g"
         assert val3 == 1.4
 
         # Extra whitespace should be allowed
-        name3, val3 = BaseClient.algorithm_parameter("ppp =   3.4")
+        name3, val3 = BaseClient().algorithm_parameter("ppp =   3.4")
         assert name3 == "ppp"
         assert val3 == 3.4
 
@@ -93,7 +95,7 @@ class TestBaseClient(ClientTestsBase):
         # Default should be all fields if none are given, but not accuracy
         # unless supervised data given
         results = alg.run(dataset)
-        out1 = BaseClient.get_output_obj(results)
+        out1 = BaseClient().get_output_obj(results)
         exp_keys = {
             f.value for f in OutputFields if f != OutputFields.ACCURACY
         }
@@ -101,23 +103,28 @@ class TestBaseClient(ClientTestsBase):
 
         sup_data = SupervisedData.from_csv(csv_dataset)
         sup_results = alg.run(sup_data.data)
-        out2 = BaseClient.get_output_obj(sup_results, sup_data=sup_data)
+        out2 = BaseClient().get_output_obj(sup_results, sup_data=sup_data)
         assert set(out2.keys()) == {f.value for f in OutputFields}
         assert out2["trust"] == sup_results.trust
         assert out2["belief"] == sup_results.belief
 
-        out3 = BaseClient.get_output_obj(
+        out3 = BaseClient().get_output_obj(
             results, output_fields=[OutputFields.TRUST]
         )
         assert set(out3.keys()) == {"trust"}
 
 
 class TestCommandLineClient(ClientTestsBase):
+    @pytest.fixture
+    def client(self):
+        return CommandLineClient()
+
     def run(self, *args):
-        CommandLineClient.run(args)
+        client = CommandLineClient()
+        client.run(args)
 
     def get_parsed_args(self, *args):
-        return CommandLineClient.get_parser().parse_args(args)
+        return CommandLineClient().get_parser().parse_args(args)
 
     def test_no_commands(self, capsys):
         self.run()
@@ -145,22 +152,22 @@ class TestCommandLineClient(ClientTestsBase):
             "iterator=fixed-11", "priors=uniform", "-f", csv_dataset
         )
 
-    def test_get_algorithm_instance(self, csv_dataset):
+    def test_get_algorithm_instance(self, client, csv_dataset):
         args = self.get_parsed_args(
             "run", "--algorithm", "truthfinder", "-p", "dampening_factor=0.1",
             "influence_param=0.77", "-f", csv_dataset
         )
-        alg = CommandLineClient.get_algorithm_object(args)
+        alg = client.get_algorithm_object(args)
         assert isinstance(alg, TruthFinder)
         assert alg.dampening_factor == 0.1
         assert alg.influence_param == 0.77
 
-    def test_set_prior_belief(self, csv_dataset, capsys):
+    def test_set_prior_belief(self, client, csv_dataset, capsys):
         args = self.get_parsed_args(
             "run", "--algorithm", "sums", "-p", "priors=voted", "-f",
             csv_dataset
         )
-        alg = CommandLineClient.get_algorithm_object(args)
+        alg = client.get_algorithm_object(args)
         assert isinstance(alg, Sums)
         assert alg.priors == PriorBelief.VOTED
 
@@ -174,14 +181,14 @@ class TestCommandLineClient(ClientTestsBase):
         err_msg = capsys.readouterr().err
         assert "'blah' is not a valid PriorBelief" in err_msg
 
-    def test_set_iterator(self, csv_dataset, capsys):
+    def test_set_iterator(self, client, csv_dataset, capsys):
         # Fixed iterator
         raw_args1 = (
             "run", "--algorithm", "sums", "-p", "iterator=fixed-123", "-f",
             csv_dataset
         )
         args1 = self.get_parsed_args(*raw_args1)
-        alg1 = CommandLineClient.get_algorithm_object(args1)
+        alg1 = client.get_algorithm_object(args1)
         assert isinstance(alg1, Sums)
         assert isinstance(alg1.iterator, FixedIterator)
         assert alg1.iterator.limit == 123
@@ -194,7 +201,7 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "--algorithm", "sums", "-p",
             "iterator=cosine-convergence-0.01", "-f", csv_dataset
         )
-        alg2 = CommandLineClient.get_algorithm_object(args2)
+        alg2 = client.get_algorithm_object(args2)
         assert isinstance(alg2.iterator, ConvergenceIterator)
         assert alg2.iterator.distance_measure == DistanceMeasures.COSINE
         assert alg2.iterator.threshold == 0.01
@@ -204,7 +211,7 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "--algorithm", "sums", "-p",
             "iterator=l2-convergence-0.3-limit-99", "-f", csv_dataset
         )
-        alg3 = CommandLineClient.get_algorithm_object(args3)
+        alg3 = client.get_algorithm_object(args3)
         assert isinstance(alg3.iterator, ConvergenceIterator)
         assert alg3.iterator.distance_measure == DistanceMeasures.L2
         assert alg3.iterator.threshold == 0.3
