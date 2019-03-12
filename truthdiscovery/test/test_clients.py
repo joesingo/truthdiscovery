@@ -3,8 +3,8 @@ import pytest
 import yaml
 
 from truthdiscovery.algorithm import AverageLog, Sums, TruthFinder, PriorBelief
-from truthdiscovery.client.cli import CommandLineClient
-from truthdiscovery.input import MatrixDataset
+from truthdiscovery.client import BaseClient, CommandLineClient, OutputFields
+from truthdiscovery.input import MatrixDataset, SupervisedData
 from truthdiscovery.utils import (
     ConvergenceIterator,
     DistanceMeasures,
@@ -12,24 +12,112 @@ from truthdiscovery.utils import (
 )
 
 
-class TestCommandLineClient:
-    def run(self, *args):
-        CommandLineClient.run(args)
-
-    def get_parsed_args(self, *args):
-        return CommandLineClient.get_parser().parse_args(args)
-
+class ClientTestsBase:
     @pytest.fixture
-    def csv_dataset(self, tmpdir):
-        csvfile = tmpdir.join("data.csv")
-        dataset = MatrixDataset(ma.masked_values([
+    def dataset(self):
+        return MatrixDataset(ma.masked_values([
             [1, 2, 3, 2],
             [3, 0, 1, 2],
             [2, 2, 0, 0],
             [0, 1, 0, 3]
         ], 0))
+
+    @pytest.fixture
+    def csv_dataset(self, dataset, tmpdir):
+        csvfile = tmpdir.join("data.csv")
         csvfile.write(dataset.to_csv())
         return str(csvfile)
+
+
+class TestBaseClient(ClientTestsBase):
+    def test_get_iterator(self):
+        fixed_145 = BaseClient.get_iterator("fixed-145")
+        assert isinstance(fixed_145, FixedIterator)
+        assert fixed_145.limit == 145
+
+        l1_conv = BaseClient.get_iterator("l1-convergence-0.234")
+        assert isinstance(l1_conv, ConvergenceIterator)
+        assert l1_conv.distance_measure == DistanceMeasures.L1
+        assert l1_conv.threshold == 0.234
+
+        l2_with_limit = BaseClient.get_iterator("l2-convergence-0.234-limit-9")
+        assert isinstance(l2_with_limit, ConvergenceIterator)
+        assert l2_with_limit.distance_measure == DistanceMeasures.L2
+        assert l2_with_limit.threshold == 0.234
+        assert l2_with_limit.limit == 9
+
+        invalid_it_strings = (
+            "fixed",
+            "fixed-",
+            "fixed-hello",
+            "fixed-10.0",
+            "fixed--4",
+            "convergence",
+            "-convergence-",
+            "l1-convergence-",
+            "l1-convergence-l1",
+            "blah-convergence-0.03",
+            "l1-convergence-0.03-limit",
+            "l1-convergence-0.03-limit-",
+            "l1-convergence-0.03-limit-45.0"
+        )
+        for it_string in invalid_it_strings:
+            with pytest.raises(ValueError):
+                BaseClient.get_iterator(it_string)
+
+    def test_get_algorithm_parameter(self):
+        # Iterator param
+        name1, val1 = BaseClient.algorithm_parameter("iterator=fixed-99")
+        assert name1 == "iterator"
+        assert isinstance(val1, FixedIterator)
+        assert val1.limit == 99
+
+        # Priors
+        name2, val2 = BaseClient.algorithm_parameter("priors=voted")
+        assert name2 == "priors"
+        assert val2 == PriorBelief.VOTED
+
+        # Anything else should be a float
+        name3, val3 = BaseClient.algorithm_parameter("g=1.4")
+        assert name3 == "g"
+        assert val3 == 1.4
+
+        # Extra whitespace should be allowed
+        name3, val3 = BaseClient.algorithm_parameter("ppp =   3.4")
+        assert name3 == "ppp"
+        assert val3 == 3.4
+
+    def test_get_output_obj(self, csv_dataset):
+        dataset = MatrixDataset.from_csv(csv_dataset)
+        alg = Sums(iterator=FixedIterator(5))
+        # Default should be all fields if none are given, but not accuracy
+        # unless supervised data given
+        results = alg.run(dataset)
+        out1 = BaseClient.get_output_obj(results)
+        exp_keys = {
+            f.value for f in OutputFields if f != OutputFields.ACCURACY
+        }
+        assert set(out1.keys()) == exp_keys
+
+        sup_data = SupervisedData.from_csv(csv_dataset)
+        sup_results = alg.run(sup_data.data)
+        out2 = BaseClient.get_output_obj(sup_results, sup_data=sup_data)
+        assert set(out2.keys()) == {f.value for f in OutputFields}
+        assert out2["trust"] == sup_results.trust
+        assert out2["belief"] == sup_results.belief
+
+        out3 = BaseClient.get_output_obj(
+            results, output_fields=[OutputFields.TRUST]
+        )
+        assert set(out3.keys()) == {"trust"}
+
+
+class TestCommandLineClient(ClientTestsBase):
+    def run(self, *args):
+        CommandLineClient.run(args)
+
+    def get_parsed_args(self, *args):
+        return CommandLineClient.get_parser().parse_args(args)
 
     def test_no_commands(self, capsys):
         self.run()
@@ -84,8 +172,7 @@ class TestCommandLineClient:
             )
 
         err_msg = capsys.readouterr().err
-        assert "invalid algorithm_parameter" in err_msg
-        assert "priors=blah" in err_msg
+        assert "'blah' is not a valid PriorBelief" in err_msg
 
     def test_set_iterator(self, csv_dataset, capsys):
         # Fixed iterator
@@ -209,24 +296,24 @@ class TestCommandLineClient:
         self.run("run", "-a", "voting", "-f", csv_dataset)
         results = yaml.load(capsys.readouterr().out)
         assert set(results.keys()) == {
-            "time_taken", "iterations", "trust", "belief"
+            "time", "iterations", "trust", "belief"
         }
 
     def test_custom_output(self, csv_dataset, capsys):
         self.run("run", "-a", "sums", "-f", csv_dataset, "-o", "time")
         results = yaml.load(capsys.readouterr().out)
-        assert set(results.keys()) == {"time_taken"}
+        assert set(results.keys()) == {"time"}
 
         self.run(
             "run", "-a", "sums", "-f", csv_dataset, "-o", "time",
             "iterations"
         )
         results = yaml.load(capsys.readouterr().out)
-        assert set(results.keys()) == {"time_taken", "iterations"}
+        assert set(results.keys()) == {"time", "iterations"}
 
         self.run(
             "run", "-a", "sums", "-f", csv_dataset, "-o", "trust",
-            "trust-stats"
+            "trust_stats"
         )
         results = yaml.load(capsys.readouterr().out)
         assert set(results.keys()) == {"trust", "trust_stats"}
@@ -239,7 +326,7 @@ class TestCommandLineClient:
     def test_show_most_believed_values(self, csv_dataset, capsys):
         self.run(
             "run", "-a", "voting", "-f", csv_dataset, "--output",
-            "most-believed-values"
+            "most_believed_values"
         )
         results = yaml.load(capsys.readouterr().out)
         assert results == {
@@ -248,7 +335,7 @@ class TestCommandLineClient:
         # Test with variable filtering
         self.run(
             "run", "-a", "voting", "-f", csv_dataset, "-o",
-            "most-believed-values", "--variables", "0", "3"
+            "most_believed_values", "--variables", "0", "3"
         )
         results = yaml.load(capsys.readouterr().out)
         assert "belief" not in results
@@ -259,7 +346,7 @@ class TestCommandLineClient:
         }
 
     def test_belief_stats(self, csv_dataset, capsys):
-        self.run("run", "-a", "sums", "-f", csv_dataset, "-o", "belief-stats")
+        self.run("run", "-a", "sums", "-f", csv_dataset, "-o", "belief_stats")
         results = yaml.load(capsys.readouterr().out)
         assert set(results.keys()) == {"belief_stats"}
         exp_belief_stats = (Sums().run(MatrixDataset.from_csv(csv_dataset))
