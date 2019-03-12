@@ -63,6 +63,17 @@ class TestDataset:
         ])
         assert np.array_equal(data.mut_ex.toarray(), expected_mut_ex)
 
+    def test_source_multiple_claims_for_a_single_variable(self):
+        with pytest.raises(ValueError) as excinfo:
+            data = Dataset((
+                ("s1", "x", 4),
+                ("s2", "x", 5),
+                ("s1", "x", 5)
+            ))
+
+        err_msg = "Source 's1' claimed more than one value for variable 'x'"
+        assert err_msg in str(excinfo.value)
+
 
 class TestIDMapping:
     def test_insert(self):

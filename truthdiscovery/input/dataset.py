@@ -61,6 +61,10 @@ class Dataset:
         self.val_hashes = IDMapping()  # Values to IDs (hashes)
         self.claim_ids = IDMapping()   # (var_id, val_hash) tuples to IDs
 
+        # Keep track of (source, var) pairs to detect if a source makes more
+        # than one claim for a single variable
+        source_var_pairs = {}
+
         # Keep track of (source_id, claim_id) pairs to populate the
         # source-claims matrix. Source and claim IDs for each pair are stored
         # in the same position in *separate lists*, since this is the format
@@ -77,6 +81,14 @@ class Dataset:
             s_id = self.source_ids.get_id(source_label)
             var_id = self.var_ids.get_id(var_label)
             val_hash = self.val_hashes.get_id(val)
+
+            if (s_id, var_id) in source_var_pairs:
+                raise ValueError(
+                    "Source '{}' claimed more than one value for variable '{}'"
+                    .format(self.source_ids.inverse[s_id],
+                            self.var_ids.inverse[var_id])
+                )
+            source_var_pairs[(s_id, var_id)] = True
 
             claim = (var_id, val_hash)
             claim_id = self.claim_ids.get_id(claim)
