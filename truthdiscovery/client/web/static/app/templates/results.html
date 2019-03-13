@@ -1,0 +1,47 @@
+<div ng-show="$ctrl.service.gotFirstResults">
+    <h2>Results</h2>
+    <p>
+        Got results in <b>{{ $ctrl.service.results.time }}</b> seconds
+        (<b>{{ $ctrl.service.results.iterations || "N/A" }}</b> iterations)
+    </p>
+
+    <div>
+        <h3>Source trust scores</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Trust score</th>
+                </tr>
+            </thead>
+            <tbody id="trust-tbody">
+                <tr ng-repeat="(source, trust) in $ctrl.service.results.trust">
+                    <td>{{ source }}</td>
+                    <td>{{ trust }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div>
+        <h3>Claim belief scores</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Variable ID</th>
+                    <th>Value</th>
+                    <th>Belief score</th>
+                </tr>
+            </thead>
+            <tbody id="belief-tbody">
+                <tbody ng-repeat="(var, beliefs) in $ctrl.service.results.belief">
+                    <tr ng-repeat="(val, belief) in beliefs">
+                        <td><span ng-if="$first">{{ var }}</span></td>
+                        <td>{{ val }}</td>
+                        <td>{{ belief }}</td>
+                    </tr>
+                </tbody>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,41 @@
+<form class="form-horizontal" ng-submit="$ctrl.run()">
+    <!--
+    Group everything inside a fieldset so that all inputs can be disabled/enabled at once
+    -->
+    <fieldset ng-disabled="$ctrl.disabled">
+
+        <!-- Algorithm selection -->
+        <div class="form-group">
+            <div class="col-3 col-sm-12">
+                <label class="form-label" for="algorithm">Algorithm:</label>
+            </div>
+            <div class="col-9 col-sm-12">
+                <select class="form-select" name="algorithm" id="algorithm"
+                        ng-model="$ctrl.algorithm">
+                    <option ng-repeat="(label, display_name) in $ctrl.algorithm_labels"
+                            value="{{ label }}">
+                        {{ display_name }}
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Matrix CSV -->
+        <div class="form-group">
+            <div class="col-3 col-sm-12">
+                <label class="form-label" for="matrix">Dataset CSV:</label>
+            </div>
+            <div class="col-9 col-sm-12">
+                <textarea class="form-input" name="matrix" id="matrix" ng-model="$ctrl.matrix">
+                </textarea>
+            </div>
+        </div>
+
+        <!-- Submit button -->
+        <div class="form-group">
+            <div class="col-9 col-sm-12">
+                <button class="btn btn-primary">Run</button>
+            </div>
+        </div>
+    </fieldset>
+</form>

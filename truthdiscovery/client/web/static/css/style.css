@@ -1,0 +1,9 @@
+body {
+    margin: 0 auto;
+    padding: 1em;
+    max-width: 50em;
+}
+
+#main-form textarea {
+    white-space: pre-wrap;
+}
