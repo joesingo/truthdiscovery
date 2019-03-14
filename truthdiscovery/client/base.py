@@ -108,6 +108,20 @@ class BaseClient:
             "invalid iterator specification '{}'".format(it_string)
         )
 
+    def get_algorithm_object(self, alg_cls, param_dict):
+        """
+        Instantiate an algorithm object
+
+        :raises ValueError: if parameters are invalid
+        """
+        try:
+            return alg_cls(**param_dict)
+        except TypeError:
+            raise ValueError(
+                "invalid parameters {} for {}"
+                .format(param_dict, alg_cls.__name__)
+            )
+
     def get_output_obj(self, results, output_fields=None, sup_data=None):
         """
         Format a :any:`Result` class as a dictionary to present as output to

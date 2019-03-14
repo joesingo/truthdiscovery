@@ -4,12 +4,8 @@ import pytest
 import yaml
 
 from truthdiscovery.algorithm import AverageLog, Sums, TruthFinder, PriorBelief
-from truthdiscovery.client import (
-    BaseClient,
-    CommandLineClient,
-    OutputFields,
-    route
-)
+from truthdiscovery.client import BaseClient, CommandLineClient, OutputFields
+from truthdiscovery.client.web import get_flask_app, route
 from truthdiscovery.input import MatrixDataset, SupervisedData
 from truthdiscovery.utils import (
     ConvergenceIterator,
@@ -125,6 +121,10 @@ class TestCommandLineClient(ClientTestsBase):
     def client(self):
         return CommandLineClient()
 
+    def get_algorithm_object(self, client, args):
+        params = dict(args.alg_params or [])
+        return client.get_algorithm_object(args.alg_cls, params)
+
     def run(self, *args):
         client = CommandLineClient()
         client.run(args)
@@ -163,7 +163,7 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "--algorithm", "truthfinder", "-p", "dampening_factor=0.1",
             "influence_param=0.77", "-f", csv_dataset
         )
-        alg = client.get_algorithm_object(args)
+        alg = self.get_algorithm_object(client, args)
         assert isinstance(alg, TruthFinder)
         assert alg.dampening_factor == 0.1
         assert alg.influence_param == 0.77
@@ -173,7 +173,7 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "--algorithm", "sums", "-p", "priors=voted", "-f",
             csv_dataset
         )
-        alg = client.get_algorithm_object(args)
+        alg = self.get_algorithm_object(client, args)
         assert isinstance(alg, Sums)
         assert alg.priors == PriorBelief.VOTED
 
@@ -194,7 +194,7 @@ class TestCommandLineClient(ClientTestsBase):
             csv_dataset
         )
         args1 = self.get_parsed_args(*raw_args1)
-        alg1 = client.get_algorithm_object(args1)
+        alg1 = self.get_algorithm_object(client, args1)
         assert isinstance(alg1, Sums)
         assert isinstance(alg1.iterator, FixedIterator)
         assert alg1.iterator.limit == 123
@@ -207,7 +207,7 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "--algorithm", "sums", "-p",
             "iterator=cosine-convergence-0.01", "-f", csv_dataset
         )
-        alg2 = client.get_algorithm_object(args2)
+        alg2 = self.get_algorithm_object(client, args2)
         assert isinstance(alg2.iterator, ConvergenceIterator)
         assert alg2.iterator.distance_measure == DistanceMeasures.COSINE
         assert alg2.iterator.threshold == 0.01
@@ -217,7 +217,7 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "--algorithm", "sums", "-p",
             "iterator=l2-convergence-0.3-limit-99", "-f", csv_dataset
         )
-        alg3 = client.get_algorithm_object(args3)
+        alg3 = self.get_algorithm_object(client, args3)
         assert isinstance(alg3.iterator, ConvergenceIterator)
         assert alg3.iterator.distance_measure == DistanceMeasures.L2
         assert alg3.iterator.threshold == 0.3
@@ -448,6 +448,10 @@ class TestCommandLineClient(ClientTestsBase):
 
 
 class TestWebClient(ClientTestsBase):
+    @pytest.fixture
+    def test_client(self):
+        return get_flask_app().test_client()
+
     def test_routing(self):
         class ExampleClass:
             def __init__(self, x):
@@ -471,3 +475,72 @@ class TestWebClient(ClientTestsBase):
         # GET should not be allowed
         resp2 = client.get("/some-test-url/jim/91")
         assert resp2.status_code == 405
+
+    def test_home(self, test_client):
+        resp = test_client.get("/")
+        html = resp.data.decode()
+        assert "<body>" in html
+        assert "truth-discovery tool" in html.lower()
+        assert '&#34;average_log&#34;: &#34;AverageLog&#34;' in html
+
+    def test_run_fail(self, test_client):
+        # Missing parameters
+        resp1 = test_client.get("/run/")
+        assert resp1.status_code == 400
+        err_msg = "'algorithm' and 'matrix' parameters are required"
+        assert resp1.json == {"ok": False, "error": err_msg}
+        resp2 = test_client.get("/run/", query_string={"algorithm": "sums"})
+        assert resp2.status_code == 400
+        assert resp2.json == {"ok": False, "error": err_msg}
+
+        # Invalid algorithm
+        data = {"algorithm": "hmm", "matrix": ""}
+        resp3 = test_client.get("/run/", query_string=data)
+        assert resp3.status_code == 400
+        assert not resp3.json["ok"]
+        assert "invalid algorithm label 'hmm'" in resp3.json["error"]
+
+        # Invalid matrices
+        invalid_matrices = (
+            "hello",
+            "1,2,3",           # only one row
+            "1,2,3\n1,2,3,4",  # inconsistent shape
+        )
+        for matrix in invalid_matrices:
+            data = {"algorithm": "sums", "matrix": matrix}
+            resp = test_client.get("/run/", query_string=data)
+            assert resp.status_code == 400
+            assert not resp.json["ok"]
+            assert "invalid matrix CSV" in resp.json["error"]
+
+        # Invalid parameters
+        invalid_params = (
+            ("random-string", "parameters must be in the form 'key=value'"),
+            ("priors=blah", "'blah' is not a valid PriorBelief"),
+            ("priors=voted\nrandom-string", "in the form 'key=value'"),
+            ("dampening_factor=0.1", "for Sums"),
+        )
+        for params, exp_err in invalid_params:
+            print(params)
+            data = {
+                "algorithm": "sums",
+                "matrix": "1,2,3\n4,5,6",
+                "parameters": params
+            }
+            resp = test_client.get("/run/", query_string=data)
+            assert resp.status_code == 400
+            assert not resp.json["ok"]
+            assert exp_err in resp.json["error"]
+
+    def test_run_success(self, test_client):
+        data = {
+            "algorithm": "investment",
+            # leading and trailing whitespace shouldn't matter
+            "matrix": " 1,2,3,\n_,2,3,4   \n\n\n ",
+            "parameters": "g=1.2\niterator=fixed-13"
+        }
+        resp = test_client.get("/run/", query_string=data)
+        assert resp.status_code == 200
+        assert resp.json["ok"]
+        output = resp.json["data"]
+        assert output["iterations"] == 13

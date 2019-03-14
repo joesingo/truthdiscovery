@@ -48,7 +48,10 @@ class MatrixDataset(Dataset):
         :return: a :any:`MatrixDataset` object representing the matrix encoded
                  by the CSV
         """
-        return cls(np.genfromtxt(path, delimiter=",", usemask=True))
+        try:
+            return cls(np.genfromtxt(path, delimiter=",", usemask=True))
+        except ValueError as ex:
+            raise ValueError("invalid matrix CSV: {}".format(ex))
 
     def to_csv(self):
         """

@@ -25,7 +25,9 @@ angular.
                 }
             });
             promise.then(function(response) {
-                self.results = response.data;
+                // Our server's response is in response.data, and is an object
+                // with keys 'ok' and 'data' (in the success case)
+                self.results = response.data.data;
                 self.gotFirstResults = true;
             });
             return promise;

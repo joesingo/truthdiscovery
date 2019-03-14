@@ -173,20 +173,6 @@ class CommandLineClient(BaseClient):
         )
         return parser
 
-    def get_algorithm_object(self, parsed_args):
-        """
-        Process the parsed command-line arguments and return the algorithm
-        instance to use
-        """
-        cls = parsed_args.alg_cls
-        params = dict(parsed_args.alg_params or [])
-        try:
-            return cls(**params)
-        except TypeError:
-            raise ValueError(
-                "invalid parameters {} for {}".format(params, cls.__name__)
-            )
-
     def run(self, cli_args):
         parser = self.get_parser()
         args = parser.parse_args(cli_args)
@@ -199,8 +185,9 @@ class CommandLineClient(BaseClient):
             parser.print_help()
 
     def run_algorithm(self, args, parser):
+        params = dict(args.alg_params or [])
         try:
-            alg_obj = self.get_algorithm_object(args)
+            alg_obj = self.get_algorithm_object(args.alg_cls, params)
         except ValueError as ex:
             parser.error(ex)
 
