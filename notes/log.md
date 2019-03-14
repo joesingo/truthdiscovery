@@ -110,3 +110,33 @@
 * *MEETING*
 * Polish off axioms from yesterday
 * Implement filtering results to subset of sources and variables
+
+06-03-2019:
+-----------
+* Refine symmetry axiom, state and prove a proposition
+* Get stats (mean, stddev) from results
+* Finish documentation for datasets, and document algorithms
+
+07-03-2019:
+-----------
+* Think about new 'unanimity'-type axioms
+
+08-03-2019:
+-----------
+* Start command-line client
+
+09-03-2019:
+-----------
+* Further work on command-line client
+
+[09-11]-03-2019:
+-----------
+* Further work on command-line client
+
+12-03-2019:
+-----------
+* *MEETING*
+
+13-03-2019:
+-----------
+* First version of web interface
