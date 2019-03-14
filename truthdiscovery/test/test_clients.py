@@ -1,9 +1,15 @@
+from flask import Flask
 import numpy.ma as ma
 import pytest
 import yaml
 
 from truthdiscovery.algorithm import AverageLog, Sums, TruthFinder, PriorBelief
-from truthdiscovery.client import BaseClient, CommandLineClient, OutputFields
+from truthdiscovery.client import (
+    BaseClient,
+    CommandLineClient,
+    OutputFields,
+    route
+)
 from truthdiscovery.input import MatrixDataset, SupervisedData
 from truthdiscovery.utils import (
     ConvergenceIterator,
@@ -439,3 +445,29 @@ class TestCommandLineClient(ClientTestsBase):
         self.run("run", "-a", "voting", "-f", str(ds), "-s", "-o", "accuracy")
         results = yaml.load(capsys.readouterr().out)
         assert results["accuracy"] is None
+
+
+class TestWebClient(ClientTestsBase):
+    def test_routing(self):
+        class ExampleClass:
+            def __init__(self, x):
+                self.x = x
+
+            @route("/some-test-url/<name>/<int:age>", methods=["POST"])
+            def my_view_function(self, name, age):
+                return (
+                    "name is {}, age is {} and x is {}"
+                    .format(name, age, self.x)
+                )
+
+        app = Flask("test_routing")
+        route.add_routes(app, ExampleClass(42))
+        client = app.test_client()
+
+        resp1 = client.post("/some-test-url/joe/22")
+        assert resp1.status_code == 200
+        assert resp1.data == b"name is joe, age is 22 and x is 42"
+
+        # GET should not be allowed
+        resp2 = client.get("/some-test-url/jim/91")
+        assert resp2.status_code == 405
