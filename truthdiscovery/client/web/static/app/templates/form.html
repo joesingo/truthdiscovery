@@ -26,9 +26,15 @@
                 <label class="form-label" for="matrix">Dataset CSV:</label>
             </div>
             <div class="col-9 col-sm-12">
-                <textarea class="form-input" name="matrix" id="matrix" ng-model="$ctrl.matrix">
+                <textarea class="form-input" name="matrix" id="matrix" ng-model="$ctrl.matrix"
+                          required>
                 </textarea>
             </div>
+        </div>
+
+        <!-- Errors -->
+        <div class="has-error">
+            <p ng-show="$ctrl.error" class="form-input-hint">{{ $ctrl.error }}</p>
         </div>
 
         <!-- Submit button -->

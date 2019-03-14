@@ -9,7 +9,7 @@ angular.
     service("tdService", ["$http", function($http) {
         this.url = "/run/";
         this.method = "GET";
-        this.gotFirstResults = false;
+        this.hasResults = false;
 
         /*
          * Make the HTTP request to get results of an algorithm
@@ -28,7 +28,9 @@ angular.
                 // Our server's response is in response.data, and is an object
                 // with keys 'ok' and 'data' (in the success case)
                 self.results = response.data.data;
-                self.gotFirstResults = true;
+                self.hasResults = true;
+            }, function(error) {
+                self.hasResults = false;
             });
             return promise;
         }
@@ -41,6 +43,7 @@ angular.
         "templateUrl": "/static/app/templates/form.html",
         "controller": function MainformController(tdService) {
             this.disabled = false;
+            this.error = null;  // error message to show underneath form
             this.algorithm = "sums";
             // Default example matrix
             this.matrix = "1,2,_\n" +
@@ -51,9 +54,16 @@ angular.
             var self = this;
             this.run = function() {
                 var promise = tdService.getResults(self.algorithm, self.matrix);
-                // Disable all form elements while we wait for response
+                // Disable all form elements and cancel errors while we wait
+                // for response
                 self.disabled = true;
-                promise.then(function() {
+                self.error = null;
+
+                promise.catch(function(response) {
+                    // Set error message on failure
+                    self.error = response.data.error;
+                    self.error = self.error[0].toUpperCase() + self.error.slice(1);
+                }).finally(function() {
                     self.disabled = false;
                 });
             };
