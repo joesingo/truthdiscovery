@@ -20,6 +20,10 @@ table {
     font-weight: bold;
 }
 
+.matrix-table td {
+    cursor: pointer;
+}
+
 /*
  * Note: implement our own striped table class here so we can have <tbody>s
  * alternately coloured for claim belief table (spectre stripes <tr>s)

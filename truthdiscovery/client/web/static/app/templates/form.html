@@ -48,10 +48,10 @@
                                    ng-show="$ctrl.matrix.entries.length > 1">
                                 </i>
                             </td>
-                            <td ng-repeat="col in row track by $index">
+                            <td ng-repeat="col in row track by $index"
+                                ng-click="$ctrl.startEditingCell($parent.$index, $index, $event)">
 
-                                <span ng-show="!$ctrl.matrix.being_edited[$parent.$index][$index]"
-                                      ng-click="$ctrl.startEditingCell($parent.$index, $index, $event)">
+                                <span ng-show="!$ctrl.matrix.being_edited[$parent.$index][$index]">
                                     {{ col || "-" }}
                                 </span>
 

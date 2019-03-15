@@ -91,7 +91,7 @@ angular.
                 // Get text input and focus manually.
                 // Seems that we cannot focus input immediately here since it
                 // is not visible until after angular model change...
-                var input = $(event.target).parent().find("input");
+                var input = $(event.target).find("input");
                 window.setTimeout(function() {
                     input.focus();
                 }, MATRIX_INPUT_FOCUS_DELAY);
