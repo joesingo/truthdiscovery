@@ -32,28 +32,44 @@
                             <th></th>  <!-- First col is source labels -->
                             <th ng-repeat="col in $ctrl.matrix.entries[0] track by $index">
                                 Variable {{ $index + 1 }}
+                                <i class="icon icon-cross delete"
+                                   ng-click="$ctrl.deleteVariable($index)"
+                                   ng-show="$ctrl.matrix.entries[0].length > 1">
+                                </i>
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="row in $ctrl.matrix.entries" ng-init="i = $index">
-                            <td>Source {{ i + 1 }}</td>
-                            <td ng-repeat="col in row track by $index"
-                                ng-init="j = $index">
+                        <tr ng-repeat="row in $ctrl.matrix.entries">
+                            <td>
+                                Source {{ $index + 1 }}
+                                <i class="icon icon-cross delete"
+                                   ng-click="$ctrl.deleteSource($index)"
+                                   ng-show="$ctrl.matrix.entries.length > 1">
+                                </i>
+                            </td>
+                            <td ng-repeat="col in row track by $index">
 
-                                <span ng-show="!$ctrl.matrix.being_edited[i][j]"
-                                      ng-click="$ctrl.startEditingCell(i, j, $event)">
+                                <span ng-show="!$ctrl.matrix.being_edited[$parent.$index][$index]"
+                                      ng-click="$ctrl.startEditingCell($parent.$index, $index, $event)">
                                     {{ col || "-" }}
                                 </span>
 
-                                <input ng-show="$ctrl.matrix.being_edited[i][j]"
-                                       ng-model="$ctrl.matrix.entries[i][j]"
-                                       ng-blur="$ctrl.stopEditingCell(i, j)" />
+                                <input ng-show="$ctrl.matrix.being_edited[$parent.$index][$index]"
+                                       ng-model="$ctrl.matrix.entries[$parent.$index][$index]"
+                                       ng-blur="$ctrl.stopEditingCell($parent.$index, $index)" />
 
                             </td>
                         </tr>
                     </tbody>
                 </table>
+
+                <button class="btn" type="button" ng-click="$ctrl.addSource()">
+                    Add source
+                </button>
+                <button class="btn" type="button" ng-click="$ctrl.addVariable()">
+                    Add Variable
+                </button>
             </div>
         </div>
 

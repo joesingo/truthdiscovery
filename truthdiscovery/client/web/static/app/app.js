@@ -47,7 +47,8 @@ angular.
             this.service = tdService;
             this.error = null;  // error message to show underneath form
             this.algorithm = "sums";
-            // Default example matrix
+
+            // Initialise matrix
             this.matrix = {
                 "entries": [
                     [1, 2, null],
@@ -96,6 +97,43 @@ angular.
                 }, MATRIX_INPUT_FOCUS_DELAY);
                 // TODO: find a better way of doing this...
             };
+
+            this.addSource = function() {
+                var num_variables = self.matrix.entries[0].length;
+                var new_claims = [];
+                var new_editing = [];
+                for (var i=0; i<num_variables; i++) {
+                    new_claims.push(null);
+                    new_editing.push(false);
+                }
+                self.matrix.entries.push(new_claims);
+                self.matrix.being_edited.push(new_editing);
+            };
+
+            this.addVariable = function() {
+                for (var i=0; i<self.matrix.entries.length; i++) {
+                    self.matrix.entries[i].push(null);
+                    self.matrix.being_edited[i].push(false);
+                }
+            };
+
+            /*
+             * Delete the i-th source (0-indexed)
+             */
+            this.deleteSource = function(i) {
+                self.matrix.entries.splice(i, 1);
+                self.matrix.being_edited.splice(i, 1);
+            }
+
+            /*
+             * Delete the j-th variable (0-indexed)
+             */
+            this.deleteVariable = function(j) {
+                for (var i=0; i<self.matrix.entries.length; i++) {
+                    self.matrix.entries[i].splice(j, 1);
+                    self.matrix.being_edited[i].splice(j, 1);
+                }
+            }
 
             /*
              * Validate a matrix entry and mark the cell as not being edited

@@ -4,6 +4,10 @@ body {
     max-width: 50em;
 }
 
+table {
+    margin-bottom: 1em;
+}
+
 .matrix-table {
     text-align: center;
 }
@@ -25,4 +29,22 @@ table.claim-belief tbody:nth-of-type(odd) {
 }
 table.striped tbody tr:nth-of-type(odd) {
     background: #f7f8f9;
+}
+
+.add, .delete {
+    cursor: pointer;
+    font-size: 0.75em;
+}
+
+.add {
+    color: #32b643;
+}
+
+.delete {
+    visibility: hidden;
+    color: #e85600;
+}
+
+td:hover .delete, th:hover .delete {
+    visibility: visible;
 }
