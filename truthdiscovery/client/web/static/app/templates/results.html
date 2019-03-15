@@ -1,4 +1,5 @@
-<div ng-show="$ctrl.service.hasResults">
+<div ng-show="$ctrl.service.state == 'loading'" class="loading loading-lg"></div>
+<div ng-show="$ctrl.service.state == 'has_results'">
     <h2>Results</h2>
     <p>
         Got results in <b>{{ $ctrl.service.results.time }}</b> seconds

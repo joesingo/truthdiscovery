@@ -10,12 +10,13 @@ angular.
     service("tdService", ["$http", function($http) {
         this.url = "/run/";
         this.method = "GET";
-        this.hasResults = false;
+        this.state = "empty";
 
         /*
          * Make the HTTP request to get results of an algorithm
          */
         this.getResults = function(algorithm, matrix) {
+            this.state = "loading";
             var self = this;
             var promise = $http({
                 "url": self.url,
@@ -29,9 +30,9 @@ angular.
                 // Our server's response is in response.data, and is an object
                 // with keys 'ok' and 'data' (in the success case)
                 self.results = response.data.data;
-                self.hasResults = true;
+                self.state = "has_results";
             }, function(error) {
-                self.hasResults = false;
+                self.state = "empty";
             });
             return promise;
         }
@@ -43,7 +44,7 @@ angular.
     component("mainForm", {
         "templateUrl": "/static/app/templates/form.html",
         "controller": function MainformController(tdService) {
-            this.disabled = false;
+            this.service = tdService;
             this.error = null;  // error message to show underneath form
             this.algorithm = "sums";
             // Default example matrix
@@ -112,9 +113,7 @@ angular.
                 var promise = tdService.getResults(
                     self.algorithm, self.getMatrixCSV()
                 );
-                // Disable all form elements and cancel errors while we wait
-                // for response
-                self.disabled = true;
+                // Cancel errors while we wait for response
                 self.error = null;
 
                 promise.catch(function(response) {
@@ -127,8 +126,6 @@ angular.
                         // throw any unknown errors
                         throw response;
                     }
-                }).finally(function() {
-                    self.disabled = false;
                 });
             };
         }

@@ -2,7 +2,7 @@
     <!--
     Group everything inside a fieldset so that all inputs can be disabled/enabled at once
     -->
-    <fieldset ng-disabled="$ctrl.disabled">
+    <fieldset ng-disabled="$ctrl.service.state == 'loading'">
 
         <!-- Algorithm selection -->
         <div class="form-group">
