@@ -4,6 +4,25 @@ body {
     max-width: 50em;
 }
 
-#main-form textarea {
-    white-space: pre-wrap;
+.matrix-table {
+    text-align: center;
+}
+
+.matrix-table input {
+    width: 2em;
+}
+
+.matrix-table td:first-child {
+    font-weight: bold;
+}
+
+/*
+ * Note: implement our own striped table class here so we can have <tbody>s
+ * alternately coloured for claim belief table (spectre stripes <tr>s)
+ */
+table.claim-belief tbody:nth-of-type(odd) {
+    background: #f7f8f9;
+}
+table.striped tbody tr:nth-of-type(odd) {
+    background: #f7f8f9;
 }
