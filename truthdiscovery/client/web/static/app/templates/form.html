@@ -31,13 +31,13 @@
                         <tr>
                             <th></th>  <!-- First col is source labels -->
                             <th ng-repeat="col in $ctrl.matrix.entries[0] track by $index">
-                                Variable {{ $index }}
+                                Variable {{ $index + 1 }}
                             </th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr ng-repeat="row in $ctrl.matrix.entries" ng-init="i = $index">
-                            <td>Source {{ $i }}</td>
+                            <td>Source {{ i + 1 }}</td>
                             <td ng-repeat="col in row track by $index"
                                 ng-init="j = $index">
 
