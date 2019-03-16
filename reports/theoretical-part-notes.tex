@@ -426,9 +426,10 @@ bijective mapping $\phi: V \rightarrow V'$ such that $(u, v) \in E \iff
 
 \begin{definition}
 Let $G=(V, E)$ be an undirected graph, and define a relation $\sim$ on $V$ by
-$u \sim v$ iff there is a path from $u$ to $v$ in $G$. It is easily checked
-that $\sim$ is an equivalence relation. A \emph{connected component} of $G$
-is an induced subgraph of an equivalence class of $\sim$.
+$u \sim v$ iff there is a path from $u$ to $v$ in $G$ (including the
+zero-length path when $u = v$). It is easily checked that $\sim$ is an
+equivalence relation. A \emph{connected component} of $G$ is an induced
+subgraph of an equivalence class of $\sim$.
 \end{definition}
 
 \subsection{Truth-discovery definitions}
@@ -619,46 +620,13 @@ others.}
 \end{remark}
 
 \begin{proposition}
+\label{prop:symm_iff_fact_source_object_symm}
 $T$ satisfies symmetry if and only if it satisfies source, fact and object
 symmetry.
 \end{proposition}
 
-\begin{proof}
-The `only if' direction is clear. For the converse, suppose $T$ is source, fact
-and object symmetric, and let $N$, $N'=\pi(N)$ be equivalent networks. Define
-\begin{equation*}
-\pi_\S(x) = \begin{cases}
-    \pi(x) & \text{ if } x \in \S \\
-    x      & \text{ if } x \in \F \cup \O
-\end{cases}
-\end{equation*}
-Define $\pi_\F$, $\pi_\O$ similarly, and set $\sigma = \pi_\S \circ \pi_\F
-\circ \pi_\O$. Then for $s \in \S$,
-\begin{align*}
-\sigma(s) &= \pi_\S(\pi_\F(\pi_\O(s))) \\
-          &= \pi_\S(\pi_\F(s)) \\
-          &= \pi_\S(s) \\
-          &= \pi(s)
-\end{align*}
-Similarly $\sigma(f)=\pi(f)$ and $\sigma(o)=\pi(o)$ for $f \in \F$ and $o \in
-\O$. Hence $\sigma=\pi$.
-
-Let $s_1, s_2 \in \S$. Since $\pi_\O$ only permutes objects, we may apply
-object-symmetry to get
-$$ s_1 \sle_N^T s_2 \iff \pi_\O(s_1) \sle_{\pi_\O(N)}^T \pi_\O(s_2) $$
-Then since $\pi_\F$ only permutes facts and $\pi_\S$ only permutes sources, we
-may successively apply fact and object symmetry to the right hand side to get
-\begin{align*}
-s_1 \sle_N^T s_2 & \iff \sigma(s_1) \sle_{\sigma(N)}^T \sigma(s_2) \\
-                 & \iff \pi(s_1) \sle_{\pi(N)}^T \pi(s_2) \\
-                 & \iff \pi(s_1) \sle_{N'}^T \pi(s_2)
-\end{align*}
-An identical argument for fact ranking gives $f_1 \fle_N^T f_2 \iff \pi(f_1)
-\fle_{N'}^T f_2$. Hence $T$ is symmetric.
-
-\end{proof}
-
 \begin{proposition}
+\label{prop:same_facts_ranked_equally}
 If $T$ satisfies source-symmetry and $\fact(N, s_1) = \fact(N, s_2)$ in some
 network $N$, then $s_1 \seq_N^T s_2$.
 
@@ -666,36 +634,7 @@ Similarly, if $T$ satisfies fact-symmetry and $\src(N, f_1) = \src(N, f_2)$,
 $\obj(N, f_1) = \obj(N, f_2)$, then $f_1 \feq_N^T f_2$.
 \end{proposition}
 
-\begin{proof}
-For the first claim, consider the permutation $\pi = (s_1, s_2)$. We claim that
-$\pi(N) = N$. Let $E$ be the edges in $N$ and $\pi(E)$ be the edges in
-$\pi(N)$. For any $(s, f) \in \S \times \F$ we have three cases:
-\begin{enumerate}
-\item $s \notin \{s_1, s_2\}$: in this case $(\pi(s), \pi(f)) = (s, f)$ and
-$(s, f) \in E$ iff $(\pi(s), \pi(f)) \in \pi(E)$ by definition, so
-$(s, f) \in E$ iff $(s, f) \in \pi(E)$.
-
-\item $s=s_1$: Here we have $(s_1, f) \in E$ iff $(s_2, f) \in E$ by
-hypothesis. This is equivalent to $(\pi(s_2), \pi(f)) \in \pi(E)$ by definition
-of $\pi(E)$, which by definition of $\pi$ is equivalent to $(s_1, f) \in
-\pi(E)$.
-
-\item $s=s_2$: As above, $(s_2, f) \in E$ iff $(s_2, f) \in \pi(E)$
-\end{enumerate}
-Also, it is clear that $(f, o) \in E$ iff $(f, o) \in \pi(E)$ for $f \in \F$,
-$o \in \O$. We have shown that $(x, y) \in E$ iff $(x, y) \in \pi(E)$, ie.
-$\pi(E) = E$ and thus $\pi(N) = N$. Applying source-symmetry, this gives
-\begin{align*}
-    s_1 \sle_N^T s_2 & \iff \pi(s_1) \sle_{\pi(N)}^T \pi(s_2) \\
-                     & \iff s_2 \sle_N^T s_1
-\end{align*}
-i.e. $s_1 \seq_N^T s_2$.
-
-For the second claim, consider $\sigma = (f_1, f_2)$ and apply a similar
-argument to the above. Note that we require $f_1$ and $f_2$ to be associated
-with the same object here so that both facts have the same incoming and outgoing
-edges in $N$.
-\end{proof}
+All missing proofs are presented in the appendix.
 
 In some sense the opposite of source-symmetry, where the identities of the
 sources are irrelevant and only the structure of the truth-discovery network is
@@ -754,32 +693,6 @@ f_1$ for all facts $f_2$.
 In particular, there is no operator that is both source-symmetric and a strict
 dictatorship.
 \end{proposition}
-
-\begin{proof}
-Suppose $T$ is source-symmetric and a dictatorship with dictator $s^*$. Let
-$N=(V,E)$ be a truth-discovery network.
-\begin{enumerate}
-\item
-    Let $s_1, s_2 \in \S$. Without loss of generality $s_1 \sle_N^T s_2$, since
-    $\sle_N^T$ is complete. Consider the permutation $\pi=(s_1, s^*)$.  We have
-    $s_2 \sle_{\pi(N)}^T s^*$ by dictatorship in $\pi(N)$, which by symmetry
-    means $\pi^{-1}(s_2) \sle_N^T \pi^{-1}(s^*)$, i.e. $s_2 \sle_N^T s_1$.
-    Hence $s_1 \seq_N^T s_2$ as required.
-
-\item
-    Let $f_1, f_2 \in \F$ such that there is a source $s$ with $(s, f_1) \in E$.
-    Set $\sigma=(s, s^*)$. Then $\sigma(E)$ contains $(\sigma(s), \sigma(f_1))
-    = (s^*, f_1)$, so we have $\sigma(f_2) \fle_{\sigma(N)}^T f_1 =
-    \sigma(f_1)$ since the facts claimed by $s^*$ rank above all others.
-    Applying symmetry gives $f_2 \fle_N^T f_1$ as required.
-\end{enumerate}
-
-This implies there is no source-symmetric strict dictatorship. If $T$ were such
-an operator then $T$ is also a non-strict dictatorship, so symmetry implies
-all sources are ranked equally, but this contradicts $s \slt_N^T s^*$ for all
-$s \ne s^*$.
-
-\end{proof}
 
 \begin{example}
 A trivial operator that satisfies symmetry and non-strict dictatorship is one
@@ -861,29 +774,9 @@ A consequence of groundedness is that any fact ranking strictly above all
 others must have been claimed by at least one source (assuming $|\F|>1$).
 
 \begin{proposition}
+\label{prop:unam_ground_indep}
 Unanimity and groundedness are independent.
 \end{proposition}
-
-\begin{proof}
-An operator that saitisfies unanimity but not groundedness is $T$ that ranks
-facts according to the function
-$$
-    r_N(f) = \begin{cases}
-        1 & \text{ if } \src(N, f) \in \{\S, \emptyset\} \\
-        0 & \text{ otherwise}
-    \end{cases}
-    \quad (f \in \F)
-$$
-i.e. $f_1 \fle_N^T f_2$ iff $r_N(f_1) \le r_N(f_2)$ (note that $T$'s ranking of
-sources is irrelevant). Clearly $T$ saitsfies unanimity but not groundedness:
-consider any network $N$ in which there is a fact $f_1$ with no corresponding
-sources, and a fact $f_2$ with at least one source, but whose sources are not
-the whole of $\S$. Then $f_1 \not\fle_N^T f_2$ contrary to the requirements of
-groundedness.
-
-Reversing the fact ordering of $T$ gives an operator satisfying groundedness
-but not unanimity.
-\end{proof}
 
 \todo{introductory text for independence ideas}
 
@@ -912,4 +805,131 @@ component $G$, the restrictions of $\sle_{N_1}^T$ and $\sle_{N_2}^T$ to $G \cap
 \bibliographystyle{plain}
 
 % \end{multicols}
+
+\appendix
+\section{Proofs}
+
+\subsection{Proof of proposition \ref{prop:symm_iff_fact_source_object_symm}}
+\begin{proof}
+
+The `only if' direction is clear. For the converse, suppose $T$ is source, fact
+and object symmetric, and let $N$, $N'=\pi(N)$ be equivalent networks. Define
+\begin{equation*}
+\pi_\S(x) = \begin{cases}
+    \pi(x) & \text{ if } x \in \S \\
+    x      & \text{ if } x \in \F \cup \O
+\end{cases}
+\end{equation*}
+Define $\pi_\F$, $\pi_\O$ similarly, and set $\sigma = \pi_\S \circ \pi_\F
+\circ \pi_\O$. Then for $s \in \S$,
+\begin{align*}
+\sigma(s) &= \pi_\S(\pi_\F(\pi_\O(s))) \\
+          &= \pi_\S(\pi_\F(s)) \\
+          &= \pi_\S(s) \\
+          &= \pi(s)
+\end{align*}
+Similarly $\sigma(f)=\pi(f)$ and $\sigma(o)=\pi(o)$ for $f \in \F$ and $o \in
+\O$. Hence $\sigma=\pi$.
+
+Let $s_1, s_2 \in \S$. Since $\pi_\O$ only permutes objects, we may apply
+object-symmetry to get
+$$ s_1 \sle_N^T s_2 \iff \pi_\O(s_1) \sle_{\pi_\O(N)}^T \pi_\O(s_2) $$
+Then since $\pi_\F$ only permutes facts and $\pi_\S$ only permutes sources, we
+may successively apply fact and object symmetry to the right hand side to get
+\begin{align*}
+s_1 \sle_N^T s_2 & \iff \sigma(s_1) \sle_{\sigma(N)}^T \sigma(s_2) \\
+                 & \iff \pi(s_1) \sle_{\pi(N)}^T \pi(s_2) \\
+                 & \iff \pi(s_1) \sle_{N'}^T \pi(s_2)
+\end{align*}
+An identical argument for fact ranking gives $f_1 \fle_N^T f_2 \iff \pi(f_1)
+\fle_{N'}^T f_2$. Hence $T$ is symmetric.
+
+\end{proof}
+
+\subsection{Proof of proposition \ref{prop:same_facts_ranked_equally}}
+\begin{proof}
+
+For the first claim, consider the permutation $\pi = (s_1, s_2)$. We claim that
+$\pi(N) = N$. Let $E$ be the edges in $N$ and $\pi(E)$ be the edges in
+$\pi(N)$. For any $(s, f) \in \S \times \F$ we have three cases:
+\begin{enumerate}
+\item $s \notin \{s_1, s_2\}$: in this case $(\pi(s), \pi(f)) = (s, f)$ and
+$(s, f) \in E$ iff $(\pi(s), \pi(f)) \in \pi(E)$ by definition, so
+$(s, f) \in E$ iff $(s, f) \in \pi(E)$.
+
+\item $s=s_1$: Here we have $(s_1, f) \in E$ iff $(s_2, f) \in E$ by
+hypothesis. This is equivalent to $(\pi(s_2), \pi(f)) \in \pi(E)$ by definition
+of $\pi(E)$, which by definition of $\pi$ is equivalent to $(s_1, f) \in
+\pi(E)$.
+
+\item $s=s_2$: As above, $(s_2, f) \in E$ iff $(s_2, f) \in \pi(E)$
+\end{enumerate}
+Also, it is clear that $(f, o) \in E$ iff $(f, o) \in \pi(E)$ for $f \in \F$,
+$o \in \O$. We have shown that $(x, y) \in E$ iff $(x, y) \in \pi(E)$, ie.
+$\pi(E) = E$ and thus $\pi(N) = N$. Applying source-symmetry, this gives
+\begin{align*}
+    s_1 \sle_N^T s_2 & \iff \pi(s_1) \sle_{\pi(N)}^T \pi(s_2) \\
+                     & \iff s_2 \sle_N^T s_1
+\end{align*}
+i.e. $s_1 \seq_N^T s_2$.
+
+For the second claim, consider $\sigma = (f_1, f_2)$ and apply a similar
+argument to the above. Note that we require $f_1$ and $f_2$ to be associated
+with the same object here so that both facts have the same incoming and
+outgoing edges in $N$.
+
+\end{proof}
+
+\subsection{Proof of proposition \ref{prop:symm_and_dict}}
+\begin{proof}
+
+Suppose $T$ is source-symmetric and a dictatorship with dictator $s^*$. Let
+$N=(V,E)$ be a truth-discovery network.
+\begin{enumerate}
+\item
+    Let $s_1, s_2 \in \S$. Without loss of generality $s_1 \sle_N^T s_2$, since
+    $\sle_N^T$ is complete. Consider the permutation $\pi=(s_1, s^*)$.  We have
+    $s_2 \sle_{\pi(N)}^T s^*$ by dictatorship in $\pi(N)$, which by symmetry
+    means $\pi^{-1}(s_2) \sle_N^T \pi^{-1}(s^*)$, i.e. $s_2 \sle_N^T s_1$.
+    Hence $s_1 \seq_N^T s_2$ as required.
+
+\item
+    Let $f_1, f_2 \in \F$ such that there is a source $s$ with $(s, f_1) \in E$.
+    Set $\sigma=(s, s^*)$. Then $\sigma(E)$ contains $(\sigma(s), \sigma(f_1))
+    = (s^*, f_1)$, so we have $\sigma(f_2) \fle_{\sigma(N)}^T f_1 =
+    \sigma(f_1)$ since the facts claimed by $s^*$ rank above all others.
+    Applying symmetry gives $f_2 \fle_N^T f_1$ as required.
+\end{enumerate}
+
+This implies there is no source-symmetric strict dictatorship. If $T$ were such
+an operator then $T$ is also a non-strict dictatorship, so symmetry implies
+all sources are ranked equally, but this contradicts $s \slt_N^T s^*$ for all
+$s \ne s^*$.
+
+\end{proof}
+
+\subsection{Proof of proposition \ref{prop:unam_ground_indep}}
+\begin{proof}
+
+An operator that saitisfies unanimity but not groundedness is $T$ that ranks
+facts according to the function
+$$
+    r_N(f) = \begin{cases}
+        1 & \text{ if } \src(N, f) \in \{\S, \emptyset\} \\
+        0 & \text{ otherwise}
+    \end{cases}
+    \quad (f \in \F)
+$$
+i.e. $f_1 \fle_N^T f_2$ iff $r_N(f_1) \le r_N(f_2)$ (note that $T$'s ranking of
+sources is irrelevant). Clearly $T$ saitsfies unanimity but not groundedness:
+consider any network $N$ in which there is a fact $f_1$ with no corresponding
+sources, and a fact $f_2$ with at least one source, but whose sources are not
+the whole of $\S$. Then $f_1 \not\fle_N^T f_2$ contrary to the requirements of
+groundedness.
+
+Reversing the fact ordering of $T$ gives an operator satisfying groundedness
+but not unanimity.
+
+\end{proof}
+
 \end{document}
