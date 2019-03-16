@@ -2,7 +2,7 @@
 <div ng-show="$ctrl.service.state == 'has_results'">
     <h2>Results</h2>
     <p>
-        Got results in <b>{{ $ctrl.service.results.time }}</b> seconds
+        Got results in <b>{{ $ctrl.service.results.time | number:7 }}</b> seconds
         (<b>{{ $ctrl.service.results.iterations || "N/A" }}</b> iterations)
     </p>
 
@@ -18,7 +18,7 @@
             <tbody>
                 <tr ng-repeat="(source, trust) in $ctrl.service.results.trust">
                     <td>{{ (source - 0) + 1 }}</td>
-                    <td>{{ trust }}</td>
+                    <td>{{ trust | number:7 }}</td>
                 </tr>
             </tbody>
         </table>
@@ -38,7 +38,7 @@
                 <tr ng-repeat="(val, belief) in beliefs">
                     <td><span ng-if="$first">{{ (var - 0) + 1 }}</span></td>
                     <td>{{ val }}</td>
-                    <td>{{ belief }}</td>
+                    <td>{{ belief | number:7 }}</td>
                 </tr>
             </tbody>
         </table>
