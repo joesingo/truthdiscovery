@@ -588,8 +588,7 @@ truth-discovery network.
 The first axiom states that the ordering of sources and facts should not depend
 on the `names' of the sources, facts and objects in the input.
 
-\begin{axiom}
-\label{axiom:symmetry}
+\begin{definition}
 Let $T$ be a truth-discovery operator. $T$ satisfies \emph{symmetry} if for
 any equivalent truth-discovery networks $N$ and $N' = \pi(N)$, we have
 $$ s_1 \sle_N^T s_2 \iff \pi(s_1) \sle_{N'}^T \pi(s_2) $$
@@ -600,6 +599,10 @@ $T$ satisfies \emph{source-symmetry} if both the above statements hold in cases
 where $\pi$ only permutes sources, i.e. $\pi(f)=f$ and $\pi(o)=o$ for all $f
 \in \F$ and $o \in \O$. \emph{Fact-symmetry} and \emph{object-symmetry} are
 defined similarly.
+\end{definition}
+
+\begin{axiom}(Symmetry)
+An operator $T$ should satisfy symmetry.
 \end{axiom}
 
 \begin{remark}
@@ -654,18 +657,15 @@ We also define a strict version: $s^*$ is \emph{strictly authoritative} if
 additionally $s \slt_N^T s^*$ for all $s \ne s^*$, and $f \flt_N^T f^*$ for all
 $f, f^* \in \F$ such that $(s^*, f^*) \in E$ and $(s^*, f) \notin E$.
 
+An operator $T$ is a \emph{dictatorship} if there is a source $s^* \in S$ (the
+dictator) that is authoritative for all networks, and $T$ is a \emph{strict
+dictatorship} if there is a source $s^* \in S$ that is strictly authoritative
+for all networks.
+
 \end{definition}
 
-\begin{axiom}
-\label{axiom:dict}
-An operator $T$ is a \emph{dictatorship} if there is a source $s^* \in S$ (the
-dictator) that is authoritative for all networks.
-\end{axiom}
-
-\begin{axiom}
-\label{axiom:strict_dict}
-An operator $T$ is a \emph{strict dictatorship} if there is a source $s^* \in
-S$ that is strictly authoritative for all networks.
+\begin{axiom}[Non-dictatorship]
+An operator $T$ should not be a dictatorship.
 \end{axiom}
 
 \todo{
@@ -723,16 +723,14 @@ its verdict. Two obvious ways in which sources can be in agreement are when
 \emph{all} sources believe a fact is true, and when \emph{no} sources believe a
 fact is true.
 
-\begin{axiom}
-A truth-discovery operator $T$ satisfies \emph{unanimity} if $\src(N, f) = \S$
-implies $f' \fle_N^T f$ for all $f' \in \F$, for each truth-discovery network
-$N$.
+\begin{axiom}[Unanimity]
+For any truth-discovery network $N$, $\src(N, f) = \S$ implies $f' \fle_N^T f$
+for all $f' \in \F$.
 \end{axiom}
 
-\begin{axiom}
-A truth-discovery operator $T$ is \emph{grounded} if $\src(N, f) = \emptyset$
-implies $f \fle_N^T f'$ for all $f' \in \F$, for each truth-discovery network
-$N$.
+\begin{axiom}[Groundedness]
+For any truth-discovery network $N$, $\src(N, f) = \emptyset$ implies $f
+\fle_N^T f'$ for all $f' \in \F$.
 \end{axiom}
 
 \todo{Think about whether `grounded' is the best name here...}
@@ -783,12 +781,11 @@ Unanimity and groundedness are independent.
 In what follows we consider a connected component of a truth-discovery network
 $N$ to be a connected component of the undirected version of $N$.
 
-\begin{axiom}
-A truth-discovery operator $T$ satisfies \emph{independence of irrelevant
-stuff} if for any truth-discovery networks $N_1$, $N_2$ with a common connected
-component $G$, the restrictions of $\sle_{N_1}^T$ and $\sle_{N_2}^T$ to $G \cap
-\S$ are equal, and the restrictions of $\fle_{N_1}^T$ and $\fle_{N_2}^T$ to $G
-\cap \F$ are equal.
+\begin{axiom}[Independence Of Irrelevant Stuff]
+For any truth-discovery networks $N_1$, $N_2$ with a common connected component
+$G$, the restrictions of $\sle_{N_1}^T$ and $\sle_{N_2}^T$ to $G \cap \S$ are
+equal, and the restrictions of $\fle_{N_1}^T$ and $\fle_{N_2}^T$ to $G \cap \F$
+are equal.
 \end{axiom}
 
 \subsubsection{Inspired by ranking systems}
