@@ -33,7 +33,7 @@
                             <th ng-repeat="col in $ctrl.matrix.entries[0] track by $index">
                                 Variable {{ $index + 1 }}
                                 <i class="icon icon-cross delete"
-                                   ng-click="$ctrl.deleteVariable($index)"
+                                   ng-click="$ctrl.matrix.deleteVariable($index)"
                                    ng-show="$ctrl.matrix.entries[0].length > 1">
                                 </i>
                             </th>
@@ -44,7 +44,7 @@
                             <td>
                                 Source {{ $index + 1 }}
                                 <i class="icon icon-cross delete"
-                                   ng-click="$ctrl.deleteSource($index)"
+                                   ng-click="$ctrl.matrix.deleteSource($index)"
                                    ng-show="$ctrl.matrix.entries.length > 1">
                                 </i>
                             </td>
@@ -64,11 +64,14 @@
                     </tbody>
                 </table>
 
-                <button class="btn" type="button" ng-click="$ctrl.addSource()">
+                <button class="btn" type="button" ng-click="$ctrl.matrix.addSource()">
                     Add source
                 </button>
-                <button class="btn" type="button" ng-click="$ctrl.addVariable()">
+                <button class="btn" type="button" ng-click="$ctrl.matrix.addVariable()">
                     Add Variable
+                </button>
+                <button class="btn" type="button" ng-click="$ctrl.toggleCsvDialog()">
+                    Load from CSV
                 </button>
             </div>
         </div>
@@ -84,5 +87,38 @@
                 <button class="btn btn-primary">Run</button>
             </div>
         </div>
+
+        <!-- Load CSV modal dialog -->
+        <div class="modal active" id="modal-id" ng-show="$ctrl.load_csv.dialog_open">
+            <a href="#close" class="modal-overlay" aria-label="Close"></a>
+            <div class="modal-container">
+                <div class="modal-header">
+                    <a href="#" class="btn btn-clear float-right"
+                       ng-click="$ctrl.toggleCsvDialog()">
+                    </a>
+                    <div class="modal-title h5">Load matrix from CSV</div>
+                </div>
+                <div class="modal-body">
+                    <div class="content">
+                        <p ng-show="$ctrl.load_csv.error" class="form-input-hint">
+                            {{ $ctrl.load_csv.error }}
+                        </p>
+                        <textarea ng-model="$ctrl.load_csv.textarea"
+                                  class="form-input"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary"
+                            ng-click="$ctrl.loadFromCSV()">
+                        Load
+                    </button>
+                    <button type="button" class="btn"
+                            ng-click="$ctrl.toggleCsvDialog()">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </fieldset>
 </form>

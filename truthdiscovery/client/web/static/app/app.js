@@ -1,4 +1,4 @@
-const MATRIX_INPUT_FOCUS_DELAY = 50;
+const MATRIX_INPUT_FOCUS_DELAY = 200;
 const DATA = (JSON.parse(document.getElementById("data-json").innerHTML
                   .replace(/&#34;/g, '"')));
 
@@ -49,20 +49,17 @@ angular.
             this.algorithm = "sums";
 
             // Initialise matrix
-            this.matrix = {
-                "entries": [
-                    [1, 2, null],
-                    [null, 3, 5],
-                    [2, 2, 4],
-                    [1, null, 3]
-                ],
-                "being_edited": []
-            };
-            for (var i=0; i<this.matrix.entries.length; i++) {
-                this.matrix.being_edited.push([]);
-                for (var j=0; j<this.matrix.entries[i].length; j++) {
-                    this.matrix.being_edited[i].push(false);
-                }
+            var entries = [
+                [1, 2, null],
+                [null, 3, 5],
+                [2, 2, 4],
+                [1, null, 3]
+            ];
+            this.matrix = new Matrix(entries);
+            this.load_csv = {
+                "dialog_open": false,
+                "error": "",
+                "textarea": ""
             }
 
             this.algorithm_labels = DATA.algorithm_labels;
@@ -70,24 +67,11 @@ angular.
             var self = this;
 
             /*
-             * Return the matrix as a CSV string
-             */
-            this.getMatrixCSV = function() {
-                var csv = "";
-                for (var i=0; i<self.matrix.entries.length; i++) {
-                    // Note: nulls are converted to empty strings here
-                    csv += self.matrix.entries[i].join(",");
-                    csv += "\n";
-                }
-                return csv;
-            };
-
-            /*
              * Mark a cell in the matrix as being edited, and focus the input
              * box
              */
             this.startEditingCell = function(row, col, event) {
-                self.matrix.being_edited[row][col] = true;
+                self.matrix.editCell(row, col);
                 // Get text input and focus manually.
                 // Seems that we cannot focus input immediately here since it
                 // is not visible until after angular model change...
@@ -98,58 +82,28 @@ angular.
                 // TODO: find a better way of doing this...
             };
 
-            this.addSource = function() {
-                var num_variables = self.matrix.entries[0].length;
-                var new_claims = [];
-                var new_editing = [];
-                for (var i=0; i<num_variables; i++) {
-                    new_claims.push(null);
-                    new_editing.push(false);
-                }
-                self.matrix.entries.push(new_claims);
-                self.matrix.being_edited.push(new_editing);
-            };
-
-            this.addVariable = function() {
-                for (var i=0; i<self.matrix.entries.length; i++) {
-                    self.matrix.entries[i].push(null);
-                    self.matrix.being_edited[i].push(false);
-                }
-            };
-
-            /*
-             * Delete the i-th source (0-indexed)
-             */
-            this.deleteSource = function(i) {
-                self.matrix.entries.splice(i, 1);
-                self.matrix.being_edited.splice(i, 1);
-            }
-
-            /*
-             * Delete the j-th variable (0-indexed)
-             */
-            this.deleteVariable = function(j) {
-                for (var i=0; i<self.matrix.entries.length; i++) {
-                    self.matrix.entries[i].splice(j, 1);
-                    self.matrix.being_edited[i].splice(j, 1);
-                }
-            }
-
-            /*
-             * Validate a matrix entry and mark the cell as not being edited
-             */
             this.stopEditingCell = function(row, col) {
-                var val = parseFloat(self.matrix.entries[row][col]);
-                self.matrix.entries[row][col] = val;
-                if (isNaN(val)) {
-                    self.matrix.entries[row][col] = null;
+                self.matrix.stopEditingCell(row, col);
+            };
+
+            this.toggleCsvDialog = function() {
+                self.load_csv.dialog_open ^= true;
+                self.load_csv.error = "";
+            };
+
+            this.loadFromCSV = function() {
+                try {
+                    self.matrix = self.matrix.loadFromCSV(self.load_csv.textarea);
+                    self.load_csv.dialog_open = false;
                 }
-                self.matrix.being_edited[row][col] = false;
+                catch (err) {
+                    self.load_csv.error = err;
+                }
             };
 
             this.run = function() {
                 var promise = tdService.getResults(
-                    self.algorithm, self.getMatrixCSV()
+                    self.algorithm, self.matrix.asCSV()
                 );
                 // Cancel errors while we wait for response
                 self.error = null;
