@@ -42,6 +42,11 @@
         \textbf{TODO:} #1
     }
 }
+\newcommand{\rough}[1] {
+    \textcolor{blue}{
+        #1
+    }
+}
 % Sets
 \renewcommand{\S}{\mathcal{S}}  % Note: overrides existing command
 \renewcommand{\O}{\mathcal{O}}  % Note: overrides existing command
@@ -267,7 +272,7 @@ for all sources $s$ of $f_1$, then $f_1$ is believed more than $f_2$.
 
 The paper allows this for $p$ injective but not necessarily surjective. I don't
 think would work for truth-discovery sine the addition of a very bad source
-could (righly) bring a fact's belief down, even if its other sources were
+could (rightly) bring a fact's belief down, even if its other sources were
 better.
 
 There can be a dual property where sources and facts are swapped.
@@ -555,12 +560,16 @@ continuous data types). Neither of the definitions above support this.
 
 \subsection{Axioms}
 
-\subsubsection{Inspired by social choice}
-
 The fact-believability component of truth-discovery can be seen as a special
 case of voting in the theory of social choice, where agents are sources and
 alternatives are facts. Each source then ranks the facts it claims above all
 other facts, and ranks its claimed facts equally.\footnotemark
+
+\todo{
+    Maybe have a section for background, and briefly outline each related area
+    (e.g. social choice, JA, recommendation, ranking, annotation,
+    argumentation). Can outline how truth-discovery fits in with each.
+}
 
 \footnotetext{
     Note that the formulation of social choice must allow for agents to have
@@ -569,6 +578,8 @@ other facts, and ranks its claimed facts equally.\footnotemark
 
 Several axioms applicable to social welfare and social choice functions from
 classical social choice can be directly adapted to truth-discovery.
+
+\subsubsection{Symmetry}
 
 \begin{definition}
 Two truth-discovery networks $N$ and $N'$ are \emph{equivalent} if there is a
@@ -621,6 +632,13 @@ identities.
 they are). If so provide an example of an operator satisfying one but not the
 others.}
 \end{remark}
+
+{
+    \centering
+    \includegraphics[width=\linewidth]{symmetry_example}
+    \captionof{figure}{Example of a permutation of a truth-discovery network}
+    \label{img:permutation_of_a_tdn}
+}
 
 \begin{proposition}
 \label{prop:symm_iff_fact_source_object_symm}
@@ -695,8 +713,8 @@ dictatorship.
 \end{proposition}
 
 \begin{example}
-A trivial operator that satisfies symmetry and non-strict dictatorship is one
-that always ranks all sources and facts equally: $T_{triv}(N) = (\S^2, \F^2)$.
+A trivial operator that satisfies symmetry and dictatorship is one that always
+ranks all sources and facts equally: $T_{triv}(N) = (\S^2, \F^2)$.
 
 If we restrict $\N$ to those networks where all facts are claimed by
 at least one source, then proposition \ref{prop:symm_and_dict} shows that $T$
@@ -716,6 +734,8 @@ checked that $\fle_N^T$ is a well-defined total preorder, and that $T$ is also
 symmetric. However any fact in $\F \setminus F_+$ ranks strictly below any fact
 in $F_+$.
 \end{example}
+
+\subsubsection{Unanimity}
 
 The next axioms formalise the idea that if all sources are in agreement about
 the status of a fact, then a truth-discovery operator should respect this in
@@ -776,7 +796,19 @@ others must have been claimed by at least one source (assuming $|\F|>1$).
 Unanimity and groundedness are independent.
 \end{proposition}
 
-\todo{introductory text for independence ideas}
+\subsubsection{Independence}
+
+\rough{
+    In social choice, `Independence of Irrelevant Alternatives' requires that
+    the relative ranking of two alternatives $a$ and $b$ depends only on the
+    individual rankings of $a$ and $b$, and not on any irrelevant alternative
+    $c$.
+    This is not suitable in its present form as an axiom for truth-discovery,
+    since we want to consider all claims from sources to determine trust and
+    belief. However the ranking of $f_1$ and $f_2$ should only depend on the
+    other nodes that are relevant to those facts, not on say a source who makes
+    no claims about the same objects as $f_1$ and $f_2$.
+}
 
 In what follows we consider a connected component of a truth-discovery network
 $N$ to be a connected component of the undirected version of $N$.
@@ -788,15 +820,46 @@ equal, and the restrictions of $\fle_{N_1}^T$ and $\fle_{N_2}^T$ to $G \cap \F$
 are equal.
 \end{axiom}
 
-\subsubsection{Inspired by ranking systems}
-\todo{write stuff}
+\todo{Give an example of $N_1$, $N_2$ and $G$}
 
-{
-    \centering
-    \includegraphics[width=\linewidth]{symmetry_example}
-    \captionof{figure}{Example of a permutation of a truth-discovery network}
-    \label{img:permutation_of_a_tdn}
+\subsubsection{Monotonicity}
+
+\todo{introductory note: compare to monotonicity in social choice, JA,
+annotation, trust recommendation}
+
+\begin{axiom}[Montonicity]
+Let $N = (V, E)$ be a truth-discovery network, and $f \in \F$, $s \in \S$ such
+that $(s, f) \notin E$. Write $o = \obj(N, f)$. Consider the network $N'=(V,
+E')$ where $s$ claims $f$, i.e.
+$$ E' = \{(s, f)\} \cup E \setminus \{(s, f') : (f', o) \in E\} $$
+Then $f' \fle_N^T f$ implies $f' \fle_{N'}^T f$ for all $f' \in \F$.
+
+That is, if $f$ receives additional support from a new source $s$, its ranking
+should not get worse.
+\end{axiom}
+
+\todo{Is there a simpler version of this? It's looking a bit complicated for a
+simple concept}
+
+\subsubsection{Coherence}
+
+\rough{
+    A source is trustworthy if it claims believable facts, and a fact is
+    believable if it is claimed by trustworthy sources.
 }
+
+\begin{axiom}[Coherence]
+Suppose $N$ is a truth-discovery network and $s_1, s_2 \in \S$ are such that
+there is a bijective mapping $\phi: \fact(N, s_1) \rightarrow \fact(N, s_2)$
+with $f \fle_N^T \phi(f)$ for all $f \in \fact(N, s_1)$. Then $s_1 \sle_N^T
+s_2$.
+
+\todo{dual statement for facts}
+
+That is, if the facts claimed by two sources can be paired up such that the
+fact claimed by $s_1$ always ranks beneath the fact claimed by $s_2$, then
+$s_1$ ranks beneath $s_2$.
+\end{axiom}
 
 \bibliography{references}{}
 \bibliographystyle{plain}
@@ -862,7 +925,7 @@ of $\pi(E)$, which by definition of $\pi$ is equivalent to $(s_1, f) \in
 \item $s=s_2$: As above, $(s_2, f) \in E$ iff $(s_2, f) \in \pi(E)$
 \end{enumerate}
 Also, it is clear that $(f, o) \in E$ iff $(f, o) \in \pi(E)$ for $f \in \F$,
-$o \in \O$. We have shown that $(x, y) \in E$ iff $(x, y) \in \pi(E)$, ie.
+$o \in \O$. We have shown that $(x, y) \in E$ iff $(x, y) \in \pi(E)$, i.e.
 $\pi(E) = E$ and thus $\pi(N) = N$. Applying source-symmetry, this gives
 \begin{align*}
     s_1 \sle_N^T s_2 & \iff \pi(s_1) \sle_{\pi(N)}^T \pi(s_2) \\
@@ -908,7 +971,7 @@ $s \ne s^*$.
 \subsection{Proof of proposition \ref{prop:unam_ground_indep}}
 \begin{proof}
 
-An operator that saitisfies unanimity but not groundedness is $T$ that ranks
+An operator that satisfies unanimity but not groundedness is $T$ that ranks
 facts according to the function
 $$
     r_N(f) = \begin{cases}
@@ -918,7 +981,7 @@ $$
     \quad (f \in \F)
 $$
 i.e. $f_1 \fle_N^T f_2$ iff $r_N(f_1) \le r_N(f_2)$ (note that $T$'s ranking of
-sources is irrelevant). Clearly $T$ saitsfies unanimity but not groundedness:
+sources is irrelevant). Clearly $T$ satisfies unanimity but not groundedness:
 consider any network $N$ in which there is a fact $f_1$ with no corresponding
 sources, and a fact $f_2$ with at least one source, but whose sources are not
 the whole of $\S$. Then $f_1 \not\fle_N^T f_2$ contrary to the requirements of
