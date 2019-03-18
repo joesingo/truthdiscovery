@@ -106,5 +106,8 @@ def get_flask_app():
     return app
 
 
+app = get_flask_app()
+
+
 if __name__ == "__main__":  # pragma: no cover
-    get_flask_app().run(host="0.0.0.0", debug=True)
+    app.run(host="0.0.0.0", debug=True)

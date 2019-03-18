@@ -1,0 +1,6 @@
+venv
+.coverage
+doc
+htmlcov
+**/*.pdf
+**/*.zip
