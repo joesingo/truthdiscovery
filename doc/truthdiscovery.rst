@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
     truthdiscovery.algorithm
+    truthdiscovery.client
     truthdiscovery.examples
     truthdiscovery.input
     truthdiscovery.output

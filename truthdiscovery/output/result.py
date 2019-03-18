@@ -90,3 +90,6 @@ class Result:
         return {
             var: self._get_stats(scores) for var, scores in self.belief.items()
         }
+
+    def __sub__(self, res):
+        return ResultDiff(res, self)

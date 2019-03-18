@@ -42,3 +42,22 @@ dictionaries, after running an algorithm on the first example dataset from
     {'x': {4: 0.14915492164635274, 3: 1.0}}
     >>> results.get_trust_stats()
     (0.6383422623353061, 0.2746120273343826)
+
+Difference between two set of results
+-------------------------------------
+
+It is possible to compare two sets of results using the :any:`ResultDiff`
+class.
+
+    >>> from truthdiscovery import ResultDiff
+    >>> diff = ResultDiff(res1, res2)
+
+A :any:`ResultDiff` object has attributes ``trust``, ``belief``, ``time_taken``
+and ``iterations``, as the :any:`Result` objects do. The format of each
+attribute is the same as in :any:`Result`, but gives the increase in
+trust/belief/time taken/number of iterations between the first and second set
+of results (the numbers are negative in the case of a decrease).
+
+This is useful for comparing results after making a small change to the input
+dataset: for example to study the effects on trust scores of a source making an
+additional claim, or the effects on belief when adding a new variable.

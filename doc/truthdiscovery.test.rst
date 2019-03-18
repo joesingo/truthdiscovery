@@ -12,6 +12,14 @@ truthdiscovery.test.test\_algorithms module
     :undoc-members:
     :show-inheritance:
 
+truthdiscovery.test.test\_clients module
+----------------------------------------
+
+.. automodule:: truthdiscovery.test.test_clients
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 truthdiscovery.test.test\_codestyle module
 ------------------------------------------
 

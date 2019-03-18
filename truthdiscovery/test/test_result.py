@@ -5,7 +5,7 @@ import pytest
 
 from truthdiscovery.algorithm import MajorityVoting, Sums
 from truthdiscovery.input import Dataset
-from truthdiscovery.output import Result
+from truthdiscovery.output import Result, ResultDiff
 from truthdiscovery.utils import FixedIterator
 
 
@@ -127,3 +127,91 @@ class TestResult:
         assert np.isclose(belief_stats["x"], exp_x).all()
         assert np.isclose(belief_stats["y"], exp_y).all()
         assert np.isclose(belief_stats["z"], exp_z).all()
+
+
+class TestResultDiff:
+    def test_no_common_sources_or_vars(self):
+        res1 = Result(
+            trust={"a": 0.1, "b": 0.2},
+            belief={"x": {1: 1, 2: 0.5}, "y": {19: 0.4}},
+            time_taken=125,
+            iterations=10
+        )
+        res2 = Result(
+            trust={"s": 0.1, "t": 0.2},
+            belief={"u": {1: 1, 2: 0.5}, "v": {19: 0.4}},
+            time_taken=75,
+            iterations=14
+        )
+        diff = ResultDiff(res1, res2)
+        assert diff.trust == {}
+        assert diff.belief == {}
+        assert diff.time_taken == -50
+        assert diff.iterations == 4
+
+    def test_common_sources(self):
+        res1 = Result(
+            trust={"a": 0.5, "b": 0.2, "c": 0.16},
+            belief={"x": {1: 1, 2: 0.5}, "y": {19: 0.4}},
+            time_taken=0.5,
+            iterations=10
+        )
+        res2 = Result(
+            trust={"s": 0.1, "t": 0.2, "a": 0.9, "c": 0.06},
+            belief={"u": {1: 1, 2: 0.5}, "v": {19: 0.4}},
+            time_taken=0.6,
+            iterations=8
+        )
+        diff = ResultDiff(res1, res2)
+        assert diff.trust == {"a": 0.4, "c": -0.1}
+        assert diff.belief == {}
+
+    def test_common_vars_but_no_common_values(self):
+        res1 = Result(
+            trust={"a": 0.1, "b": 0.2},
+            belief={"x": {1: 1, 2: 0.5}, "y": {19: 0.4}},
+            time_taken=0.5,
+            iterations=10
+        )
+        res2 = Result(
+            trust={"s": 0.1, "t": 0.2},
+            belief={"u": {1: 1, 2: 0.5}, "v": {19: 0.4}, "x": {3: 1, 4: 0.5}},
+            time_taken=0.6,
+            iterations=8
+        )
+        diff = ResultDiff(res1, res2)
+        assert diff.trust == {}
+        assert diff.belief == {}
+
+    def test_common_var_values(self):
+        res1 = Result(
+            trust={"a": 0.5, "b": 0.2, "c": 0.16},
+            belief={"x": {1: 1, 2: 0.5}, "y": {19: 0.34}},
+            time_taken=0.5,
+            iterations=10
+        )
+        res2 = Result(
+            trust={"s": 0.1, "t": 0.2, "a": 0.9, "c": 0.06},
+            belief={"x": {1: 0.75, 2: 0.5}, "v": {19: 0.4}, "y": {19: 0.4}},
+            time_taken=0.6,
+            iterations=8
+        )
+        diff = ResultDiff(res1, res2)
+        assert diff.trust == {"a": 0.4, "c": -0.1}
+        assert diff.belief == {"x": {1: -0.25, 2: 0}, "y": {19: 0.06}}
+
+    def test_no_iteration_info(self):
+        res1 = Result(
+            trust={"a": 0.1},
+            belief={"x": {1: 1, 2: 0.5}},
+            time_taken=0.5,
+            iterations=10
+        )
+        res2 = Result(
+            trust={"a": 0.1},
+            belief={"x": {1: 1, 2: 0.5}},
+            time_taken=0.5,
+            iterations=None
+        )
+        diff = ResultDiff(res1, res2)
+        assert diff.iterations is None

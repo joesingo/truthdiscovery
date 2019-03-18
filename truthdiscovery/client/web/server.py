@@ -74,9 +74,9 @@ class WebClient(BaseClient):
         """
         Run an algorithm on a user-supplied dataset. Required HTTP parameters
         are 'algorithm' and 'matrix'. Responses are JSON objects of the form
-            ``{"ok": True, "data": ...}``
+        ``{"ok": True, "data": ...}``
         or
-            ``{"ok": False, "error": ...}``
+        ``{"ok": False, "error": ...}``
         """
         alg_label = request.args.get("algorithm")
         matrix_csv = request.args.get("matrix")

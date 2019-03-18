@@ -4,6 +4,14 @@ truthdiscovery.output package
 Submodules
 ----------
 
+truthdiscovery.output.diff module
+---------------------------------
+
+.. automodule:: truthdiscovery.output.diff
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 truthdiscovery.output.result module
 -----------------------------------
 
