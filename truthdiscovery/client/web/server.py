@@ -5,6 +5,7 @@ from flask import Flask, render_template, request, jsonify
 
 from truthdiscovery.client.base import BaseClient
 from truthdiscovery.input import MatrixDataset
+from truthdiscovery.output import Result, ResultDiff
 
 
 class route:
@@ -59,6 +60,27 @@ class WebClient(BaseClient):
                 params[key] = value
         return params
 
+    def get_results_object(self, res_str):
+        """
+        Construct a :any:`Result` object from a JSON string
+        :raises ValueError: if string is not valid JSON or does not contain the
+                            fields required to construct a :any:`Result` object
+        """
+        try:
+            obj = json.loads(res_str)
+        except json.decoder.JSONDecodeError as ex:
+            raise ValueError("invalid JSON: {}".format(ex))
+
+        try:
+            return Result(
+                trust=obj["trust"],
+                belief=obj["belief"],
+                time_taken=obj["time"],
+                iterations=obj["iterations"]
+            )
+        except KeyError as ex:
+            raise ValueError("required field {} missing".format(ex))
+
     @route("/")
     def home_page(self):
         # Map algorithm labels to display name
@@ -73,7 +95,10 @@ class WebClient(BaseClient):
     def run(self):
         """
         Run an algorithm on a user-supplied dataset. Required HTTP parameters
-        are 'algorithm' and 'matrix'. Responses are JSON objects of the form
+        are 'algorithm' and 'matrix'; optional parameters are 'parameters' and
+        'previous_results'.
+
+        Responses are JSON objects of the form
         ``{"ok": True, "data": ...}``
         or
         ``{"ok": False, "error": ...}``
@@ -96,7 +121,30 @@ class WebClient(BaseClient):
             return jsonify(ok=False, error=str(ex)), 400
 
         results = alg.run(dataset)
-        return jsonify({"ok": True, "data": self.get_output_obj(results)})
+        output = self.get_output_obj(results)
+
+        # Include diff between previous results if available
+        prev_results = request.args.get("previous_results")
+        if prev_results is not None:
+            try:
+                obj = self.get_results_object(prev_results)
+            except ValueError as ex:
+                err_msg = "'previous_results' is invalid: {}".format(ex)
+                return jsonify(ok=False, error=err_msg), 400
+
+            # Previous results have been converted to JSON, which may have
+            # changed numeric keys to strings: to ensure results can be
+            # compared, convert the current results to and from JSON
+            current_results = self.get_results_object(json.dumps(output))
+            diff = ResultDiff(obj, current_results)
+            output["diff"] = {
+                "trust": diff.trust,
+                "belief": diff.belief,
+                "time_taken": diff.time_taken,
+                "iterations": diff.iterations
+            }
+
+        return jsonify({"ok": True, "data": output})
 
 
 def get_flask_app():

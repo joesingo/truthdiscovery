@@ -1,3 +1,5 @@
+import json
+
 from flask import Flask
 import numpy.ma as ma
 import pytest
@@ -544,3 +546,60 @@ class TestWebClient(ClientTestsBase):
         assert resp.json["ok"]
         output = resp.json["data"]
         assert output["iterations"] == 13
+
+    def test_results_diff(self, test_client):
+        dataset1 = MatrixDataset(ma.masked_values([
+            [1, 0],
+            [0, 2]
+        ], 0))
+        dataset2 = MatrixDataset(ma.masked_values([
+            [1, 2],
+            [0, 2]
+        ], 0))
+
+        request_data1 = {
+            "algorithm": "voting",
+            "matrix": dataset1.to_csv()
+        }
+        resp1 = test_client.get("/run/", query_string=request_data1)
+        assert resp1.status_code == 200
+
+        request_data2 = {
+            "algorithm": "voting",
+            "matrix": dataset2.to_csv(),
+            "previous_results": json.dumps(resp1.json["data"])
+        }
+        resp2 = test_client.get("/run/", query_string=request_data2)
+        assert resp2.status_code == 200
+        output = resp2.json["data"]
+        assert "diff" in output
+        assert output["diff"]["trust"] == {"0": 0, "1": 0}  # no trust changes
+        # Votes for var1 == 2 should have increased by one
+        assert output["diff"]["belief"] == {"0": {"1.0": 0}, "1": {"2.0": 1}}
+
+    def test_results_diff_invalid_previous_results(self, test_client):
+        # Invalid JSON for previous results
+        data1 = {
+            "algorithm": "voting",
+            "matrix": "1,2,3,\n_,2,3,4",
+            "previous_results": "invalid json!"
+        }
+        resp1 = test_client.get("/run/", query_string=data1)
+        assert resp1.status_code == 400
+        assert not resp1.json["ok"]
+        exp_err_msg = "'previous_results' is invalid: invalid JSON"
+        assert exp_err_msg in resp1.json["error"]
+
+        # Keys missing in previous results JSON
+        data2 = {
+            "algorithm": "voting",
+            "matrix": "1,2,3,\n_,2,3,4",
+            # 'belief' and others are missing
+            "previous_results": '{"trust": {"0": 1}}'
+        }
+        resp2 = test_client.get("/run/", query_string=data2)
+        assert resp2.status_code == 400
+        assert not resp2.json["ok"]
+        exp_err_msg = ("'previous_results' is invalid: required field "
+                       "'belief' missing")
+        assert exp_err_msg in resp2.json["error"]
