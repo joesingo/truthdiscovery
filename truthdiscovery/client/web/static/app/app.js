@@ -11,21 +11,28 @@ angular.
         this.url = "/run/";
         this.method = "GET";
         this.state = "empty";
+        this.results = null;
 
         /*
          * Make the HTTP request to get results of an algorithm
          */
-        this.getResults = function(algorithm, matrix) {
+        this.getResults = function(algorithm, matrix, compare_previous) {
+            // Build parameters to send to server
+            var params = {
+                "algorithm": algorithm,
+                "matrix": matrix
+            };
+            if (compare_previous && this.results !== null) {
+                params.previous_results = JSON.stringify(this.results)
+            }
+
             this.state = "loading";
-            var self = this;
             var promise = $http({
-                "url": self.url,
-                "method": self.method,
-                "params": {
-                    "algorithm": algorithm,
-                    "matrix": matrix
-                }
+                "url": this.url,
+                "method": this.method,
+                "params": params
             });
+            var self = this;
             promise.then(function(response) {
                 // Our server's response is in response.data, and is an object
                 // with keys 'ok' and 'data' (in the success case)
@@ -47,6 +54,7 @@ angular.
             this.service = tdService;
             this.error = null;  // error message to show underneath form
             this.algorithm = "sums";
+            this.compare_results = false;
 
             // Initialise matrix
             var entries = [
@@ -103,7 +111,7 @@ angular.
 
             this.run = function() {
                 var promise = tdService.getResults(
-                    self.algorithm, self.matrix.asCSV()
+                    self.algorithm, self.matrix.asCSV(), self.compare_results
                 );
                 // Cancel errors while we wait for response
                 self.error = null;
@@ -130,5 +138,23 @@ angular.
         "templateUrl": "/static/app/templates/results.html",
         "controller": function ResultsController(tdService) {
             this.service = tdService;
+
+            this.getDiffClass = function(difference) {
+                if (difference > 0) {
+                    return "text-success";
+                }
+                else if (difference < 0) {
+                    return "text-error";
+                }
+                return "text-gray";
+            };
+
+            this.formatDiff = function(difference) {
+                if (difference === undefined) {
+                    return "";
+                }
+                var prefix = (difference >= 0 ? "+" : "-");
+                return "(" + prefix + Math.abs(difference) + ")";
+            }
         }
     });

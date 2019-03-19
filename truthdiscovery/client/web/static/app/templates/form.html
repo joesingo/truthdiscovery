@@ -77,6 +77,14 @@
             </div>
         </div>
 
+        <div class="form-group" ng-show="$ctrl.service.results !== null">
+            <label class="form-checkbox">
+                <input type="checkbox" ng-model="$ctrl.compare_results" />
+                <i class="form-icon"></i>
+                Compare against previous results
+            </label>
+        </div>
+
         <!-- Errors -->
         <div class="has-error">
             <p ng-show="$ctrl.error" class="form-input-hint">{{ $ctrl.error }}</p>
