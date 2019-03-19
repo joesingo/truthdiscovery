@@ -12,6 +12,7 @@ angular.
         this.method = "GET";
         this.state = "empty";
         this.results = null;
+        this.previous_results = null;
 
         /*
          * Make the HTTP request to get results of an algorithm
@@ -22,8 +23,8 @@ angular.
                 "algorithm": algorithm,
                 "matrix": matrix
             };
-            if (compare_previous && this.results !== null) {
-                params.previous_results = JSON.stringify(this.results)
+            if (compare_previous && this.previous_results !== null) {
+                params.previous_results = this.previous_results;
             }
 
             this.state = "loading";
@@ -38,6 +39,9 @@ angular.
                 // with keys 'ok' and 'data' (in the success case)
                 self.results = response.data.data;
                 self.state = "has_results";
+                // Save 'previous' results now, so that we may change structure
+                // of self.results without affecting data sent to server
+                self.previous_results = JSON.stringify(self.results);
 
                 // Calculate and store the maximum trust and belief scores, so
                 // that they can be highlighted in the results
@@ -52,6 +56,30 @@ angular.
                         Object.values(self.results.belief[variable])
                     );
                 }
+
+                // Reformat trust object from {source: trust, ...} to an array
+                // [{"source": source, "trust": trust}, ...] since this allows
+                // the results to be sorted in template. Similar for beliefs
+                var array_trust = [];
+                for (var source in self.results.trust) {
+                    array_trust.push({
+                        "source": source,
+                        "trust": self.results.trust[source]
+                    });
+                }
+                self.results.trust = array_trust;
+
+                for (var variable in self.results.belief) {
+                    var array_belief = [];
+                    for (var val in self.results.belief[variable]) {
+                        array_belief.push({
+                            "val": val,
+                            "belief": self.results.belief[variable][val]
+                        });
+                    }
+                    self.results.belief[variable] = array_belief;
+                }
+
             }, function(error) {
                 self.state = "empty";
             });
@@ -153,6 +181,32 @@ angular.
         "controller": function ResultsController(tdService) {
             this.service = tdService;
 
+            this.sorting = {
+                "trust": {
+                    "col": "source",
+                    "ascending": true,
+                },
+                "belief": {
+                    "col": "val",
+                    "ascending": true
+                }
+            };
+
+            var icon_names = {
+                "unsorted": "icon-resize-vert",
+                "ascending": "icon-arrow-up",
+                "descending": "icon-arrow-down",
+            };
+
+            this.sort_icons = {
+                "source": icon_names.unsorted,
+                "trust": icon_names.unsorted,
+                "val": icon_names.unsorted,
+                "belief": icon_names.unsorted
+            };
+
+            var self = this;
+
             this.getDiffClass = function(difference) {
                 if (difference > 0) {
                     return "text-success";
@@ -170,5 +224,34 @@ angular.
                 var prefix = (difference >= 0 ? "+" : "-");
                 return "(" + prefix + Math.abs(difference) + ")";
             }
+
+            /*
+             * Change the sort order of the given table to sort by the given
+             * column, toggling asc/desc if already sorted on that column
+             */
+            this.sort = function(table, col) {
+                var current_col = self.sorting[table].col;
+                if (current_col !== col) {
+                    // Reset the current sort column's icon to 'unsorted'
+                    self.sort_icons[current_col] = icon_names.unsorted;
+                    self.sorting[table].col = col;
+                    self.sorting[table].ascending = false;
+                    self.sort_icons[col] = icon_names.descending;
+                    return;
+                }
+
+                self.sorting[table].ascending ^= true;
+                self.sort_icons[col] = (self.sorting[table].ascending ?
+                                        icon_names.ascending : icon_names.descending);
+            };
+
+            /*
+             * Return argument for 'orderBy' filter for the sorting of the
+             * specified table
+             */
+            this.getSortOrderBy = function(table) {
+                var prefix = (self.sorting[table].ascending ? "+" : "-");
+                return prefix + self.sorting[table].col;
+            };
         }
     });

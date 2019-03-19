@@ -11,21 +11,31 @@
         <table class="table table-hover striped">
             <thead>
                 <tr>
-                    <th>Source ID</th>
-                    <th>Trust score</th>
+                    <th>
+                        <a class="c-hand" ng-click="$ctrl.sort('trust', 'source')">
+                            Source ID
+                            <i class="icon" ng-class="$ctrl.sort_icons.source"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="c-hand" ng-click="$ctrl.sort('trust', 'trust')">
+                            Trust score
+                            <i class="icon" ng-class="$ctrl.sort_icons.trust"></i>
+                        </a>
+                    </th>
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="(source, trust) in $ctrl.service.results.trust">
-                    <td>{{ (source - 0) + 1 }}</td>
+                <tr ng-repeat="x in $ctrl.service.results.trust | orderBy:$ctrl.getSortOrderBy('trust')">
+                    <td>{{ (x.source - 0) + 1 }}</td>
                     <td>
-                        <span ng-class="{'text-bold': trust == $ctrl.service.results.max_trust}">
-                            {{ trust | number:7 }}
+                        <span ng-class="{'text-bold': x.trust == $ctrl.service.results.max_trust}">
+                            {{ x.trust | number:7 }}
                         </span>
                         <span
-                         ng-class="$ctrl.getDiffClass($ctrl.service.results.diff.trust[source])">
+                         ng-class="$ctrl.getDiffClass($ctrl.service.results.diff.trust[x.source])">
 
-    {{ $ctrl.formatDiff($ctrl.service.results.diff.trust[source] | number:7) }}
+    {{ $ctrl.formatDiff($ctrl.service.results.diff.trust[x.source] | number:7) }}
 
                         </span>
                     </td>
@@ -40,26 +50,35 @@
             <thead>
                 <tr>
                     <th>Variable ID</th>
-                    <th>Value</th>
-                    <th>Belief score</th>
+                    <th>
+                        <a class="c-hand" ng-click="$ctrl.sort('belief', 'val')">
+                            Value
+                            <i class="icon" ng-class="$ctrl.sort_icons.val"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="c-hand" ng-click="$ctrl.sort('belief', 'belief')">
+                            Belief score
+                            <i class="icon" ng-class="$ctrl.sort_icons.belief"></i>
+                        </a>
+                    </th>
                 </tr>
             </thead>
             <tbody ng-repeat="(var, beliefs) in $ctrl.service.results.belief">
-                <tr ng-repeat="(val, belief) in beliefs">
+                <tr ng-repeat="x in beliefs | orderBy:$ctrl.getSortOrderBy('belief')">
                     <td><span ng-if="$first">{{ (var - 0) + 1 }}</span></td>
-                    <td>{{ val }}</td>
+                    <td>{{ x.val }}</td>
                     <td>
 
-            <span ng-class="{'text-bold': belief == $ctrl.service.results.max_belief[var]}">
-                {{ belief | number:7 }}
+            <span ng-class="{'text-bold': x.belief == $ctrl.service.results.max_belief[var]}">
+                {{ x.belief | number:7 }}
             </span>
 
-                        <span
-                         ng-class="$ctrl.getDiffClass($ctrl.service.results.diff.belief[var][val])">
+                    <span
+                     ng-class="$ctrl.getDiffClass($ctrl.service.results.diff.belief[var][x.val])">
+    {{ $ctrl.formatDiff($ctrl.service.results.diff.belief[var][x.val] | number:7) }}
+                    </span>
 
-    {{ $ctrl.formatDiff($ctrl.service.results.diff.belief[var][val] | number:7) }}
-
-                        </span>
                     </td>
                 </tr>
             </tbody>
