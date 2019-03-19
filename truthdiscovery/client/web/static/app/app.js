@@ -38,6 +38,20 @@ angular.
                 // with keys 'ok' and 'data' (in the success case)
                 self.results = response.data.data;
                 self.state = "has_results";
+
+                // Calculate and store the maximum trust and belief scores, so
+                // that they can be highlighted in the results
+                self.results.max_trust = Math.max.apply(
+                    null,
+                    Object.values(self.results.trust)
+                );
+                self.results.max_belief = {};
+                for (var variable in self.results.belief) {
+                    self.results.max_belief[variable] = Math.max.apply(
+                        null,
+                        Object.values(self.results.belief[variable])
+                    );
+                }
             }, function(error) {
                 self.state = "empty";
             });

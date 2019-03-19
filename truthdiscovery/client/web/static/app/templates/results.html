@@ -11,7 +11,7 @@
         <table class="table table-hover striped">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>Source ID</th>
                     <th>Trust score</th>
                 </tr>
             </thead>
@@ -19,7 +19,9 @@
                 <tr ng-repeat="(source, trust) in $ctrl.service.results.trust">
                     <td>{{ (source - 0) + 1 }}</td>
                     <td>
-                        {{ trust | number:7 }}
+                        <span ng-class="{'text-bold': trust == $ctrl.service.results.max_trust}">
+                            {{ trust | number:7 }}
+                        </span>
                         <span
                          ng-class="$ctrl.getDiffClass($ctrl.service.results.diff.trust[source])">
 
@@ -47,7 +49,11 @@
                     <td><span ng-if="$first">{{ (var - 0) + 1 }}</span></td>
                     <td>{{ val }}</td>
                     <td>
-                        {{ belief | number:7 }}
+
+            <span ng-class="{'text-bold': belief == $ctrl.service.results.max_belief[var]}">
+                {{ belief | number:7 }}
+            </span>
+
                         <span
                          ng-class="$ctrl.getDiffClass($ctrl.service.results.diff.belief[var][val])">
 
