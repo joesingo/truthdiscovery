@@ -8,6 +8,7 @@
 % Packages:
 \usepackage{amsmath}
 \usepackage{amsthm}
+\usepackage{amssymb}
 \usepackage{caption}
 \usepackage{cite}
 % \usepackage[top=2cm, bottom=2cm, left=3cm, right=3cm]{geometry}
@@ -52,6 +53,8 @@
 \renewcommand{\O}{\mathcal{O}}  % Note: overrides existing command
 \newcommand{\F}{\mathcal{F}}
 \newcommand{\N}{\mathcal{N}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Nat}{\mathbb{N}}
 % Source and fact orderings: less-equal, less-than, greater-equal, equal
 \newcommand{\sle}{\sqsubseteq}
 \newcommand{\slt}{<}
@@ -66,6 +69,8 @@
 \newcommand{\fact}{\texttt{facts}}
 \newcommand{\obj}{\texttt{obj}}
 \newcommand{\orderings}{\mathcal{L}}
+% Misc
+\newcommand{\pl}{\cdot}  % Placeholder for function argument
 
 \begin{document}
 \maketitle
@@ -371,7 +376,7 @@ facilitate comparison between the algorithms.
 First we state some standard definitions, and then give a graph-theoretic
 formulation of truth-discovery.
 
-\subsection{Standard definitions}
+\subsection{Standard definitions and notation}
 
 \begin{definition}
 A \emph{relation} $R$ on a set $X$ is a subset $R \subseteq X \times X$. We
@@ -437,6 +442,10 @@ equivalence relation. A \emph{connected component} of $G$ is an induced
 subgraph of an equivalence class of $\sim$.
 \end{definition}
 
+\begin{notation}
+For sets $X$ and $Y$, $Y^X$ denotes the set of all functions $X \rightarrow Y$.
+\end{notation}
+
 \subsection{Truth-discovery definitions}
 
 We consider fixed finite sets $\S$, $\F$ and $\O$, called the \emph{sources},
@@ -492,7 +501,7 @@ For convenience, for a network $N=(V, E)$, define:
 
 A \emph{truth-discovery operator} $T$ is a mapping $T: \N \rightarrow
 \orderings(\S) \times \orderings(\F)$, i.e. $T$ assigns to each truth-discovery
-network a pair of total preorders $T(N) = (\sle_N^T, \fle_N^T)$ on the sets
+network $N$ a pair of total preorders $T(N) = (\sle_N^T, \fle_N^T)$ on the sets
 $\S$ and $\F$ respectively.
 
 $s_1 \sle_N^T s_2$ means $s_2$ is ranked as \emph{more trustworthy} than $s_1$
@@ -505,9 +514,11 @@ when clear from context.
 \begin{definition}
 \label{def:numerical}
 
-A \emph{numerical truth-discovery operator} $T$ assigns to each
-truth-discovery network $N$ a \emph{source trust} mapping $\tau: \S \rightarrow
-[0, 1]$ and \emph{fact belief} mapping $\phi: \F \rightarrow [0, 1]$.
+A \emph{numerical truth-discovery operator} $T$ is a mapping $T: \N \rightarrow
+\R^\S \times \R^\F$, i.e. $T$ assigns to each truth-discovery network $N$
+functions $u_N: \S \rightarrow \R$ (referred to as the \emph{source trust}
+mapping) and $v_N: \F \rightarrow \R$ (referred to as the \emph{fact belief}
+mapping).
 
 \end{definition}
 
@@ -516,8 +527,8 @@ truth-discovery network $N$ a \emph{source trust} mapping $\tau: \S \rightarrow
     truth-discovery operator $T'$, where for any truth-discovery network $N$
     we define
     \begin{align*}
-    s_1 \sle_N^{T'} s_2 & \iff \tau(s_1) \le \tau(s2) \\
-    f_1 \fle_N^{T'} f_2 & \iff \phi(f_1) \le \phi(f_2)
+    s_1 \sle_N^{T'} s_2 & \iff u_N(s_1) \le u_N(s_2) \\
+    f_1 \fle_N^{T'} f_2 & \iff v_N(f_1) \le v_N(f_2)
     \end{align*}
     for $s_1, s_2 \in \S$ and $f_1, f_2 \in \F$.
 \end{remark}
@@ -538,8 +549,8 @@ sources/facts is important.
 One downside to this approach is that whilst we can tell whether or not $s_1$
 is more trustworthy than $s_2$, we cannot tell by \emph{how much}.  For
 example, consider two numeric operators $T$ and $T'$ and $\S=\{s_1, s_2\}$
-such that $\tau(s_1)=0.5, \tau(s_2)=0.51$, and $\tau'(s_1)=0.01,
-\tau'(s_2)=0.99$. Both operators induce the same ranking on $\S$, yet $T$
+such that $u_N(s_1)=0.5, u_N(s_2)=0.51$, and $u_N'(s_1)=0.01,
+u_N'(s_2)=0.99$. Both operators induce the same ranking on $\S$, yet $T$
 considers the two sources to have similar trust values while $T'$ considers
 $s_2$ to be much more trustworthy than $s_1$.
 
@@ -861,6 +872,57 @@ fact claimed by $s_1$ always ranks beneath the fact claimed by $s_2$, then
 $s_1$ ranks beneath $s_2$.
 \end{axiom}
 
+\subsection{Iterative truth-discovery operators}
+
+Real-world algorithms for truth-discovery generally compute numerical trust and
+belief scores, as per definition \ref{def:numerical}. Additionally, most
+operate in an \emph{iterative} manner, computing trust and belief scores
+recursively from one another until the respective scores (hopefully) converge
+to fixed values.
+
+In this section we define the concept of iterative truth-discovery operators to
+represent and reason about such real-world algorithms.
+
+\begin{notation}
+Recall that a numerical truth-discovery operator is defined in definition
+\ref{def:numerical} as a mapping $T: \N \rightarrow \R^\S \times \R^\F$. We
+refer to the individual trust and belief functions by writing $T=(u_\pl,
+v_\pl)$ where $\pl$ is a placeholder the argument in $\N$. \todo{is this
+clear enough?}
+\end{notation}
+
+\begin{definition}
+\label{def:iterative_operator}
+
+An \emph{iterative truth-discovery operator} is a sequence $I=((u_\pl^n,
+v_\pl^n))_{n \in \Nat}$ of numerical truth-discovery operators.
+
+$I$ is said to \emph{converge} to a numerical operator $T^*=(u_\pl^*, v_\pl^*)$
+if $u_N^n \rightarrow u_N^*$ and $v_N^n \rightarrow v_N^*$ pointwise as $n
+\rightarrow \infty$ for each network $N$.
+
+\end{definition}
+
+\begin{remark}
+Recall that a numerical operator $T^*$ naturally induces a (non-numerical)
+operator by rankings sources according to $u_N^*$ and facts according to
+$v_N^*$. We may therefore identify a convergent iterative operator $I$ with the
+operator induced by its limit $T^*$, and write $\sle_N^I$ and $\fle_N^I$ for
+the source and fact rankings.
+
+To be explicit:
+
+$$ s_1 \sle_N^I s_2 \iff \lim_{n \rightarrow \infty}{u_N^n(s_1)} \le \lim_{n
+\rightarrow \infty}{u_N^n(s_2)} $$
+
+and similarly for facts.
+
+Note that this mapping is not injective: there may be many iterative operators
+with the same limit $T^*$; furthermore two distinct numerical operators $T^*$
+and $T^{**}$ may induce the same non-numerical operator.
+\end{remark}
+
+% References
 \bibliography{references}{}
 \bibliographystyle{plain}
 
