@@ -842,7 +842,9 @@ annotation, trust recommendation}
 Let $N = (V, E)$ be a truth-discovery network, and $f \in \F$, $s \in \S$ such
 that $(s, f) \notin E$. Write $o = \obj(N, f)$. Consider the network $N'=(V,
 E')$ where $s$ claims $f$, i.e.
-$$ E' = \{(s, f)\} \cup E \setminus \{(s, f') : (f', o) \in E\} $$
+$$
+    E' = \{(s, f)\} \cup E \setminus \{(s, f') : f' \ne f, (f', o) \in E\}
+$$
 Then $f' \fle_N^T f$ implies $f' \fle_{N'}^T f$ for all $f' \in \F$.
 
 That is, if $f$ receives additional support from a new source $s$, its ranking
