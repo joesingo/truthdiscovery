@@ -11,7 +11,7 @@
 \usepackage{amssymb}
 \usepackage{caption}
 \usepackage{cite}
-% \usepackage[top=2cm, bottom=2cm, left=3cm, right=3cm]{geometry}
+% \usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{multicol}
@@ -75,6 +75,8 @@
 \begin{document}
 \maketitle
 % \begin{multicols}{2}
+
+\tableofcontents
 
 \section{Frameworks for truth-discovery used in existing literature}
 \label{sec:existing_frameworks}
@@ -570,6 +572,7 @@ continuous data types). Neither of the definitions above support this.
 \end{itemize}
 
 \subsection{Axioms}
+\label{sec:axioms}
 
 The fact-believability component of truth-discovery can be seen as a special
 case of voting in the theory of social choice, where agents are sources and
@@ -624,6 +627,7 @@ defined similarly.
 \end{definition}
 
 \begin{axiom}(Symmetry)
+\label{axiom:symm}
 An operator $T$ should satisfy symmetry.
 \end{axiom}
 
@@ -755,11 +759,13 @@ its verdict. Two obvious ways in which sources can be in agreement are when
 fact is true.
 
 \begin{axiom}[Unanimity]
+\label{axiom:unanimity}
 For any truth-discovery network $N$, $\src(N, f) = \S$ implies $f' \fle_N^T f$
 for all $f' \in \F$.
 \end{axiom}
 
 \begin{axiom}[Groundedness]
+\label{axiom:groundedness}
 For any truth-discovery network $N$, $\src(N, f) = \emptyset$ implies $f
 \fle_N^T f'$ for all $f' \in \F$.
 \end{axiom}
@@ -825,6 +831,7 @@ In what follows we consider a connected component of a truth-discovery network
 $N$ to be a connected component of the undirected version of $N$.
 
 \begin{axiom}[Independence Of Irrelevant Stuff]
+\label{axiom:indep}
 For any truth-discovery networks $N_1$, $N_2$ with a common connected component
 $G$, the restrictions of $\sle_{N_1}^T$ and $\sle_{N_2}^T$ to $G \cap \S$ are
 equal, and the restrictions of $\fle_{N_1}^T$ and $\fle_{N_2}^T$ to $G \cap \F$
@@ -924,11 +931,59 @@ with the same limit $T^*$; furthermore two distinct numerical operators $T^*$
 and $T^{**}$ may induce the same non-numerical operator.
 \end{remark}
 
+In order to determine whether a real-world iterative truth-discovery algorithm
+satisfies the axioms of section \ref{sec:axioms}, it will be convenient to
+have sufficient conditions for some of the axioms, which refer to the numeric
+trust and belief scores directly.
+
+For convenience we assume that trust and belief scores are in the range $[0,
+1]$, as this is generally the case in practise.
+
+\begin{lemma}
+\label{lemma:iterative_axiom_suff_conds}
+Let $I=((u_\pl^n, v_\pl^n))_{n \in \Nat}$ be a convergent iterative
+truth-discovery operator with limit $T^*=(u_\pl^*, v_\pl^*)$. Suppose that
+$u_N^n(s) \in [0, 1], v_N^n(f) \in [0, 1]$ for all $N, s, f$ and $n$.
+
+\begin{enumerate}
+    \item $u_N^*(s) \in [0, 1]$ and $v_N^*(f) \in [0, 1]$
+
+    \item If for any equivalent networks $N$ and $N'=\pi(N)$ it holds that
+    \[
+        u_N^n(s) = u_{\pi(N)}^n(\pi(s))
+    \]
+    and
+    \[
+        v_N^n(f) = v_{\pi(N)}^n(\pi(f))
+    \]
+    for all $N, n, s, f$, then $I$ satisfies symmetry (axiom \ref{axiom:symm}).
+
+    \item If for any network $N$ and $f \in \F$,
+    \[
+        \src(N, f) = \S \implies v_N^n(f) = 1 \text{ for sufficiently large }
+            n \in \Nat
+    \]
+    then $I$ satisfies unanimity (axiom \ref{axiom:unanimity}).
+
+
+    \item If for any network $N$ and $f \in \F$,
+    \[
+        \src(N, f) = \emptyset \implies v_N^n(f) = 0
+            \text{ for sufficiently large } n \in \Nat
+    \]
+    Then $I$ satisfies groundedness (axiom \ref{axiom:groundedness}).
+
+    \item If for any networks $N_1$, $N_2$ with a common connected component
+    $G$ it holds that $u_{N_1}^n(s) = u_{N_2}^n(s)$ and $v_{N_1}^n(f) =
+    v_{N_2}^n(f)$ for $s \in G \cap \S$ and $f \in G \cap \F$, then $I$
+    satisfies independence (axiom \ref{axiom:indep}).
+
+\end{enumerate}
+\end{lemma}
+
 % References
 \bibliography{references}{}
 \bibliographystyle{plain}
-
-% \end{multicols}
 
 \appendix
 \section{Proofs}
@@ -1056,4 +1111,62 @@ but not unanimity.
 
 \end{proof}
 
+\subsection{Proof of lemma \ref{lemma:iterative_axiom_suff_conds}}
+\begin{proof}
+Let $I$ be as in the statement of the lemma.
+
+\begin{enumerate}
+
+\item This is immediate since $u_N^*(s)$ is a limit of numbers in $[0, 1]$
+which is a closed set, so $u_N^*(s) \in [0, 1]$ (and similar for $v_N^*(f)$).
+
+\item Let $N$ and $N' = \pi(N)$ be equivalent networks.  For any $s_1, s_2 \in
+\S$ we have
+\begin{align*}
+    s_1 \sle_N^I s_2
+        & \iff \lim_{n \rightarrow \infty}{u_N^n(s_1)} \le
+            \lim_{n \rightarrow \infty}{u_N^n(s_2)} \\
+        & \iff \lim_{n \rightarrow \infty}{u_{\pi(N)}^n(\pi(s_1))} \le
+            \lim_{n \rightarrow \infty}{u_{\pi(N)}^n(\pi(s_2))} \\
+        & \iff \pi(s_1) \sle_{\pi(N)}^I \pi(s_2) \\
+        & \iff \pi(s_1) \sle_{N'}^I \pi(s_2)
+\end{align*}
+and for $f_1, f_2 \in \F$,
+\begin{align*}
+    f_1 \fle_N^I f_2
+        & \iff \lim_{n \rightarrow \infty}{v_N^n(f_1)} \le
+            \lim_{n \rightarrow \infty}{v_N^n(f_2)} \\
+        & \iff \lim_{n \rightarrow \infty}{v_{\pi(n)}^n(\pi(f_1))} \le
+            \lim_{n \rightarrow \infty}{v_{\pi(n)}^n(\pi(f_2))} \\
+        & \iff \pi(f_1) \fle_{\pi(N)}^I \pi(f_2) \\
+        & \iff \pi(f_1) \fle_{N'}^I \pi(f_2)
+\end{align*}
+Hence $I$ is symmetric.
+
+\item Let $N$ be a truth-discovery network and $f \in \F$ with $\src(N, f) =
+\S$. By hypothesis there is $M \in \Nat$ such that $v_N^n(f) = 1$ for $n > M$,
+so $v_N^*(f)=\lim_{n \rightarrow \infty}{1} = 1 \ge v_N^*(f')$ for any $f'$.
+This means $f' \fle_N^I f$, i.e. $I$ satisfies unanimity.
+
+\item Similarly, if $\src(N, f) = \emptyset$ then by hypothesis $v_N^n(f) = 0$
+for $n$ sufficiently large, so $v_N^*(f)=0 \le v_N^*(f')$ for any $f'$, and $f
+\fle_N^I f'$ as required for groundedness.
+
+\item Let $G$, $N_1$, $N_2$ be as in the statement of the claim. For $s_1, s_2
+\in G \cap \S$ we have
+\begin{align*}
+    s_1 \sle_{N_1}^I s_2
+    & \iff \lim_{n \rightarrow \infty}{u_{N_1}^n(s_1)} \le \lim_{n \rightarrow
+        \infty}{u_{N_1}^n(s_2)} \\
+    & \iff \lim_{n \rightarrow \infty}{u_{N_2}^n(s_1)} \le \lim_{n \rightarrow
+        \infty}{u_{N_2}^n(s_2)} \\
+    & \iff s_1 \sle_{N_2}^I s_2
+\end{align*}
+and an identical argument proves the same for facts. Hence $I$ satisfies
+independence of irrelevant stuff.
+\end{enumerate}
+
+\end{proof}
+
+% \end{multicols}
 \end{document}
