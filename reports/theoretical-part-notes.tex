@@ -518,8 +518,8 @@ when clear from context.
 
 A \emph{numerical truth-discovery operator} $T$ is a mapping $T: \N \rightarrow
 \R^\S \times \R^\F$, i.e. $T$ assigns to each truth-discovery network $N$
-functions $u_N: \S \rightarrow \R$ (referred to as the \emph{source trust}
-mapping) and $v_N: \F \rightarrow \R$ (referred to as the \emph{fact belief}
+functions $t_N: \S \rightarrow \R$ (referred to as the \emph{source trust}
+mapping) and $b_N: \F \rightarrow \R$ (referred to as the \emph{fact belief}
 mapping).
 
 \end{definition}
@@ -529,8 +529,8 @@ mapping).
     truth-discovery operator $T'$, where for any truth-discovery network $N$
     we define
     \begin{align*}
-    s_1 \sle_N^{T'} s_2 & \iff u_N(s_1) \le u_N(s_2) \\
-    f_1 \fle_N^{T'} f_2 & \iff v_N(f_1) \le v_N(f_2)
+    s_1 \sle_N^{T'} s_2 & \iff t_N(s_1) \le t_N(s_2) \\
+    f_1 \fle_N^{T'} f_2 & \iff b_N(f_1) \le b_N(f_2)
     \end{align*}
     for $s_1, s_2 \in \S$ and $f_1, f_2 \in \F$.
 \end{remark}
@@ -551,8 +551,8 @@ sources/facts is important.
 One downside to this approach is that whilst we can tell whether or not $s_1$
 is more trustworthy than $s_2$, we cannot tell by \emph{how much}.  For
 example, consider two numeric operators $T$ and $T'$ and $\S=\{s_1, s_2\}$
-such that $u_N(s_1)=0.5, u_N(s_2)=0.51$, and $u_N'(s_1)=0.01,
-u_N'(s_2)=0.99$. Both operators induce the same ranking on $\S$, yet $T$
+such that $t_N(s_1)=0.5, t_N(s_2)=0.51$, and $t_N'(s_1)=0.01,
+t_N'(s_2)=0.99$. Both operators induce the same ranking on $\S$, yet $T$
 considers the two sources to have similar trust values while $T'$ considers
 $s_2$ to be much more trustworthy than $s_1$.
 
@@ -895,34 +895,34 @@ represent and reason about such real-world algorithms.
 \begin{notation}
 Recall that a numerical truth-discovery operator is defined in definition
 \ref{def:numerical} as a mapping $T: \N \rightarrow \R^\S \times \R^\F$. We
-refer to the individual trust and belief functions by writing $T=(u_\pl,
-v_\pl)$ where $\pl$ is a placeholder the argument in $\N$. \todo{is this
+refer to the individual trust and belief functions by writing $T=(t_\pl,
+b_\pl)$ where $\pl$ is a placeholder the argument in $\N$. \todo{is this
 clear enough?}
 \end{notation}
 
 \begin{definition}
 \label{def:iterative_operator}
 
-An \emph{iterative truth-discovery operator} is a sequence $I=((u_\pl^n,
-v_\pl^n))_{n \in \Nat}$ of numerical truth-discovery operators.
+An \emph{iterative truth-discovery operator} is a sequence $I=((t_\pl^n,
+b_\pl^n))_{n \in \Nat}$ of numerical truth-discovery operators.
 
-$I$ is said to \emph{converge} to a numerical operator $T^*=(u_\pl^*, v_\pl^*)$
-if $u_N^n \rightarrow u_N^*$ and $v_N^n \rightarrow v_N^*$ pointwise as $n
+$I$ is said to \emph{converge} to a numerical operator $T^*=(t_\pl^*, b_\pl^*)$
+if $t_N^n \rightarrow t_N^*$ and $b_N^n \rightarrow b_N^*$ pointwise as $n
 \rightarrow \infty$ for each network $N$.
 
 \end{definition}
 
 \begin{remark}
 Recall that a numerical operator $T^*$ naturally induces a (non-numerical)
-operator by rankings sources according to $u_N^*$ and facts according to
-$v_N^*$. We may therefore identify a convergent iterative operator $I$ with the
+operator by rankings sources according to $t_N^*$ and facts according to
+$b_N^*$. We may therefore identify a convergent iterative operator $I$ with the
 operator induced by its limit $T^*$, and write $\sle_N^I$ and $\fle_N^I$ for
 the source and fact rankings.
 
 To be explicit:
 
-$$ s_1 \sle_N^I s_2 \iff \lim_{n \rightarrow \infty}{u_N^n(s_1)} \le \lim_{n
-\rightarrow \infty}{u_N^n(s_2)} $$
+$$ s_1 \sle_N^I s_2 \iff \lim_{n \rightarrow \infty}{t_N^n(s_1)} \le \lim_{n
+\rightarrow \infty}{t_N^n(s_2)} $$
 
 and similarly for facts.
 
@@ -941,26 +941,26 @@ For convenience we assume that trust and belief scores are in the range $[0,
 
 \begin{lemma}
 \label{lemma:iterative_axiom_suff_conds}
-Let $I=((u_\pl^n, v_\pl^n))_{n \in \Nat}$ be a convergent iterative
-truth-discovery operator with limit $T^*=(u_\pl^*, v_\pl^*)$. Suppose that
-$u_N^n(s) \in [0, 1], v_N^n(f) \in [0, 1]$ for all $N, s, f$ and $n$.
+Let $I=((t_\pl^n, b_\pl^n))_{n \in \Nat}$ be a convergent iterative
+truth-discovery operator with limit $T^*=(t_\pl^*, b_\pl^*)$. Suppose that
+$t_N^n(s) \in [0, 1], b_N^n(f) \in [0, 1]$ for all $N, s, f$ and $n$.
 
 \begin{enumerate}
-    \item $u_N^*(s) \in [0, 1]$ and $v_N^*(f) \in [0, 1]$
+    \item $t_N^*(s) \in [0, 1]$ and $b_N^*(f) \in [0, 1]$
 
     \item If for any equivalent networks $N$ and $N'=\pi(N)$ it holds that
     \[
-        u_N^n(s) = u_{\pi(N)}^n(\pi(s))
+        t_N^n(s) = t_{\pi(N)}^n(\pi(s))
     \]
     and
     \[
-        v_N^n(f) = v_{\pi(N)}^n(\pi(f))
+        b_N^n(f) = b_{\pi(N)}^n(\pi(f))
     \]
     for all $N, n, s, f$, then $I$ satisfies symmetry (axiom \ref{axiom:symm}).
 
     \item If for any network $N$ and $f \in \F$,
     \[
-        \src(N, f) = \S \implies v_N^n(f) = 1 \text{ for sufficiently large }
+        \src(N, f) = \S \implies b_N^n(f) = 1 \text{ for sufficiently large }
             n \in \Nat
     \]
     then $I$ satisfies unanimity (axiom \ref{axiom:unanimity}).
@@ -968,14 +968,14 @@ $u_N^n(s) \in [0, 1], v_N^n(f) \in [0, 1]$ for all $N, s, f$ and $n$.
 
     \item If for any network $N$ and $f \in \F$,
     \[
-        \src(N, f) = \emptyset \implies v_N^n(f) = 0
+        \src(N, f) = \emptyset \implies b_N^n(f) = 0
             \text{ for sufficiently large } n \in \Nat
     \]
     Then $I$ satisfies groundedness (axiom \ref{axiom:groundedness}).
 
     \item If for any networks $N_1$, $N_2$ with a common connected component
-    $G$ it holds that $u_{N_1}^n(s) = u_{N_2}^n(s)$ and $v_{N_1}^n(f) =
-    v_{N_2}^n(f)$ for $s \in G \cap \S$ and $f \in G \cap \F$, then $I$
+    $G$ it holds that $t_{N_1}^n(s) = t_{N_2}^n(s)$ and $b_{N_1}^n(f) =
+    b_{N_2}^n(f)$ for $s \in G \cap \S$ and $f \in G \cap \F$, then $I$
     satisfies independence (axiom \ref{axiom:indep}).
 
 \end{enumerate}
@@ -1117,49 +1117,49 @@ Let $I$ be as in the statement of the lemma.
 
 \begin{enumerate}
 
-\item This is immediate since $u_N^*(s)$ is a limit of numbers in $[0, 1]$
-which is a closed set, so $u_N^*(s) \in [0, 1]$ (and similar for $v_N^*(f)$).
+\item This is immediate since $t_N^*(s)$ is a limit of numbers in $[0, 1]$
+which is a closed set, so $t_N^*(s) \in [0, 1]$ (and similar for $b_N^*(f)$).
 
 \item Let $N$ and $N' = \pi(N)$ be equivalent networks.  For any $s_1, s_2 \in
 \S$ we have
 \begin{align*}
     s_1 \sle_N^I s_2
-        & \iff \lim_{n \rightarrow \infty}{u_N^n(s_1)} \le
-            \lim_{n \rightarrow \infty}{u_N^n(s_2)} \\
-        & \iff \lim_{n \rightarrow \infty}{u_{\pi(N)}^n(\pi(s_1))} \le
-            \lim_{n \rightarrow \infty}{u_{\pi(N)}^n(\pi(s_2))} \\
+        & \iff \lim_{n \rightarrow \infty}{t_N^n(s_1)} \le
+            \lim_{n \rightarrow \infty}{t_N^n(s_2)} \\
+        & \iff \lim_{n \rightarrow \infty}{t_{\pi(N)}^n(\pi(s_1))} \le
+            \lim_{n \rightarrow \infty}{t_{\pi(N)}^n(\pi(s_2))} \\
         & \iff \pi(s_1) \sle_{\pi(N)}^I \pi(s_2) \\
         & \iff \pi(s_1) \sle_{N'}^I \pi(s_2)
 \end{align*}
 and for $f_1, f_2 \in \F$,
 \begin{align*}
     f_1 \fle_N^I f_2
-        & \iff \lim_{n \rightarrow \infty}{v_N^n(f_1)} \le
-            \lim_{n \rightarrow \infty}{v_N^n(f_2)} \\
-        & \iff \lim_{n \rightarrow \infty}{v_{\pi(n)}^n(\pi(f_1))} \le
-            \lim_{n \rightarrow \infty}{v_{\pi(n)}^n(\pi(f_2))} \\
+        & \iff \lim_{n \rightarrow \infty}{b_N^n(f_1)} \le
+            \lim_{n \rightarrow \infty}{b_N^n(f_2)} \\
+        & \iff \lim_{n \rightarrow \infty}{b_{\pi(n)}^n(\pi(f_1))} \le
+            \lim_{n \rightarrow \infty}{b_{\pi(n)}^n(\pi(f_2))} \\
         & \iff \pi(f_1) \fle_{\pi(N)}^I \pi(f_2) \\
         & \iff \pi(f_1) \fle_{N'}^I \pi(f_2)
 \end{align*}
 Hence $I$ is symmetric.
 
 \item Let $N$ be a truth-discovery network and $f \in \F$ with $\src(N, f) =
-\S$. By hypothesis there is $M \in \Nat$ such that $v_N^n(f) = 1$ for $n > M$,
-so $v_N^*(f)=\lim_{n \rightarrow \infty}{1} = 1 \ge v_N^*(f')$ for any $f'$.
+\S$. By hypothesis there is $M \in \Nat$ such that $b_N^n(f) = 1$ for $n > M$,
+so $b_N^*(f)=\lim_{n \rightarrow \infty}{1} = 1 \ge b_N^*(f')$ for any $f'$.
 This means $f' \fle_N^I f$, i.e. $I$ satisfies unanimity.
 
-\item Similarly, if $\src(N, f) = \emptyset$ then by hypothesis $v_N^n(f) = 0$
-for $n$ sufficiently large, so $v_N^*(f)=0 \le v_N^*(f')$ for any $f'$, and $f
+\item Similarly, if $\src(N, f) = \emptyset$ then by hypothesis $b_N^n(f) = 0$
+for $n$ sufficiently large, so $b_N^*(f)=0 \le b_N^*(f')$ for any $f'$, and $f
 \fle_N^I f'$ as required for groundedness.
 
 \item Let $G$, $N_1$, $N_2$ be as in the statement of the claim. For $s_1, s_2
 \in G \cap \S$ we have
 \begin{align*}
     s_1 \sle_{N_1}^I s_2
-    & \iff \lim_{n \rightarrow \infty}{u_{N_1}^n(s_1)} \le \lim_{n \rightarrow
-        \infty}{u_{N_1}^n(s_2)} \\
-    & \iff \lim_{n \rightarrow \infty}{u_{N_2}^n(s_1)} \le \lim_{n \rightarrow
-        \infty}{u_{N_2}^n(s_2)} \\
+    & \iff \lim_{n \rightarrow \infty}{t_{N_1}^n(s_1)} \le \lim_{n \rightarrow
+        \infty}{t_{N_1}^n(s_2)} \\
+    & \iff \lim_{n \rightarrow \infty}{t_{N_2}^n(s_1)} \le \lim_{n \rightarrow
+        \infty}{t_{N_2}^n(s_2)} \\
     & \iff s_1 \sle_{N_2}^I s_2
 \end{align*}
 and an identical argument proves the same for facts. Hence $I$ satisfies
