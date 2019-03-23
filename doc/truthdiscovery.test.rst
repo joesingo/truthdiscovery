@@ -28,6 +28,14 @@ truthdiscovery.test.test\_codestyle module
     :undoc-members:
     :show-inheritance:
 
+truthdiscovery.test.test\_drawing module
+----------------------------------------
+
+.. automodule:: truthdiscovery.test.test_drawing
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 truthdiscovery.test.test\_input module
 --------------------------------------
 

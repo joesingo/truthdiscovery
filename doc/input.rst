@@ -271,6 +271,41 @@ yields pairs ``(var, true_value)``. An object is then constructed with::
 For another example, see ``stock_dataset.py`` in the ``examples`` directory in
 the repository.
 
+Visual graph representation
+---------------------------
+
+A truth-discovery dataset can also be represented as directed graph, where the
+nodes are the sources, claims and objects, and there is an edge from each
+source to each claim it makes, and an edge between each claim and the variable
+it relates to.
+
+Such graphs can be created as a PNG image with the :any:`GraphRenderer`
+class. ::
+
+    from truthdiscovery.input import Dataset
+    from truthdiscovery.visual import GraphRenderer
+    tuples = [
+        ("source 1", "x", 4),
+        ("source 1", "y", 7),
+        ("source 2", "y", 7),
+        ("source 2", "z", 5),
+        ("source 3", "x", 3),
+        ("source 3", "z", 5),
+        ("source 4", "x", 3),
+        ("source 4", "y", 6),
+        ("source 4", "z", 8)
+    ]
+    mydata = Dataset(tuples)
+    renderer = GraphRenderer(mydata)
+    with open("/tmp/my-dataset-as-a-graph.png", "wb") as imgfile:
+        renderer.draw(imgfile)
+
+.. figure:: images/example_graph_dataset.png
+
+Note that the output file must be opened in binary mode. See the
+:any:`GraphRenderer` documentation for the available options (such as image
+size, node size, line widths etc...).
+
 References
 ----------
 
