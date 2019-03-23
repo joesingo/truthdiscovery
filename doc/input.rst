@@ -306,6 +306,22 @@ Note that the output file must be opened in binary mode. See the
 :any:`GraphRenderer` documentation for the available options (such as image
 size, node size, line widths etc...).
 
+To visualise results of an algorithm, it is possible to colour nodes according
+to their scores in the results by using the :any:`ResultsGradientColourScheme`
+colour scheme: ::
+
+    from truthdiscovery.algorithm import Sums
+    from truthdiscovery.visual import GraphRenderer, ResultsGradientColourScheme
+
+    results = Sums().run(mydata)
+    colour_scheme = ResultsGradientColourScheme(results)
+    renderer = GraphRenderer(mydata, colours=colour_scheme)
+
+.. figure:: images/example_graph_dataset_results_based.png
+
+Lighter and darker colours represent low and high trust/belief scores
+respectively.
+
 References
 ----------
 

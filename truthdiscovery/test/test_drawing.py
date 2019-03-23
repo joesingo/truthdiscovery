@@ -1,7 +1,13 @@
 import pytest
 
+from truthdiscovery.algorithm import Sums
 from truthdiscovery.input import Dataset
-from truthdiscovery.visual import GraphRenderer
+from truthdiscovery.output import Result
+from truthdiscovery.visual.draw import (
+    GraphRenderer,
+    NodeType,
+    ResultsGradientColourScheme
+)
 
 
 class TestDrawing:
@@ -35,6 +41,9 @@ class TestDrawing:
 
         return Mock
 
+    def is_valid_png(self, fileobj):
+        return fileobj.read(8) == b"\x89\x50\x4E\x47\x0D\x0A\x1A\x0A"
+
     def test_source_positioning(self, dataset, mock_renderer_cls):
         rend = mock_renderer_cls(dataset, width=100, height=50)
         rend.draw(None)
@@ -48,7 +57,7 @@ class TestDrawing:
 
         source_calls = rend.draw_calls[-4:]
         # Sources should be aligned in x coordinates
-        source_coords = [args[-1] for args, kwargs in source_calls]
+        source_coords = [args[2] for args, kwargs in source_calls]
         assert len(set(x for x, y in source_coords)) == 1
         # Check y positioning
         y_coords = sorted(y for x, y in source_coords)
@@ -58,5 +67,62 @@ class TestDrawing:
         out = tmpdir.join("mygraph.png")
         GraphRenderer(dataset).draw(out)
         with open(str(out), "rb") as f:
-            signature = f.read(8)
-        assert signature == b"\x89\x50\x4E\x47\x0D\x0A\x1A\x0A"
+            assert self.is_valid_png(f)
+
+    def test_get_gradient_colour(self):
+        class Mock(ResultsGradientColourScheme):
+            COLOURS = [1, 2, 3, 4]
+
+        colour_scheme = Mock(None)
+        test_cases = [
+            # (level, expected index)
+            (0, 0),
+            (0.2, 0),
+            (0.24999, 0),
+            (0.25, 1),
+            (0.49999, 1),
+            (0.5, 2),
+            (0.6, 2),
+            (0.74999, 2),
+            (0.75, 3),
+            (0.999, 3),
+            (1, 3)
+        ]
+        for level, exp_index in test_cases:
+            print(level)
+            colour, _ = colour_scheme.get_graded_colours(level)
+            assert colour == colour_scheme.COLOURS[exp_index]
+
+    def test_results_based_colours(self):
+        results = Result(
+            trust={"s1": 0, "s2": 0.01, "s3": 0.6, "s4": 1},
+            belief={"x": {1: 0, 2: 0.34, 3: 0.7, 4: 1}},
+            time_taken=None
+        )
+        colour_scheme = ResultsGradientColourScheme(results)
+        n_s1, l_s1, _ = colour_scheme.get_node_colour(NodeType.SOURCE, "s1")
+        n_s2, l_s2, _ = colour_scheme.get_node_colour(NodeType.SOURCE, "s2")
+        n_s3, l_s3, _ = colour_scheme.get_node_colour(NodeType.SOURCE, "s3")
+        n_s4, l_s4, _ = colour_scheme.get_node_colour(NodeType.SOURCE, "s4")
+
+        assert n_s1 == n_s2
+        assert l_s1 == l_s2
+        assert l_s1 != l_s3
+        assert l_s3 == l_s4
+
+        claim_type = NodeType.CLAIM
+        n_c1, l_c1, _ = colour_scheme.get_node_colour(claim_type, ("x", 1))
+        n_c2, l_c2, _ = colour_scheme.get_node_colour(claim_type, ("x", 2))
+        n_c3, l_c3, _ = colour_scheme.get_node_colour(claim_type, ("x", 3))
+        n_c4, l_c4, _ = colour_scheme.get_node_colour(claim_type, ("x", 4))
+
+        assert l_c1 == l_c2
+        assert l_c1 != l_c3
+        assert l_c3 == l_c4
+
+    def test_results_based_valid_png(self, dataset, tmpdir):
+        cs = ResultsGradientColourScheme(Sums().run(dataset))
+        out = tmpdir.join("mygraph.png")
+        GraphRenderer(dataset, colours=cs).draw(out)
+        with open(str(out), "rb") as f:
+            assert self.is_valid_png(f)
