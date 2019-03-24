@@ -9,6 +9,7 @@ import yaml
 
 from truthdiscovery.client.base import BaseClient, OutputFields
 from truthdiscovery.input import MatrixDataset, SupervisedData, SyntheticData
+from truthdiscovery.visual import MatrixDatasetGraphRenderer
 
 
 def numpy_float_yaml_representer(dumper, val):
@@ -171,6 +172,65 @@ class CommandLineClient(BaseClient):
             metavar="DOMAIN_SIZE",
             type=int
         )
+        # Graph generation sub-command
+        graph_parser = subparsers.add_parser(
+            "graph",
+            help="Generate a graph representation of a dataset as a PNG",
+            description="Generate a graph representation of a dataset as a PNG"
+        )
+        graph_parser.add_argument(
+            "-f", "--dataset",
+            help="CSV file to create a graph for",
+            required=True
+        )
+        graph_parser.add_argument(
+            "-o", "--outfile",
+            help="Path to save output PNG to",
+            type=argparse.FileType("wb"),
+            required=True
+        )
+        # Optional renderer parameters
+        graph_parser.add_argument(
+            "--width",
+            help="Width in pixels",
+            type=int
+        )
+        graph_parser.add_argument(
+            "--height",
+            help="Height in pixels",
+            type=int
+        )
+        graph_parser.add_argument(
+            "--font-size",
+            dest="font_size",
+            help="Font size for node labels",
+            type=int
+        )
+        graph_parser.add_argument(
+            "--node-size",
+            dest="node_size",
+            help=("A number in [0, 1] to determine the size of node (1 is "
+                  "maximum size)"),
+            type=float
+        )
+        graph_parser.add_argument(
+            "--line-width",
+            dest="line_width",
+            help="Width of edges in pixels",
+            type=int
+        )
+        graph_parser.add_argument(
+            "--node-border-width",
+            dest="node_border_width",
+            help="Width node borders in pixels",
+            type=int
+        )
+        graph_parser.add_argument(
+            "--one-indexed",
+            dest="one_indexed",
+            help="Start source/variable numbering from 1 instead of 0",
+            action="store_true"
+        )
         return parser
 
     def run(self, cli_args):
@@ -181,6 +241,8 @@ class CommandLineClient(BaseClient):
             self.run_algorithm(args, parser)
         elif args.command == "synth":
             self.generate_synthetic(args, parser)
+        elif args.command == "graph":
+            self.generate_graph(args, parser)
         else:
             parser.print_help()
 
@@ -226,6 +288,32 @@ class CommandLineClient(BaseClient):
             print(SyntheticData(**kwargs).to_csv())
         except ValueError as ex:
             parser.error(ex)
+
+    def get_graph_renderer(self, dataset, args):
+        """
+        :param dataset: a :any:`Dataset` object
+        :param args:    argparse params
+        :return:        a any:`GraphRenderer` object
+        """
+        kwargs = {
+            "width": args.width,
+            "height": args.height,
+            "font_size": args.font_size,
+            "node_size": args.node_size,
+            "line_width": args.line_width,
+            "node_border_width": args.node_border_width,
+            "zero_indexed": not args.one_indexed
+        }
+        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+        return MatrixDatasetGraphRenderer(dataset, **kwargs)
+
+    def generate_graph(self, args, parser):
+        dataset = MatrixDataset.from_csv(args.dataset)
+        try:
+            renderer = self.get_graph_renderer(dataset, args)
+        except ValueError as ex:
+            parser.error(ex)
+        renderer.draw(args.outfile)
 
 
 def main():  # pragma: no cover

@@ -125,7 +125,6 @@ class GraphRenderer:
         self.dataset = dataset
         self.width = width
         self.height = height
-        self.node_size = node_size
         self.node_border_width = node_border_width or 0
         self.colours = colours or GraphColourScheme()
 
@@ -139,7 +138,9 @@ class GraphRenderer:
         max_px_per_node = self.height / max_vertical_nodes
 
         # Radius is a proportion of this maximum size
-        self.node_radius = max_px_per_node * self.node_size / 2
+        if node_size <= 0 or node_size > 1:
+            raise ValueError("Node size must be in (0, 1]")
+        self.node_radius = max_px_per_node * node_size / 2
 
         # Distance between image corners and centres of corner nodes. It is
         # calculated such that nodes will meet the corners exactly when

@@ -450,6 +450,60 @@ class TestCommandLineClient(ClientTestsBase):
         results = yaml.load(capsys.readouterr().out)
         assert results["accuracy"] is None
 
+    def test_graph_generation(self, client, csv_dataset, capsys, tmpdir):
+        outfile = tmpdir.join("mypic.png")
+        self.run("graph", "-f", csv_dataset, "-o", str(outfile))
+        with open(str(outfile), "rb") as f:
+            assert is_valid_png(f)
+
+        # Missing dataset
+        with pytest.raises(SystemExit):
+            self.run("graph", "-o", str(outfile))
+        assert "--dataset" in capsys.readouterr().err
+
+        # Missing output file
+        with pytest.raises(SystemExit):
+            self.run("graph", "-f", csv_dataset)
+        assert "--outfile" in capsys.readouterr().err
+
+        # Renderer options
+        dataset = MatrixDataset.from_csv(csv_dataset)
+        rend1 = client.get_graph_renderer(
+            dataset,
+            self.get_parsed_args(
+                "graph", "-f", "blah", "-o", "bleh", "--width", "200",
+                "--height", "2500", "--font-size", "14", "--node-size", "0.4",
+                "--line-width", "9", "--node-border-width", "34",
+                "--one-indexed"
+            )
+        )
+        assert rend1.width == 200
+        assert rend1.height == 2500
+        assert rend1.ctx.get_font_matrix().xx == 14
+        assert rend1.ctx.get_line_width() == 9
+        assert rend1.node_border_width == 34
+        assert not rend1.zero_indexed
+
+        # Check that if we only give some options, the rest are kept at the
+        # defaults
+        rend2 = client.get_graph_renderer(
+            dataset,
+            self.get_parsed_args(
+                "graph", "-f", "blah", "-o", "bleh", "--width", "200"
+            )
+        )
+        assert rend2.width == 200
+        assert rend2.height == 600
+        assert rend2.zero_indexed
+
+        # Check we get an error with invalid params
+        with pytest.raises(SystemExit):
+            self.run(
+                "graph", "-f", csv_dataset, "-o", str(outfile), "--node-size",
+                "1.1"
+            )
+        assert "must be in (0, 1]" in capsys.readouterr().err
+
 
 class TestWebClient(ClientTestsBase):
     @pytest.fixture

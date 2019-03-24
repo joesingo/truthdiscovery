@@ -63,6 +63,12 @@ class TestDrawing:
         y_coords = sorted(y for x, y in source_coords)
         assert y_coords == [6.25, 18.75, 31.25, 43.75]
 
+    def test_invalid_node_size(self, dataset):
+        invalid_sizes = (-1, -0.00001, 0, 1.00001, 10)
+        for size in invalid_sizes:
+            with pytest.raises(ValueError):
+                rend = GraphRenderer(dataset, node_size=size)
+
     def test_valid_png(self, dataset, tmpdir):
         out = tmpdir.join("mygraph.png")
         GraphRenderer(dataset).draw(out)
