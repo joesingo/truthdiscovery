@@ -84,4 +84,16 @@
             </tbody>
         </table>
     </div>
+
+    <div ng-show="$ctrl.service.results.graph">
+        <h3>Graph respresentation</h3>
+        <p class="text-gray">
+            Light and dark colours represent low and high trust/belief scores
+            respectively.
+        </p>
+        <img ng-src="data:image/png;base64, {{ $ctrl.service.results.graph }}"
+             class="img-responsive img-fit-contain"
+             style="margin: auto;"
+             alt="Graph respresentation of the dataset" />
+    </div>
 </div>

@@ -77,6 +77,14 @@
             </div>
         </div>
 
+        <div class="form-group">
+            <label class="form-checkbox">
+                <input type="checkbox" ng-model="$ctrl.get_graph" />
+                <i class="form-icon"></i>
+                Show dataset as a graph
+            </label>
+        </div>
+
         <div class="form-group" ng-show="$ctrl.service.previous_results !== null">
             <label class="form-checkbox">
                 <input type="checkbox" ng-model="$ctrl.compare_results" />

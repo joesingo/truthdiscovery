@@ -17,14 +17,17 @@ angular.
         /*
          * Make the HTTP request to get results of an algorithm
          */
-        this.getResults = function(algorithm, matrix, compare_previous) {
+        this.getResults = function(algorithm, matrix, compare_previous, get_graph) {
             // Build parameters to send to server
             var params = {
                 "algorithm": algorithm,
-                "matrix": matrix
+                "matrix": matrix,
             };
             if (compare_previous && this.previous_results !== null) {
                 params.previous_results = this.previous_results;
+            }
+            if (get_graph) {
+                params.get_graph = "yes-please";
             }
 
             this.state = "loading";
@@ -97,6 +100,7 @@ angular.
             this.error = null;  // error message to show underneath form
             this.algorithm = "sums";
             this.compare_results = false;
+            this.get_graph = true;
 
             // Initialise matrix
             var entries = [
@@ -153,7 +157,8 @@ angular.
 
             this.run = function() {
                 var promise = tdService.getResults(
-                    self.algorithm, self.matrix.asCSV(), self.compare_results
+                    self.algorithm, self.matrix.asCSV(), self.compare_results,
+                    self.get_graph
                 );
                 // Cancel errors while we wait for response
                 self.error = null;

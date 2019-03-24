@@ -1,3 +1,4 @@
+import base64
 import json
 
 from flask import Flask
@@ -14,6 +15,7 @@ from truthdiscovery.utils import (
     DistanceMeasures,
     FixedIterator
 )
+from truthdiscovery.test.utils import is_valid_png
 
 
 class ClientTestsBase:
@@ -603,3 +605,27 @@ class TestWebClient(ClientTestsBase):
         exp_err_msg = ("'previous_results' is invalid: required field "
                        "'belief' missing")
         assert exp_err_msg in resp2.json["error"]
+
+    def test_get_b64_graph(self, test_client, dataset):
+        # get_graph param not present: graph should NOT be rendered
+        no_graph = {
+            "matrix": dataset.to_csv(),
+            "algorithm": "sums"
+        }
+        resp1 = test_client.get("/run/", query_string=no_graph)
+        assert resp1.status_code == 200
+        assert "data" in resp1.json
+        assert "graph" not in resp1.json["data"]
+
+        with_graph = {
+            "matrix": dataset.to_csv(),
+            "algorithm": "sums",
+            "get_graph": True
+        }
+        resp2 = test_client.get("/run/", query_string=with_graph)
+        assert resp2.status_code == 200
+        assert "graph" in resp2.json["data"]
+        b64_img = resp2.json["data"]["graph"]
+        # Check the image is valid base64, and that the data is a valid PNG
+        bin_data = base64.b64decode(b64_img)
+        assert is_valid_png(bin_data)

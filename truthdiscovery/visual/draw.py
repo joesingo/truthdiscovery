@@ -299,3 +299,30 @@ class GraphRenderer:
         self.ctx.move_to(*start)
         self.ctx.line_to(*end)
         self.ctx.stroke()
+
+
+class MatrixDatasetGraphRenderer(GraphRenderer):
+    """
+    Modify node labels for matrix datasets, where source/var labels are just
+    ints
+    """
+    def __init__(self, *args, zero_indexed=True, **kwargs):
+        self.zero_indexed = zero_indexed
+        super().__init__(*args, **kwargs)
+
+    def format_id(self, int_id):
+        if not self.zero_indexed:
+            int_id += 1
+        return str(int_id)
+
+    def get_source_label(self, source_id):
+        return "s{}".format(self.format_id(source_id))
+
+    def get_var_label(self, var_id):
+        return "v{}".format(self.format_id(var_id))
+
+    def get_claim_label(self, var_id, val_hash):
+        val = str(self.dataset.val_hashes.inverse[val_hash])
+        if val.endswith(".0"):
+            val = val[:-2]
+        return "{}={}".format(self.get_var_label(var_id), val)

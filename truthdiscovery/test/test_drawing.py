@@ -1,13 +1,16 @@
+from io import BytesIO
 import pytest
 
 from truthdiscovery.algorithm import Sums
-from truthdiscovery.input import Dataset
+from truthdiscovery.input import Dataset, MatrixDataset
 from truthdiscovery.output import Result
 from truthdiscovery.visual.draw import (
     GraphRenderer,
+    MatrixDatasetGraphRenderer,
     NodeType,
     ResultsGradientColourScheme
 )
+from truthdiscovery.test.utils import is_valid_png
 
 
 class TestDrawing:
@@ -41,9 +44,6 @@ class TestDrawing:
 
         return Mock
 
-    def is_valid_png(self, fileobj):
-        return fileobj.read(8) == b"\x89\x50\x4E\x47\x0D\x0A\x1A\x0A"
-
     def test_source_positioning(self, dataset, mock_renderer_cls):
         rend = mock_renderer_cls(dataset, width=100, height=50)
         rend.draw(None)
@@ -67,7 +67,7 @@ class TestDrawing:
         out = tmpdir.join("mygraph.png")
         GraphRenderer(dataset).draw(out)
         with open(str(out), "rb") as f:
-            assert self.is_valid_png(f)
+            assert is_valid_png(f)
 
     def test_long_labels(self, tmpdir):
         dataset = Dataset((
@@ -77,7 +77,7 @@ class TestDrawing:
         out = tmpdir.join("mygraph.png")
         GraphRenderer(dataset).draw(out)
         with open(str(out), "rb") as f:
-            assert self.is_valid_png(f)
+            assert is_valid_png(f)
 
     def test_get_gradient_colour(self):
         class Mock(ResultsGradientColourScheme):
@@ -135,4 +135,19 @@ class TestDrawing:
         out = tmpdir.join("mygraph.png")
         GraphRenderer(dataset, colours=cs).draw(out)
         with open(str(out), "rb") as f:
-            assert self.is_valid_png(f)
+            assert is_valid_png(f)
+
+    def test_matrix_renderer(self):
+        buf = BytesIO()
+        buf.write(b",5,7\n1,2,3")
+        buf.seek(0)
+        dataset = MatrixDataset.from_csv(buf)
+        rend1 = MatrixDatasetGraphRenderer(dataset)
+        rend2 = MatrixDatasetGraphRenderer(dataset, zero_indexed=False)
+        assert rend1.get_source_label(0) == "s0"
+        assert rend2.get_source_label(0) == "s1"
+        assert rend1.get_var_label(0) == "v0"
+        assert rend2.get_var_label(0) == "v1"
+
+        assert rend1.get_claim_label(0, 1) == "v0=7"
+        assert rend2.get_claim_label(0, 1) == "v1=7"

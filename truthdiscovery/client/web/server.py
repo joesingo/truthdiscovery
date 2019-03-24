@@ -1,3 +1,4 @@
+import base64
 from io import BytesIO
 import json
 
@@ -6,6 +7,9 @@ from flask import Flask, render_template, request, jsonify
 from truthdiscovery.client.base import BaseClient
 from truthdiscovery.input import MatrixDataset
 from truthdiscovery.output import Result, ResultDiff
+from truthdiscovery.visual import (
+    MatrixDatasetGraphRenderer, ResultsGradientColourScheme
+)
 
 
 class route:
@@ -95,8 +99,8 @@ class WebClient(BaseClient):
     def run(self):
         """
         Run an algorithm on a user-supplied dataset. Required HTTP parameters
-        are 'algorithm' and 'matrix'; optional parameters are 'parameters' and
-        'previous_results'.
+        are 'algorithm' and 'matrix'; optional parameters are 'parameters',
+        'previous_results' and 'get_graph'.
 
         Responses are JSON objects of the form
         ``{"ok": True, "data": ...}``
@@ -122,6 +126,18 @@ class WebClient(BaseClient):
 
         results = alg.run(dataset)
         output = self.get_output_obj(results)
+
+        # Construct a graph of dataset if requested
+        if "get_graph" in request.args:
+            colour_scheme = ResultsGradientColourScheme(results)
+            renderer = MatrixDatasetGraphRenderer(
+                dataset, width=800, height=600, colours=colour_scheme,
+                zero_indexed=False
+            )
+            img_buffer = BytesIO()
+            renderer.draw(img_buffer)
+            img_buffer.seek(0)
+            output["graph"] = base64.b64encode(img_buffer.read()).decode()
 
         # Include diff between previous results if available
         prev_results = request.args.get("previous_results")
