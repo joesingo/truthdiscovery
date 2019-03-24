@@ -4,7 +4,7 @@ import pytest
 from truthdiscovery.algorithm import Sums
 from truthdiscovery.input import Dataset, MatrixDataset
 from truthdiscovery.output import Result
-from truthdiscovery.visual.draw import (
+from truthdiscovery.graphs.draw import (
     GraphRenderer,
     MatrixDatasetGraphRenderer,
     NodeType,

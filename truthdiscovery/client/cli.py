@@ -9,7 +9,7 @@ import yaml
 
 from truthdiscovery.client.base import BaseClient, OutputFields
 from truthdiscovery.input import MatrixDataset, SupervisedData, SyntheticData
-from truthdiscovery.visual import MatrixDatasetGraphRenderer
+from truthdiscovery.graphs import MatrixDatasetGraphRenderer
 
 
 def numpy_float_yaml_representer(dumper, val):

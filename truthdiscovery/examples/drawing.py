@@ -5,7 +5,7 @@ import sys
 
 from truthdiscovery.algorithm import Sums
 from truthdiscovery.input import Dataset
-from truthdiscovery.visual import (
+from truthdiscovery.graphs import (
     GraphRenderer,
     PlainColourScheme,
     ResultsGradientColourScheme

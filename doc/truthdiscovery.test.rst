@@ -60,6 +60,14 @@ truthdiscovery.test.test\_result module
     :undoc-members:
     :show-inheritance:
 
+truthdiscovery.test.utils module
+--------------------------------
+
+.. automodule:: truthdiscovery.test.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

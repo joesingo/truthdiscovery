@@ -283,7 +283,7 @@ Such graphs can be created as a PNG image with the :any:`GraphRenderer`
 class. ::
 
     from truthdiscovery.input import Dataset
-    from truthdiscovery.visual import GraphRenderer
+    from truthdiscovery.graphs import GraphRenderer
     tuples = [
         ("source 1", "x", 4),
         ("source 1", "y", 7),
@@ -311,7 +311,7 @@ to their scores in the results by using the :any:`ResultsGradientColourScheme`
 colour scheme: ::
 
     from truthdiscovery.algorithm import Sums
-    from truthdiscovery.visual import GraphRenderer, ResultsGradientColourScheme
+    from truthdiscovery.graphs import GraphRenderer, ResultsGradientColourScheme
 
     results = Sums().run(mydata)
     colour_scheme = ResultsGradientColourScheme(results)

@@ -4,10 +4,26 @@ truthdiscovery.examples package
 Submodules
 ----------
 
+truthdiscovery.examples.animation module
+----------------------------------------
+
+.. automodule:: truthdiscovery.examples.animation
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 truthdiscovery.examples.convergence\_test module
 ------------------------------------------------
 
 .. automodule:: truthdiscovery.examples.convergence_test
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+truthdiscovery.examples.drawing module
+--------------------------------------
+
+.. automodule:: truthdiscovery.examples.drawing
     :members:
     :undoc-members:
     :show-inheritance:

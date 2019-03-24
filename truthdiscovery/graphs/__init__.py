@@ -1,4 +1,4 @@
-from truthdiscovery.visual.draw import (
+from truthdiscovery.graphs.draw import (
     GraphColourScheme,
     GraphRenderer,
     MatrixDatasetGraphRenderer,

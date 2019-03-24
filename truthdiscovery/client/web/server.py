@@ -7,7 +7,7 @@ from flask import Flask, render_template, request, jsonify
 from truthdiscovery.client.base import BaseClient
 from truthdiscovery.input import MatrixDataset
 from truthdiscovery.output import Result, ResultDiff
-from truthdiscovery.visual import (
+from truthdiscovery.graphs import (
     MatrixDatasetGraphRenderer, ResultsGradientColourScheme
 )
 
