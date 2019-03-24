@@ -131,11 +131,11 @@ class WebClient(BaseClient):
         if "get_graph" in request.args:
             colour_scheme = ResultsGradientColourScheme(results)
             renderer = MatrixDatasetGraphRenderer(
-                dataset, width=800, height=600, colours=colour_scheme,
+                width=800, height=600, colours=colour_scheme,
                 zero_indexed=False
             )
             img_buffer = BytesIO()
-            renderer.draw(img_buffer)
+            renderer.draw(dataset, img_buffer)
             img_buffer.seek(0)
             output["graph"] = base64.b64encode(img_buffer.read()).decode()
 

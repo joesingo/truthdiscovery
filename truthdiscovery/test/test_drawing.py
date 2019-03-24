@@ -46,8 +46,8 @@ class TestDrawing:
         return Mock
 
     def test_source_positioning(self, dataset, mock_renderer_cls):
-        rend = mock_renderer_cls(dataset, width=100, height=50)
-        rend.draw(None)
+        rend = mock_renderer_cls(width=100, height=50)
+        rend.draw(dataset, None)
         assert len(rend.draw_calls) == (
             4    # sources
             + 6  # edges from sources to claims
@@ -72,7 +72,7 @@ class TestDrawing:
 
     def test_valid_png(self, dataset, tmpdir):
         out = tmpdir.join("mygraph.png")
-        GraphRenderer(dataset).draw(out)
+        GraphRenderer().draw(dataset, out)
         with open(str(out), "rb") as f:
             assert is_valid_png(f)
 
@@ -82,7 +82,7 @@ class TestDrawing:
             ("source 2", "quite a complicated variable name", 100)
         ))
         out = tmpdir.join("mygraph.png")
-        GraphRenderer(dataset).draw(out)
+        GraphRenderer().draw(dataset, out)
         with open(str(out), "rb") as f:
             assert is_valid_png(f)
 
@@ -140,7 +140,7 @@ class TestDrawing:
     def test_results_based_valid_png(self, dataset, tmpdir):
         cs = ResultsGradientColourScheme(Sums().run(dataset))
         out = tmpdir.join("mygraph.png")
-        GraphRenderer(dataset, colours=cs).draw(out)
+        GraphRenderer(colours=cs).draw(dataset, out)
         with open(str(out), "rb") as f:
             assert is_valid_png(f)
 
@@ -149,8 +149,12 @@ class TestDrawing:
         buf.write(b",5,7\n1,2,3")
         buf.seek(0)
         dataset = MatrixDataset.from_csv(buf)
-        rend1 = MatrixDatasetGraphRenderer(dataset)
-        rend2 = MatrixDatasetGraphRenderer(dataset, zero_indexed=False)
+        rend1 = MatrixDatasetGraphRenderer()
+        rend2 = MatrixDatasetGraphRenderer(zero_indexed=False)
+
+        rend1.draw(dataset, BytesIO())
+        rend2.draw(dataset, BytesIO())
+
         assert rend1.get_source_label(0) == "s0"
         assert rend2.get_source_label(0) == "s1"
         assert rend1.get_var_label(0) == "v0"

@@ -296,9 +296,9 @@ class. ::
         ("source 4", "z", 8)
     ]
     mydata = Dataset(tuples)
-    renderer = GraphRenderer(mydata)
+    renderer = GraphRenderer()
     with open("/tmp/my-dataset-as-a-graph.png", "wb") as imgfile:
-        renderer.draw(imgfile)
+        renderer.draw(mydata, imgfile)
 
 .. figure:: images/example_graph_dataset.png
 
@@ -315,7 +315,7 @@ colour scheme: ::
 
     results = Sums().run(mydata)
     colour_scheme = ResultsGradientColourScheme(results)
-    renderer = GraphRenderer(mydata, colours=colour_scheme)
+    renderer = GraphRenderer(colours=colour_scheme)
 
 .. figure:: images/example_graph_dataset_results_based.png
 

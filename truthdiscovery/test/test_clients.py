@@ -467,9 +467,7 @@ class TestCommandLineClient(ClientTestsBase):
         assert "--outfile" in capsys.readouterr().err
 
         # Renderer options
-        dataset = MatrixDataset.from_csv(csv_dataset)
         rend1 = client.get_graph_renderer(
-            dataset,
             self.get_parsed_args(
                 "graph", "-f", "blah", "-o", "bleh", "--width", "200",
                 "--height", "2500", "--font-size", "14", "--node-size", "0.4",
@@ -487,7 +485,6 @@ class TestCommandLineClient(ClientTestsBase):
         # Check that if we only give some options, the rest are kept at the
         # defaults
         rend2 = client.get_graph_renderer(
-            dataset,
             self.get_parsed_args(
                 "graph", "-f", "blah", "-o", "bleh", "--width", "200"
             )

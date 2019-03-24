@@ -116,11 +116,9 @@ class GraphRenderer:
     Create an image that shows a graph representation of a truth-discovery
     dataset
     """
-    def __init__(self, dataset, width=800, height=600, node_size=0.8,
-                 line_width=3, node_border_width=3, font_size=15,
-                 colours=None):
+    def __init__(self, width=800, height=600, node_size=0.8, line_width=3,
+                 node_border_width=3, font_size=15, colours=None):
         """
-        :param dataset:           :any:`Dataset` object
         :param width:             width of image in pixels
         :param height:            height of image in pixels
         :param node_size:         number in [0, 1] to control node size. 1 is
@@ -133,30 +131,23 @@ class GraphRenderer:
         :param colours:           :any:`GraphColourScheme` (or sub-class)
                                   instance
         """
-        self.dataset = dataset
         self.width = width
         self.height = height
+        self.node_size = node_size
         self.node_border_width = node_border_width or 0
         self.colours = colours or GraphColourScheme()
-
-        # Work out maximum pixels that can be allocated to each node without
-        # vertical overlapping
-        max_vertical_nodes = max(
-            self.dataset.num_sources,
-            self.dataset.num_claims,
-            self.dataset.num_variables
-        )
-        max_px_per_node = self.height / max_vertical_nodes
-
-        # Radius is a proportion of this maximum size
-        if node_size <= 0 or node_size > 1:
+        if self.node_size <= 0 or self.node_size > 1:
             raise ValueError("Node size must be in (0, 1]")
-        self.node_radius = max_px_per_node * node_size / 2
+
+        self.dataset = None
+        # Radius is set when dataset is given, since it depends on the number
+        # of nodes
+        self.node_radius = None
 
         # Distance between image corners and centres of corner nodes. It is
         # calculated such that nodes will meet the corners exactly when
-        # node_size is 1
-        self.offset = max_px_per_node / 2
+        # node_size is 1. Depends on radius, so not set here
+        self.offset = None
 
         # Initialise Cairo and draw background
         self.surface = cairo.ImageSurface(
@@ -165,6 +156,9 @@ class GraphRenderer:
         self.ctx = cairo.Context(self.surface)
         self.ctx.set_line_width(line_width)
         self.ctx.set_font_size(font_size)
+        self.draw_background()
+
+    def draw_background(self):
         self.ctx.set_source_rgb(*self.colours.get_background_colour())
         self.ctx.rectangle(0, 0, self.width, self.height)
         self.ctx.fill()
@@ -197,12 +191,29 @@ class GraphRenderer:
             val=self.dataset.val_hashes.inverse[val_hash]
         )
 
-    def draw(self, outfile):
+    def draw(self, dataset, outfile):
         """
         Draw the dataset as a graph and save as a PNG
 
+        :param dataset: a :any:`Dataset` object
         :param outfile: file object to write to
         """
+        self.draw_background()
+        self.dataset = dataset
+
+        # Set node radius: work out maximum pixels that can be allocated to
+        # each node without vertical overlapping - radius is a proportion of
+        # this maximum size
+        max_vertical_nodes = max(
+            self.dataset.num_sources,
+            self.dataset.num_claims,
+            self.dataset.num_variables
+        )
+        max_px_per_node = self.height / max_vertical_nodes
+        self.node_radius = max_px_per_node * self.node_size / 2
+        # Set offset, which depends on radius
+        self.offset = max_px_per_node / 2
+
         # We want to position claims so that claims for the same variable are
         # next to each other: sort claims by their variable ID and construct a
         # map claim ID -> index to do this

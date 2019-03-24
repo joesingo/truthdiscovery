@@ -289,9 +289,8 @@ class CommandLineClient(BaseClient):
         except ValueError as ex:
             parser.error(ex)
 
-    def get_graph_renderer(self, dataset, args):
+    def get_graph_renderer(self, args):
         """
-        :param dataset: a :any:`Dataset` object
         :param args:    argparse params
         :return:        a any:`GraphRenderer` object
         """
@@ -305,15 +304,15 @@ class CommandLineClient(BaseClient):
             "zero_indexed": not args.one_indexed
         }
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
-        return MatrixDatasetGraphRenderer(dataset, **kwargs)
+        return MatrixDatasetGraphRenderer(**kwargs)
 
     def generate_graph(self, args, parser):
-        dataset = MatrixDataset.from_csv(args.dataset)
         try:
-            renderer = self.get_graph_renderer(dataset, args)
+            renderer = self.get_graph_renderer(args)
+            dataset = MatrixDataset.from_csv(args.dataset)
         except ValueError as ex:
             parser.error(ex)
-        renderer.draw(args.outfile)
+        renderer.draw(dataset, args.outfile)
 
 
 def main():  # pragma: no cover
