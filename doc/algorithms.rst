@@ -57,6 +57,16 @@ Optional parameters common to all iterative algorithms are:
   Unless otherwise stated, the default for ``priors`` is
   :any:`PriorBelief.FIXED`.
 
+As well as returning final results with ``alg.run(mydata)``, iterative
+algorithms support returning an iterable of partial results as the algorithm
+iterates with :any:`run_iter` : ::
+
+    from truthdiscovery import Sums
+    alg = Sums()
+    for results in alg.run_iter(mydata):
+        print("Trust at iteration {}".format(results.iterations))
+        print(results.trust)
+
 For each of the algorithms below, please refer to the cited paper for details
 on how the algorithm operates and the meaning of any additional optional
 parameters.

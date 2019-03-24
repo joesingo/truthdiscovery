@@ -65,6 +65,7 @@ class TruthFinder(BaseIterativeAlgorithm):
 
         trust = np.full((data.num_sources,), self.initial_trust)
         belief = np.zeros((data.num_claims,))
+        self.log(data, trust, belief)
 
         while not self.iterator.finished():
             try:
@@ -75,5 +76,6 @@ class TruthFinder(BaseIterativeAlgorithm):
             new_trust = a_mat @ belief
             self.iterator.compare(new_trust, trust)
             trust = new_trust
+            self.log(data, trust, belief)
 
         return trust, belief

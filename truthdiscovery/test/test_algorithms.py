@@ -600,3 +600,72 @@ class TestIteratorsForAlgorithms:
                                    obj.iterator.__class__.__name__,
                                    it_cls.__name__))
                 assert isinstance(obj.iterator, it_cls), err_msg
+
+
+class TestLoggingAlgorithm(BaseTest):
+    @pytest.fixture
+    def alg_classes(self):
+        return [AverageLog, Investment, PooledInvestment, Sums, TruthFinder]
+
+    @pytest.fixture
+    def algs(self, alg_classes):
+        return [cls() for cls in alg_classes]
+
+    def test_final_result(self, algs, data):
+        for alg in algs:
+            # Get the final result normally
+            final_res = alg.run(data)
+
+            # Iterate through partial results, and check the final result is as
+            # expected
+            last_res = None
+            for r in alg.run_iter(data):
+                last_res = r
+
+            assert last_res.trust == final_res.trust
+            assert last_res.belief == final_res.belief
+            assert last_res.iterations == final_res.iterations
+
+    def test_no_logging(self, algs, data):
+        for alg in algs:
+            _res = alg.run(data)
+            assert alg.results_log is None
+
+    def test_partial_results(self, alg_classes, data):
+        it = FixedIterator(3)
+        for cls in alg_classes:
+            alg = cls(iterator=it)
+
+            log = list(alg.run_iter(data))
+            assert len(log) == 4
+            initial, first, second, third = log
+
+            assert initial.iterations == 0
+            assert first.iterations == 1
+            assert second.iterations == 2
+            assert third.iterations == 3
+
+            # Time should be non-decreasing
+            assert (
+                initial.time_taken <= first.time_taken <= second.time_taken
+                <= third.time_taken
+            )
+
+    def test_sums_detailed(self, data):
+        it = FixedIterator(3)
+        alg = Sums(iterator=it, priors=PriorBelief.FIXED)
+        initial, first, second, third = alg.run_iter(data)
+
+        assert initial.belief == {
+            "x": {"one": 0.5},
+            "y": {"nine": 0.5, "eight": 0.5},
+            "z": {"seven": 0.5}
+        }
+        assert initial.trust == {"s1": 0, "s2": 0, "s3": 0}
+
+        assert first.trust == {"s1": 1, "s2": 2 / 3, "s3": 1 / 3}
+        assert first.belief == {
+            "x": {"one": 1},
+            "y": {"nine": 3 / 5, "eight": 2 / 5},
+            "z": {"seven": 4 / 5}
+        }

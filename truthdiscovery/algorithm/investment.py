@@ -49,6 +49,7 @@ class Investment(BaseIterativeAlgorithm):
         claim_counts = data.sc @ np.ones((data.num_claims,))
         trust = np.ones((data.num_sources,))
         belief = self.get_prior_beliefs(data)
+        self.log(data, trust, belief)
 
         while not self.iterator.finished():
             try:
@@ -64,5 +65,6 @@ class Investment(BaseIterativeAlgorithm):
 
             self.iterator.compare(new_trust, trust)
             trust = new_trust
+            self.log(data, trust, belief)
 
         return trust, belief

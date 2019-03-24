@@ -40,6 +40,7 @@ class BaseIterativeAlgorithm(BaseAlgorithm):
     """
     iterator = None
     priors = PriorBelief.FIXED
+    results_log = None
 
     def __init__(self, iterator=None, priors=None):
         """
@@ -85,15 +86,27 @@ class BaseIterativeAlgorithm(BaseAlgorithm):
 
     def run(self, data):
         self.iterator.reset()
-        start_time = time.time()
-        trust, claim_belief = self._run(data)
+        self.start_time = time.time()
+        self.results_log = None
+        trust, belief = self._run(data)
         end_time = time.time()
         return Result(
             trust=data.get_source_trust_dict(trust),
-            belief=data.get_belief_dict(claim_belief),
-            time_taken=end_time - start_time,
+            belief=data.get_belief_dict(belief),
+            time_taken=end_time - self.start_time,
             iterations=self.iterator.it_count
         )
+
+    def run_iter(self, data):
+        """
+        Return a generator of partial :any:`Result` objects as the algorithm
+        iterates
+        """
+        self.iterator.reset()
+        self.start_time = time.time()
+        self.results_log = []
+        _t, _b = self._run(data)
+        yield from self.results_log
 
     def _run(self, data):
         """
@@ -101,8 +114,22 @@ class BaseIterativeAlgorithm(BaseAlgorithm):
         boilerplate code in each subclass
 
         :param data: :any:`Dataset` object
-        :return: a tuple ``(trust, claim_belief)``, where ``trust`` is a numpy
+        :return: a tuple ``(trust, belief)``, where ``trust`` is a numpy
                  array of source trusts, and ``belief`` is a numpy array of
                  claim beliefs, both ordered as in the input data
         """
         raise NotImplementedError("Must be implemented in child classes")
+
+    def log(self, data, trust, belief):
+        """
+        If logging is enabled, append the given trust and belief scores to the
+        log
+        """
+        if self.results_log is not None:
+            res = Result(
+                trust=data.get_source_trust_dict(trust),
+                belief=data.get_belief_dict(belief),
+                time_taken=time.time() - self.start_time,
+                iterations=self.iterator.it_count
+            )
+            self.results_log.append(res)

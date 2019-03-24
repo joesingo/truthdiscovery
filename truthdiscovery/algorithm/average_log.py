@@ -13,6 +13,7 @@ class AverageLog(BaseIterativeAlgorithm):
     def _run(self, data):
         trust = np.zeros((data.num_sources,))
         belief = self.get_prior_beliefs(data)
+        self.log(data, trust, belief)
 
         # Pre-compute the number of claims made by each source and log
         # weighting, since this is used in each iteration and does not change.
@@ -34,5 +35,6 @@ class AverageLog(BaseIterativeAlgorithm):
 
             self.iterator.compare(new_trust, trust)
             trust = new_trust
+            self.log(data, trust, belief)
 
         return trust, belief
