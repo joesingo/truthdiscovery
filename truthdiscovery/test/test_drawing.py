@@ -69,6 +69,16 @@ class TestDrawing:
         with open(str(out), "rb") as f:
             assert self.is_valid_png(f)
 
+    def test_long_labels(self, tmpdir):
+        dataset = Dataset((
+            ("a-source-with-an-extremely-long-name", "x", 1000000000000000000),
+            ("source 2", "quite a complicated variable name", 100)
+        ))
+        out = tmpdir.join("mygraph.png")
+        GraphRenderer(dataset).draw(out)
+        with open(str(out), "rb") as f:
+            assert self.is_valid_png(f)
+
     def test_get_gradient_colour(self):
         class Mock(ResultsGradientColourScheme):
             COLOURS = [1, 2, 3, 4]

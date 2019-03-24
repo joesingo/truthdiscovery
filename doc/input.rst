@@ -320,7 +320,9 @@ colour scheme: ::
 .. figure:: images/example_graph_dataset_results_based.png
 
 Lighter and darker colours represent low and high trust/belief scores
-respectively.
+Respectively. Note that there are 9 fixed colours in this scale -- it is *not*
+a continuous gradient. This means that nodes with the same colour do not
+necessarily have identical trust/belief scores.
 
 References
 ----------

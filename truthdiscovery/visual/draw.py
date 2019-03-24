@@ -105,8 +105,8 @@ class GraphRenderer:
     Create an image that shows a graph representation of a truth-discovery
     dataset
     """
-    def __init__(self, dataset, width=800, height=600, node_size=0.75,
-                 node_border_width=3, line_width=3, font_size=15,
+    def __init__(self, dataset, width=800, height=600, node_size=0.8,
+                 line_width=3, node_border_width=3, font_size=15,
                  colours=None):
         """
         :param dataset:           :any:`Dataset` object
@@ -266,10 +266,32 @@ class GraphRenderer:
         )
         self.ctx.fill()
 
-        # Draw the label
-        self.ctx.set_source_rgb(*label_c)
+        # Label
         ext = self.ctx.text_extents(label)
-        self.ctx.move_to(x - ext.width / 2, y - ext.y_bearing / 2)
+        # Make sure long source or var names do not run off the screen
+        label_lhs = max(0, min(self.width - ext.width, x - ext.width / 2))
+
+        # If label exceeds the node, draw a background-coloured box where text
+        # will go, so that the label does not clash with background/node border
+        if ext.width > 2 * self.node_radius:
+            background = self.colours.get_background_colour()
+            r, g, b = background
+            self.ctx.set_source_rgb(*background)
+            # Try and have label an 'opposite' colour for label to avoid
+            # clashing
+            label_c = (1 - r, 1 - g, 1 - b)
+
+            padding = 5  # allow some space between box border and text
+            self.ctx.rectangle(
+                label_lhs - padding,
+                y - ext.height / 2 - padding,
+                ext.width + 2 * padding,
+                ext.height + 2 * padding
+            )
+            self.ctx.fill()
+
+        self.ctx.set_source_rgb(*label_c)
+        self.ctx.move_to(label_lhs, y - ext.y_bearing / 2)
         self.ctx.show_text(label)
 
     def draw_edge(self, start, end):

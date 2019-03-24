@@ -24,7 +24,8 @@ if __name__ == "__main__":
         ("source 3", "z", 5),
         ("source 4", "x", 3),
         ("source 4", "y", 6),
-        ("source 4", "z", 8)
+        ("source 4", "z", 8),
+        ("my really long source name", "mylongvar", "extremelylongvalue"),
     ]
     mydata = Dataset(tuples)
     results = Sums().run(mydata)
