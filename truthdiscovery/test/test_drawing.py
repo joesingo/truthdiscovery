@@ -8,6 +8,7 @@ from truthdiscovery.visual.draw import (
     GraphRenderer,
     MatrixDatasetGraphRenderer,
     NodeType,
+    PlainColourScheme,
     ResultsGradientColourScheme
 )
 from truthdiscovery.test.utils import is_valid_png
@@ -157,3 +158,19 @@ class TestDrawing:
 
         assert rend1.get_claim_label(0, 1) == "v0=7"
         assert rend2.get_claim_label(0, 1) == "v1=7"
+
+    def test_plain_colour_scheme(self):
+        cs = PlainColourScheme()
+        source = cs.get_node_colour(NodeType.SOURCE, 0)
+        var = cs.get_node_colour(NodeType.VARIABLE, 0)
+        claim = cs.get_node_colour(NodeType.CLAIM, 0, 0)
+        # All nodes types should have the same colours in the plain theme
+        assert source == var == claim
+        # Label and border should be the same colour
+        assert source[1] == source[2]
+        # Edges should be the same colour as node borders
+        edge = cs.get_edge_colour()
+        assert edge == source[2]
+        # Background should be the same as node interiors
+        background = cs.get_background_colour()
+        assert background == source[0]

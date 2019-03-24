@@ -3,5 +3,6 @@ from truthdiscovery.visual.draw import (
     GraphRenderer,
     MatrixDatasetGraphRenderer,
     NodeType,
+    PlainColourScheme,
     ResultsGradientColourScheme
 )

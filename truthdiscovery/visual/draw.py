@@ -100,6 +100,17 @@ class ResultsGradientColourScheme(GraphColourScheme):
         return node_colour, label_colour, default_border
 
 
+class PlainColourScheme(GraphColourScheme):
+    """
+    Plain black and white colour scheme
+    """
+    def get_node_colour(self, *args):
+        return (1, 1, 1), (0, 0, 0), (0, 0, 0)
+
+    def get_edge_colour(self):
+        return (0, 0, 0)
+
+
 class GraphRenderer:
     """
     Create an image that shows a graph representation of a truth-discovery

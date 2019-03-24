@@ -5,14 +5,22 @@ import sys
 
 from truthdiscovery.algorithm import Sums
 from truthdiscovery.input import Dataset
-from truthdiscovery.visual import GraphRenderer, ResultsGradientColourScheme
+from truthdiscovery.visual import (
+    GraphRenderer,
+    PlainColourScheme,
+    ResultsGradientColourScheme
+)
 
 
 if __name__ == "__main__":
-    try:
+    plain = False
+    if len(sys.argv) == 3 and sys.argv[1] == "--plain":
+        outpath = sys.argv[2]
+        plain = True
+    elif len(sys.argv) == 2:
         outpath = sys.argv[1]
-    except IndexError:
-        print("usage: {} DEST".format(sys.argv[0]), file=sys.stderr)
+    else:
+        print("usage: {} [--plain] DEST".format(sys.argv[0]), file=sys.stderr)
         sys.exit(1)
 
     tuples = [
@@ -30,7 +38,9 @@ if __name__ == "__main__":
     mydata = Dataset(tuples)
     results = Sums().run(mydata)
 
-    colour_scheme = ResultsGradientColourScheme(results)
+    colour_scheme = (
+        PlainColourScheme() if plain else ResultsGradientColourScheme(results)
+    )
     renderer = GraphRenderer(
         mydata, width=1000, height=700, colours=colour_scheme
     )
