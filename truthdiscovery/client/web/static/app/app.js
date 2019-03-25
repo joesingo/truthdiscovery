@@ -24,7 +24,8 @@ angular.
                 "matrix": matrix,
             };
             if (compare_previous && this.previous_results !== null) {
-                params.previous_results = this.previous_results;
+                params.previous_results = JSON.stringify(this.previous_results);
+
             }
             if (get_graph) {
                 params.get_graph = "yes-please";
@@ -44,7 +45,12 @@ angular.
                 self.state = "has_results";
                 // Save 'previous' results now, so that we may change structure
                 // of self.results without affecting data sent to server
-                self.previous_results = JSON.stringify(self.results);
+                self.previous_results = JSON.parse(JSON.stringify(self.results));
+
+                // Remove graph from previous results, if present
+                if ("graph" in self.previous_results) {
+                    delete self.previous_results.graph;
+                }
 
                 // Calculate and store the maximum trust and belief scores, so
                 // that they can be highlighted in the results
