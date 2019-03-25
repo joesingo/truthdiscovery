@@ -8,8 +8,17 @@ from truthdiscovery.client.base import BaseClient
 from truthdiscovery.input import MatrixDataset
 from truthdiscovery.output import Result, ResultDiff
 from truthdiscovery.graphs import (
-    MatrixDatasetGraphRenderer, ResultsGradientColourScheme
+    Animator, MatrixDatasetGraphRenderer, ResultsGradientColourScheme
 )
+
+
+class Base64BytesIO(BytesIO):
+    """
+    In-memory bytes buffer that can be converted to a base64 encoded string
+    """
+    def get_base64(self):
+        self.seek(0)
+        return base64.b64encode(self.read()).decode()
 
 
 class route:
@@ -85,6 +94,16 @@ class WebClient(BaseClient):
         except KeyError as ex:
             raise ValueError("required field {} missing".format(ex))
 
+    def get_graph_renderer(self, colours=None):
+        """
+        :param colours: (optional) :any:`GraphColourScheme` (or sub-class)
+                        instance
+        :return: a :any:`GraphRenderer` instance for graphs and animations
+        """
+        return MatrixDatasetGraphRenderer(
+            width=800, height=600, zero_indexed=False, colours=colours
+        )
+
     @route("/")
     def home_page(self):
         # Map algorithm labels to display name
@@ -98,9 +117,15 @@ class WebClient(BaseClient):
     @route("/run/", methods=["GET"])
     def run(self):
         """
-        Run an algorithm on a user-supplied dataset. Required HTTP parameters
-        are 'algorithm' and 'matrix'; optional parameters are 'parameters',
-        'previous_results' and 'get_graph'.
+        Run an algorithm on a user-supplied dataset. Required HTTP parameters:
+        * 'algorithm'
+        * 'matrix'
+
+        Optional parameters:
+        * 'parameters'
+        * 'previous_results'
+        * 'get_graph'
+        * 'get_animation'.
 
         Responses are JSON objects of the form
         ``{"ok": True, "data": ...}``
@@ -127,17 +152,24 @@ class WebClient(BaseClient):
         results = alg.run(dataset)
         output = self.get_output_obj(results)
 
-        # Construct a graph of dataset if requested
+        # Construct a graph and/or animation if requested
+        imagery = {}
         if "get_graph" in request.args:
-            colour_scheme = ResultsGradientColourScheme(results)
-            renderer = MatrixDatasetGraphRenderer(
-                width=800, height=600, colours=colour_scheme,
-                zero_indexed=False
-            )
-            img_buffer = BytesIO()
+            cs = ResultsGradientColourScheme(results)
+            renderer = self.get_graph_renderer(colours=cs)
+            img_buffer = Base64BytesIO()
             renderer.draw(dataset, img_buffer)
-            img_buffer.seek(0)
-            output["graph"] = base64.b64encode(img_buffer.read()).decode()
+            imagery["graph"] = img_buffer.get_base64()
+
+        if "get_animation" in request.args:
+            renderer = self.get_graph_renderer()
+            animator = Animator(renderer=renderer)
+            img_buffer = Base64BytesIO()
+            animator.animate(img_buffer, alg, dataset)
+            imagery["animation"] = img_buffer.get_base64()
+
+        if imagery:
+            output["imagery"] = imagery
 
         # Include diff between previous results if available
         prev_results = request.args.get("previous_results")

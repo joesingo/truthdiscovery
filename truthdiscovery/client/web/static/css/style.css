@@ -52,3 +52,7 @@ table.striped tbody tr:nth-of-type(odd) {
 td:hover .delete, th:hover .delete {
     visibility: visible;
 }
+
+.imagery-container figure {
+    margin-bottom: 3em;
+}

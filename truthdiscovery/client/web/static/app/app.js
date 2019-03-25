@@ -17,7 +17,7 @@ angular.
         /*
          * Make the HTTP request to get results of an algorithm
          */
-        this.getResults = function(algorithm, matrix, compare_previous, get_graph) {
+        this.getResults = function(algorithm, matrix, compare_previous, imagery) {
             // Build parameters to send to server
             var params = {
                 "algorithm": algorithm,
@@ -27,8 +27,11 @@ angular.
                 params.previous_results = JSON.stringify(this.previous_results);
 
             }
-            if (get_graph) {
+            if (imagery.graph) {
                 params.get_graph = "yes-please";
+            }
+            if (imagery.animation) {
+                params.get_animation = "an-animation-would-be-splendid";
             }
 
             this.state = "loading";
@@ -47,9 +50,9 @@ angular.
                 // of self.results without affecting data sent to server
                 self.previous_results = JSON.parse(JSON.stringify(self.results));
 
-                // Remove graph from previous results, if present
-                if ("graph" in self.previous_results) {
-                    delete self.previous_results.graph;
+                // Remove imagery from previous results, if present
+                if ("imagery" in self.previous_results) {
+                    delete self.previous_results.imagery;
                 }
 
                 // Calculate and store the maximum trust and belief scores, so
@@ -106,7 +109,10 @@ angular.
             this.error = null;  // error message to show underneath form
             this.algorithm = "sums";
             this.compare_results = false;
-            this.get_graph = true;
+            this.imagery = {
+                "graph": true,
+                "animation": false
+            };
 
             // Initialise matrix
             var entries = [
@@ -164,7 +170,7 @@ angular.
             this.run = function() {
                 var promise = tdService.getResults(
                     self.algorithm, self.matrix.asCSV(), self.compare_results,
-                    self.get_graph
+                    self.imagery
                 );
                 // Cancel errors while we wait for response
                 self.error = null;

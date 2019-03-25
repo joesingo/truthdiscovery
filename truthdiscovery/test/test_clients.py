@@ -15,7 +15,7 @@ from truthdiscovery.utils import (
     DistanceMeasures,
     FixedIterator
 )
-from truthdiscovery.test.utils import is_valid_png
+from truthdiscovery.test.utils import is_valid_png, is_valid_gif
 
 
 class ClientTestsBase:
@@ -666,7 +666,7 @@ class TestWebClient(ClientTestsBase):
         resp1 = test_client.get("/run/", query_string=no_graph)
         assert resp1.status_code == 200
         assert "data" in resp1.json
-        assert "graph" not in resp1.json["data"]
+        assert "imagery" not in resp1.json["data"]
 
         with_graph = {
             "matrix": dataset.to_csv(),
@@ -675,8 +675,33 @@ class TestWebClient(ClientTestsBase):
         }
         resp2 = test_client.get("/run/", query_string=with_graph)
         assert resp2.status_code == 200
-        assert "graph" in resp2.json["data"]
-        b64_img = resp2.json["data"]["graph"]
+        assert "imagery" in resp2.json["data"]
+        assert "graph" in resp2.json["data"]["imagery"]
+        b64_img = resp2.json["data"]["imagery"]["graph"]
         # Check the image is valid base64, and that the data is a valid PNG
         bin_data = base64.b64decode(b64_img)
         assert is_valid_png(bin_data)
+
+    def test_get_b64_animated_gif(self, test_client, dataset):
+        no_animation = {
+            "matrix": dataset.to_csv(),
+            "algorithm": "sums"
+        }
+        resp1 = test_client.get("/run/", query_string=no_animation)
+        assert resp1.status_code == 200
+        assert "data" in resp1.json
+        assert "imagery" not in resp1.json["data"]
+
+        with_animation = {
+            "matrix": dataset.to_csv(),
+            "algorithm": "sums",
+            "parameters": "iterator=fixed-4",
+            "get_animation": True
+        }
+        resp2 = test_client.get("/run/", query_string=with_animation)
+        assert resp2.status_code == 200
+        assert "imagery" in resp2.json["data"]
+        assert "animation" in resp2.json["data"]["imagery"]
+        b64_img = resp2.json["data"]["imagery"]["animation"]
+        bin_data = base64.b64decode(b64_img)
+        assert is_valid_gif(bin_data)

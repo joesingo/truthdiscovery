@@ -85,15 +85,32 @@
         </table>
     </div>
 
-    <div ng-show="$ctrl.service.results.graph">
-        <h3>Graph respresentation</h3>
+    <div ng-show="$ctrl.service.results.imagery" class="imagery-container">
+        <h3>Visualisation</h3>
         <p class="text-gray">
             Light and dark colours represent low and high trust/belief scores
             respectively.
         </p>
-        <img ng-src="data:image/png;base64, {{ $ctrl.service.results.graph }}"
-             class="img-responsive img-fit-contain"
-             style="margin: auto;"
-             alt="Graph respresentation of the dataset" />
+        <!-- Static graph -->
+        <figure ng-show="$ctrl.service.results.imagery.graph" class="figure">
+            <img ng-src="data:image/png;base64,{{ $ctrl.service.results.imagery.graph }}"
+                 class="img-responsive img-fit-contain"
+                 style="margin: auto;"
+                 alt="Graph respresentation of final results" />
+            <figcaption class="figure-caption text-center">
+                Final results
+            </figcaption>
+        </figure>
+
+        <!-- Animation -->
+        <figure ng-show="$ctrl.service.results.imagery.animation" class="figure">
+            <img ng-src="data:image/gif;base64,{{ $ctrl.service.results.imagery.animation }}"
+                 class="img-responsive img-fit-contain"
+                 style="margin: auto;"
+                 alt="Animation showing results as algorithm iterates" />
+            <figcaption class="figure-caption text-center">
+                Animation showing results as algorithm iterates
+            </figcaption>
+        </figure>
     </div>
 </div>
