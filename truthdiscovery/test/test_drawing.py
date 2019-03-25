@@ -1,20 +1,22 @@
 from io import BytesIO
+import imageio
 import pytest
 
 from truthdiscovery.algorithm import Sums
 from truthdiscovery.input import Dataset, MatrixDataset
 from truthdiscovery.output import Result
-from truthdiscovery.graphs.draw import (
+from truthdiscovery.graphs import (
+    Animator,
     GraphRenderer,
     MatrixDatasetGraphRenderer,
     NodeType,
     PlainColourScheme,
     ResultsGradientColourScheme
 )
-from truthdiscovery.test.utils import is_valid_png
+from truthdiscovery.test.utils import is_valid_png, is_valid_gif
 
 
-class TestDrawing:
+class BaseTest:
     @pytest.fixture
     def dataset(self):
         return Dataset((
@@ -26,6 +28,8 @@ class TestDrawing:
             ("s4", "x", 4),
         ))
 
+
+class TestDrawing(BaseTest):
     @pytest.fixture
     def mock_renderer_cls(self):
         class Mock(GraphRenderer):
@@ -178,3 +182,37 @@ class TestDrawing:
         # Background should be the same as node interiors
         background = cs.get_background_colour()
         assert background == source[0]
+
+
+class TestAnimations(BaseTest):
+    def test_valid_gif(self, dataset):
+        w, h = 123, 78
+        renderer = GraphRenderer(width=w, height=h)
+        animator = Animator(renderer=renderer)
+        alg = Sums()
+        buf = BytesIO()
+        animator.animate(buf, alg, dataset)
+        buf.seek(0)
+        print(buf.read(8))
+        buf.seek(0)
+        assert is_valid_gif(buf)
+
+        # Check dimensions are as expected
+        buf.seek(0)
+        img_data = imageio.imread(buf)
+        got_w, got_h, _ = img_data.shape
+        assert (got_h, got_w) == (w, h)
+
+    def test_renderer(self):
+        # Custom renderer should be used if provided
+        custom_renderer = GraphRenderer(font_size=10000)
+        anim = Animator(renderer=custom_renderer)
+        assert anim.renderer == custom_renderer
+
+        # Otherwise a default renderer
+        anim2 = Animator()
+        assert isinstance(anim2.renderer, GraphRenderer)
+
+    def test_fps(self):
+        anim = Animator(frame_duration=1 / 3)
+        assert anim.fps == 3

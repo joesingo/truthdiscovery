@@ -1,12 +1,18 @@
-def is_valid_png(data):
+def _is_valid_file_type(data, signature):
     """
-    Return true if the first 8 bytes of the data match the special signature
-    for PNG files.
-
     :param data: file-like object or bytes
+    :param signature: expected signature
     """
-    signature = b"\x89\x50\x4E\x47\x0D\x0A\x1A\x0A"
+    size = len(signature)
     try:
-        return data.read(8) == signature
+        return data.read(size) == signature
     except AttributeError:
-        return data[:8] == signature
+        return data[:size] == signature
+
+
+def is_valid_png(data):
+    return _is_valid_file_type(data, b"\x89\x50\x4E\x47\x0D\x0A\x1A\x0A")
+
+
+def is_valid_gif(data):
+    return _is_valid_file_type(data, b"GIF89a")

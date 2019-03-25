@@ -4,6 +4,14 @@ truthdiscovery.graphs package
 Submodules
 ----------
 
+truthdiscovery.graphs.animation module
+--------------------------------------
+
+.. automodule:: truthdiscovery.graphs.animation
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 truthdiscovery.graphs.draw module
 ---------------------------------
 

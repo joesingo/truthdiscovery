@@ -8,6 +8,7 @@ Welcome to truthdiscovery's documentation!
    input
    algorithms
    output
+   visual
 
 Overview
 --------

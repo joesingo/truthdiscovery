@@ -36,10 +36,22 @@ class GraphColourScheme:
         return node_colour, label_colour, border_colour
 
     def get_background_colour(self):
+        """
+        Return background colour for the graph
+        """
         return (1, 1, 1)  # white
 
     def get_edge_colour(self):
+        """
+        Return colour for the edges between nodes
+        """
         return (0.5, 0.5, 0.5)  # grey
+
+    def get_animation_progress_colour(self):
+        """
+        Return colour for the bar displaying animation progress
+        """
+        return (0, 0, 0)  # black
 
 
 class ResultsGradientColourScheme(GraphColourScheme):
@@ -191,12 +203,15 @@ class GraphRenderer:
             val=self.dataset.val_hashes.inverse[val_hash]
         )
 
-    def draw(self, dataset, outfile):
+    def draw(self, dataset, outfile, animation_progress=None):
         """
         Draw the dataset as a graph and save as a PNG
 
-        :param dataset: a :any:`Dataset` object
-        :param outfile: file object to write to
+        :param dataset:            a :any:`Dataset` object
+        :param outfile:            file object to write to
+        :param animation_progress: percentage animation progress in [0, 1] to
+                                   display how far through an animation we are
+                                   (None if not animating)
         """
         self.draw_background()
         self.dataset = dataset
@@ -255,6 +270,10 @@ class GraphRenderer:
             coords = self.get_source_coords(s_id)
             self.draw_node(NodeType.SOURCE, label, coords, source)
 
+        # Draw animation progress bar if required
+        if animation_progress is not None:
+            self.draw_animation_progress(animation_progress)
+
         self.write_to_file(outfile)
 
     def write_to_file(self, outfile):
@@ -290,6 +309,7 @@ class GraphRenderer:
         self.ctx.fill()
 
         # Label
+        label = str(label)
         ext = self.ctx.text_extents(label)
         # Make sure long source or var names do not run off the screen
         label_lhs = max(0, min(self.width - ext.width, x - ext.width / 2))
@@ -322,6 +342,19 @@ class GraphRenderer:
         self.ctx.move_to(*start)
         self.ctx.line_to(*end)
         self.ctx.stroke()
+
+    def draw_animation_progress(self, progress):
+        """
+        Draw a bar across the bottom of the image to indicate progress through
+        an animation
+
+        :param progress: number in [0, 1] indicating width of the bar as a
+                         fraction of total image width
+        """
+        self.ctx.set_source_rgb(*self.colours.get_animation_progress_colour())
+        size = 5
+        self.ctx.rectangle(0, self.height - size, self.width * progress, size)
+        self.ctx.fill()
 
 
 class MatrixDatasetGraphRenderer(GraphRenderer):
