@@ -12,6 +12,7 @@ cycler==0.10.0
 docutils==0.14
 Flask==1.0.2
 idna==2.8
+imageio==2.5.0
 imagesize==1.1.0
 isort==4.3.4
 itsdangerous==1.1.0
@@ -24,6 +25,7 @@ mccabe==0.6.1
 more-itertools==5.0.0
 numpy==1.16.1
 packaging==19.0
+Pillow==5.4.1
 pluggy==0.8.1
 py==1.7.0
 pycairo==1.18.0
