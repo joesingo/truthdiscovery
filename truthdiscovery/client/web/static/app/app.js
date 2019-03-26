@@ -114,19 +114,60 @@ angular.
                 "animation": false
             };
 
-            // Initialise matrix
-            var entries = [
-                [1, 2, null],
-                [null, 3, 5],
-                [2, 2, 4],
-                [1, null, 3]
-            ];
-            this.matrix = new Matrix(entries);
+            this.preset_datasets = {
+                "standard": {
+                    "name": "Typical truth-discovery dataset",
+                    "entries": [
+                        [1, null, 3, 4],
+                        [2, 2, null, null],
+                        [null, null, 7, null],
+                        [1, 2, 5, null]
+                    ],
+                    "description": "A typical dataset with a mixture of " +
+                                   "agreements, disagreements and missing " +
+                                   "values"
+                },
+                "all_but_one_agree": {
+                    "name": "All agree but one",
+                    "entries": [
+                        [1, 2, 3, 4],
+                        [1, 2, 3, 4],
+                        [1, 2, 3, 4],
+                        [9, 8, 7, 6]
+                    ],
+                    "description": "Dataset where all sources but one agree " +
+                                   "on each variable"
+                },
+                "indep_groups": {
+                    "name": "Independent groups",
+                    "entries": [
+                        [1, 2, null, null],
+                        [1, 3, null, null],
+                        [null, null, 11, 12],
+                        [null, null, 10, null],
+                    ],
+                    "description": "Dataset where sources and variables are " +
+                                   "split into two independent groups"
+                },
+                "no_agreement": {
+                    "name": "No agreement",
+                    "entries": [
+                        [null, 2, 3],
+                        [4, 5, null],
+                        [null, 8, 9],
+                        [10, 11, 12]
+                    ],
+                    "description": "Dataset where no sources agree with each other"
+                }
+            };
+            this.selected_preset = Object.keys(this.preset_datasets)[0];
+            this.matrix = null;  // Set after method definitions
+
             this.load_csv = {
                 "dialog_open": false,
                 "error": "",
                 "textarea": ""
-            }
+            };
 
             this.algorithm_labels = DATA.algorithm_labels;
 
@@ -167,6 +208,28 @@ angular.
                 }
             };
 
+            /*
+             * Update the matrix to the preset with the given label
+             */
+            this.loadPresetDataset = function(label) {
+                if (!label) {
+                    return;
+                }
+                // Copy entries, so that modifying the matrix does not change
+                // the presets
+                var entries = [];
+                var preset_entries = self.preset_datasets[label].entries;
+                for (var i=0; i<preset_entries.length; i++) {
+                    var row = [];
+                    for (var j=0; j<preset_entries[i].length; j++) {
+                        row.push(preset_entries[i][j]);
+                    }
+                    entries.push(row);
+                }
+                self.matrix = new Matrix(entries);
+                self.selected_preset = "";
+            };
+
             this.run = function() {
                 var promise = tdService.getResults(
                     self.algorithm, self.matrix.asCSV(), self.compare_results,
@@ -187,6 +250,8 @@ angular.
                     }
                 });
             };
+
+            this.loadPresetDataset(this.selected_preset);
         }
     });
 

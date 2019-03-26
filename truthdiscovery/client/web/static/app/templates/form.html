@@ -74,6 +74,28 @@
                 <button class="btn" type="button" ng-click="$ctrl.toggleCsvDialog()">
                     Load from CSV
                 </button>
+
+                <div class="divider text-center" data-content="OR"></div>
+
+                <!-- Preset dataset selection -->
+                <label class="form-label" for="preset-dataset">
+                    Choose a preset dataset:
+                </label>
+                <select class="form-select" id="preset-dataset" style="width: auto;"
+                        ng-model="$ctrl.selected_preset">
+                    <option value=""></option>
+                    <option ng-repeat="(label, obj) in $ctrl.preset_datasets"
+                            value="{{ label }}">
+                        {{ obj.name }}
+                    </option>
+                </select>
+                <button type="button" class="btn btn-primary"
+                        ng-click="$ctrl.loadPresetDataset($ctrl.selected_preset)">
+                    Load
+                </button>
+                <p class="text-gray">
+                    {{ $ctrl.preset_datasets[$ctrl.selected_preset].description }}
+                </p>
             </div>
         </div>
 
