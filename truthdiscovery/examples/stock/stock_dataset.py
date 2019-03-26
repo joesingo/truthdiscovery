@@ -83,6 +83,9 @@ def main():
     dataset = StockDataset(data_path)
     end = time.time()
     print("  loaded in {:.3f} seconds".format(end - start))
+    print("dataset has {} sources, {} claims, {} variables".format(
+        dataset.num_sources, dataset.num_claims, dataset.num_variables
+    ))
 
     print("loading true values...")
     start = time.time()
