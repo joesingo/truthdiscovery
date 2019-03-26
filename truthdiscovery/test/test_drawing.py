@@ -150,7 +150,7 @@ class TestDrawing(BaseTest):
 
     def test_matrix_renderer(self):
         buf = BytesIO()
-        buf.write(b",5,7\n1,2,3")
+        buf.write(b",5,7\n,,\n1,2,3")
         buf.seek(0)
         dataset = MatrixDataset.from_csv(buf)
         rend1 = MatrixDatasetGraphRenderer()
@@ -161,11 +161,16 @@ class TestDrawing(BaseTest):
 
         assert rend1.get_source_label(0) == "s0"
         assert rend2.get_source_label(0) == "s1"
-        assert rend1.get_var_label(0) == "v0"
-        assert rend2.get_var_label(0) == "v1"
+        assert rend1.get_var_label(0) == "v1"
+        assert rend2.get_var_label(0) == "v2"
 
-        assert rend1.get_claim_label(0, 1) == "v0=7"
-        assert rend2.get_claim_label(0, 1) == "v1=7"
+        # Note that source 1 (in 0-index terms) makes no claims: ID 1 should
+        # therefore be source 2 (in 0-index terms)
+        assert rend1.get_source_label(1) == "s2"
+        assert rend2.get_source_label(1) == "s3"
+
+        assert rend1.get_claim_label(0, 1) == "v1=7"
+        assert rend2.get_claim_label(0, 1) == "v2=7"
 
     def test_plain_colour_scheme(self):
         cs = PlainColourScheme()

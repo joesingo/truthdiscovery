@@ -7,6 +7,7 @@ import sys
 
 from truthdiscovery import Dataset, GraphRenderer, Sums, PlainColourScheme
 
+
 class ReportRenderer(GraphRenderer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -17,6 +18,7 @@ class ReportRenderer(GraphRenderer):
 
     def get_claim_label(self, _var_id, val_hash):
         return self.dataset.val_hashes.inverse[val_hash]
+
 
 def example(func):
     """

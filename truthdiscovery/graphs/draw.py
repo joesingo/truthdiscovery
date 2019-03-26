@@ -366,16 +366,18 @@ class MatrixDatasetGraphRenderer(GraphRenderer):
         self.zero_indexed = zero_indexed
         super().__init__(*args, **kwargs)
 
-    def format_id(self, int_id):
+    def format_label(self, label):
         if not self.zero_indexed:
-            int_id += 1
-        return str(int_id)
+            label += 1
+        return str(label)
 
     def get_source_label(self, source_id):
-        return "s{}".format(self.format_id(source_id))
+        label = super().get_source_label(source_id)
+        return "s{}".format(self.format_label(label))
 
     def get_var_label(self, var_id):
-        return "v{}".format(self.format_id(var_id))
+        label = super().get_var_label(var_id)
+        return "v{}".format(self.format_label(label))
 
     def get_claim_label(self, var_id, val_hash):
         val = str(self.dataset.val_hashes.inverse[val_hash])
