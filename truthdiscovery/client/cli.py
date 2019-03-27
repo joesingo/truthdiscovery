@@ -8,6 +8,7 @@ import numpy as np
 import yaml
 
 from truthdiscovery.client.base import BaseClient, OutputFields
+from truthdiscovery.client.web import run_debug_server
 from truthdiscovery.input import MatrixDataset, SupervisedData, SyntheticData
 from truthdiscovery.graphs import MatrixDatasetGraphRenderer
 
@@ -231,6 +232,16 @@ class CommandLineClient(BaseClient):
             help="Start source/variable numbering from 1 instead of 0",
             action="store_true"
         )
+        # HTTP server sub-parser
+        httpd_parser = subparsers.add_parser(
+            "httpd",
+            help=("Start the debug Flask server for a web-interface to the "
+                  "library"),
+            description="""
+                Start the debug Flask server for the HTTP API and web-interface
+                to the truth-discovery library
+            """,
+        )
         return parser
 
     def run(self, cli_args):
@@ -243,6 +254,8 @@ class CommandLineClient(BaseClient):
             self.generate_synthetic(args, parser)
         elif args.command == "graph":
             self.generate_graph(args, parser)
+        elif args.command == "httpd":  # pragma: no cover
+            run_debug_server()
         else:
             parser.print_help()
 
