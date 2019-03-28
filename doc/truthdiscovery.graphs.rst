@@ -12,6 +12,14 @@ truthdiscovery.graphs.animation module
     :undoc-members:
     :show-inheritance:
 
+truthdiscovery.graphs.colours module
+------------------------------------
+
+.. automodule:: truthdiscovery.graphs.colours
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 truthdiscovery.graphs.draw module
 ---------------------------------
 

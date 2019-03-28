@@ -1,9 +1,11 @@
 from truthdiscovery.graphs.animation import Animator
-from truthdiscovery.graphs.draw import (
+from truthdiscovery.graphs.colours import (
     GraphColourScheme,
-    GraphRenderer,
-    MatrixDatasetGraphRenderer,
     NodeType,
     PlainColourScheme,
     ResultsGradientColourScheme
+)
+from truthdiscovery.graphs.draw import (
+    GraphRenderer,
+    MatrixDatasetGraphRenderer,
 )

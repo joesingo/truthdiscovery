@@ -2,9 +2,8 @@ from io import BytesIO
 
 import imageio
 
-from truthdiscovery.graphs.draw import (
-    GraphRenderer, ResultsGradientColourScheme
-)
+from truthdiscovery.graphs.colours import ResultsGradientColourScheme
+from truthdiscovery.graphs.draw import GraphRenderer
 
 
 class Animator:

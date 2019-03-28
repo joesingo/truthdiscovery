@@ -28,6 +28,14 @@ truthdiscovery.examples.drawing module
     :undoc-members:
     :show-inheritance:
 
+truthdiscovery.examples.report\_figures module
+----------------------------------------------
+
+.. automodule:: truthdiscovery.examples.report_figures
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 truthdiscovery.examples.sample\_run module
 ------------------------------------------
 
