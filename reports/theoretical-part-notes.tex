@@ -58,7 +58,7 @@
 \newcommand{\Nat}{\mathbb{N}}
 % Source and fact orderings: less-equal, less-than, greater-equal, equal
 \newcommand{\sle}{\sqsubseteq}
-\newcommand{\slt}{<}
+\newcommand{\slt}{\sqsubset}
 \newcommand{\sge}{\ge}
 \newcommand{\seq}{\simeq}
 \newcommand{\fle}{\preceq}
@@ -940,7 +940,7 @@ a fixed threshold. This is of course only a heuristic, since it is not possible
 to determine whether a sequence converges by considering only finitely many
 terms. Moreover even if the difference between subsequent trust/belief scores
 were to become \emph{arbitrarily} small (i.e. smaller than \emph{any}
-threshold, one still cannot guarantee convergence\footnotemark. This means
+threshold), one still cannot guarantee convergence\footnotemark. This means
 that it may not be trivial to define a real-world algorithm as a
 truth-discovery operator, since it may not be clear whether the trust and
 belief scores converge in all cases.
@@ -952,7 +952,7 @@ belief scores converge in all cases.
     \rightarrow 0$, yet the series does not converge.
 }
 
-To check whether an iterative operator satisfies the axioms of section
+To check whether a convergent iterative operator satisfies the axioms of section
 \ref{sec:axioms}, it will be convenient to have sufficient conditions for some
 of the axioms that refer to the numeric trust and belief scores directly.
 
