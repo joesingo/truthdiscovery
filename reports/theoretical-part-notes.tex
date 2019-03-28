@@ -1051,7 +1051,11 @@ non-dictatorship (axiom \ref{axiom:non_dict}), unanimity (axiom
 \ref{axiom:unanimity}) and groundedness (axiom \ref{axiom:groundedness})
 \end{theorem}
 
-\todo{independence of irrelevant stuff?}
+\begin{theorem}
+\label{theorem:sums_non_indep}
+Sums does not satisfy Independence of Irrelevant Stuff (axiom
+\ref{axiom:indep}).
+\end{theorem}
 
 We conjecture that Sums is indeed convergent for any input network. Indeed, it
 is easy to see that Sums closely related to Hubs and Authorities
@@ -1382,6 +1386,129 @@ using the fact that $\hat{t}_n(s) \ge 0$. Therefore $\max_{y \in
 groundedness.
 
 \end{enumerate}
+
+\end{proof}
+
+\subsection{Proof of theorem \ref{theorem:sums_non_indep}}
+
+{
+    \centering
+    \includegraphics[width=25em]{sums_non_independence}
+    \captionof{figure}{
+        Network containing the network in figure
+        \ref{img:sums_not_all_equal_trust} as a connected component, but in
+        which Sums does not give the same ranking of the sources in this
+        component.
+    }
+    \label{img:sums_non_indep}
+}
+
+\begin{proof}
+Let $N_1$ be the network shown in figure \ref{img:sums_not_all_equal_trust},
+and $N_2$ be the network shown in figure \ref{img:sums_non_indep}. With
+$G=N_1$, $G$ is a connected component of both networks. We have already shown
+in the proof of theorem \ref{theorem:sums_axioms} that $t_{N_1}^*(A) = 1$ and
+$t_{N_1}^*(B) = t_{N_1}^*(C) = \frac{1}{2}$, so in particular $A$ is ranked
+strictly above $B$ in $N_1$. To prove Sums does not satisfy independence, we
+will show that $A$ and $B$ are in fact ranked \emph{equally} in $N_2$; in
+particular, we shall have $A \sle_{N_2}^{I_{sums}} B$ but $A
+\not\sle_{N_1}^{I_{sums}} B$.
+
+As before, write $a_n$ for $t_{N_2}^n(A)$ and similar for the other nodes. We
+claim that, for $n > 1$:
+\[
+    a_n = \frac{2}{3^{n - 1}}, \quad
+    b_n = c_n = \frac{1}{3^{n - 1}}, \quad
+    s_n = t_n = u_n = 1
+\]
+\[
+    d_n = e_n = \frac{1}{3^{n - 1}}, \quad
+    v_n = w_n = x_n = 1
+\]
+The base case for induction is $n = 2$. We have
+\[
+    \hat{a}_2 = d_1 + e_1 = 1, \quad
+    \hat{b}_2 = d_1 = \frac{1}{2}, \quad
+    \hat{c}_2 = e_1 = \frac{1}{2}, \quad
+\]
+\[
+    \hat{s}_2 = \hat{t}_2 = \hat{u}_2 = v_1 + w_1 + x_1
+    = \frac{3}{2}
+\]
+\[
+    \hat{d}_2 = \hat{a}_2 + \hat{b}_2 = \frac{3}{2}, \quad
+    \hat{e}_2 = \hat{a}_2 + \hat{c}_2 = \frac{3}{2}
+\]
+\[
+    \hat{v}_2 = \hat{w}_2 = \hat{x}_2 = \hat{s}_2 + \hat{t}_2 + \hat{u}_2
+    = \frac{9}{2}
+\]
+The maximum trust score is $\frac{3}{2}$ and the maximum belief score is
+$\frac{9}{2}$, so
+\[
+    a_2 = \frac{2}{3}, \quad
+    b_2 = \frac{1}{3}, \quad
+    c_2 = \frac{1}{3}, \quad
+    s_2 = 1, \quad
+    t_2 = 1, \quad
+    u_2 = 1
+\]
+\[
+    d_2 = \frac{1}{3}, \quad
+    e_2 = \frac{1}{3}, \quad
+    v_2 = w_2 = x_2 = 1
+\]
+Thus the claim holds for $n = 2$. Now suppose that the claim holds for the $(n
+- 1)$-th iteration. We have
+\[
+    \hat{a}_n = d_{n-1} + e_{n-1}
+              = \frac{2}{3^{n-2}}, \quad
+    \hat{b}_n = d_{n-1}
+              = \frac{1}{3^{n-2}}, \quad
+    \hat{c}_n = e_{n-1}
+              = \frac{1}{3^{n-2}}
+\]
+\[
+    \hat{s}_n = \hat{t}_n = \hat{u}_n
+    = v_{n-1} + w_{n-1} + x_{n-1}
+    = 3
+\]
+\[
+    \hat{d}_n = \hat{a}_n + \hat{b}_n
+              = \frac{3}{3^{n - 2}}, \quad
+    \hat{e}_n = \hat{a}_n + \hat{c}_n
+              = \frac{3}{3^{n - 2}}
+\]
+\[
+    \hat{v}_n = \hat{w}_n = \hat{x}_n = 9
+\]
+The maximum trust and belief scores are 3 and 9 respectively, so we get
+\[
+    a_n = \frac{2}{3^{n-2}}\cdot\frac{1}{3}
+        = \frac{2}{3^{n-1}}, \quad
+    b_n = \frac{1}{3^{n-2}}\cdot\frac{1}{3}
+        = \frac{1}{3^{n-1}}, \quad
+    c_n = \frac{1}{3^{n-2}}\cdot\frac{1}{3}
+        = \frac{1}{3^{n-1}}, \quad
+\]
+\[
+    s_n = t_n = u_n = 1
+\]
+\[
+    d_n = \frac{3}{3^{n-2}}\cdot\frac{1}{9}
+        = \frac{1}{3^{n-1}}, \quad
+    e_n = \frac{3}{3^{n-2}}\cdot\frac{1}{9}
+        = \frac{1}{3^{n-1}}, \quad
+\]
+\[
+    v_n = w_n = x_n = 1
+\]
+as required.
+
+Finally, this means
+\[ t_{N_2}^*(A) = \lim_{n \rightarrow \infty}\frac{2}{3^{N-1}} = 0 \]
+\[ t_{N_2}^*(B) = \lim_{n \rightarrow \infty}\frac{1}{3^{N-1}} = 0 \]
+and $A \seq_{N_2}^{I_{sums}} B$, which completes the proof.
 
 \end{proof}
 
