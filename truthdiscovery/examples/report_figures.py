@@ -5,7 +5,14 @@ import inspect
 import os
 import sys
 
-from truthdiscovery import Dataset, GraphRenderer, Sums, PlainColourScheme
+from truthdiscovery import (
+    ConvergenceIterator,
+    Dataset,
+    DistanceMeasures,
+    GraphRenderer,
+    PlainColourScheme,
+    Sums
+)
 
 
 class ReportRenderer(GraphRenderer):
@@ -48,6 +55,29 @@ class ExampleFigureCreator:
             ("C", "obj2", "E")
         ))
         renderer = ReportRenderer(node_size=0.5, font_size=30)
+        renderer.draw(dataset, outfile)
+
+    @example
+    def sums_non_independence(self, outfile):
+        dataset = Dataset((
+            ("A", "obj1", "D"),
+            ("A", "obj2", "E"),
+            ("B", "obj1", "D"),
+            ("C", "obj2", "E"),
+
+            ("S", "obj3", "V"),
+            ("S", "obj4", "W"),
+            ("S", "obj5", "X"),
+
+            ("T", "obj3", "V"),
+            ("T", "obj4", "W"),
+            ("T", "obj5", "X"),
+
+            ("U", "obj3", "V"),
+            ("U", "obj4", "W"),
+            ("U", "obj5", "X"),
+        ))
+        renderer = ReportRenderer(node_size=0.8, font_size=30)
         renderer.draw(dataset, outfile)
 
 
