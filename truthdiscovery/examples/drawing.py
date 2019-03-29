@@ -45,4 +45,4 @@ if __name__ == "__main__":
         width=1000, height=700, colours=colour_scheme
     )
     with open(outpath, "wb") as imgfile:
-        renderer.draw(mydata, imgfile)
+        renderer.render(mydata, imgfile)

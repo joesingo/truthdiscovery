@@ -3,7 +3,7 @@ from io import BytesIO
 import imageio
 
 from truthdiscovery.graphs.colours import ResultsGradientColourScheme
-from truthdiscovery.graphs.draw import GraphRenderer
+from truthdiscovery.graphs.draw import GraphRenderer, PngBackend
 
 
 class Animator:
@@ -18,7 +18,7 @@ class Animator:
                                None to use a default renderer
         :param frame_duration: duration in seconds for each frame
         """
-        self.renderer = renderer or GraphRenderer()
+        self.renderer = renderer or GraphRenderer(backend=PngBackend())
         self.fps = 1 / frame_duration
 
     def animate(self, outfile, algorithm, dataset):
@@ -38,7 +38,7 @@ class Animator:
                 self.renderer.colours = ResultsGradientColourScheme(results)
                 # Draw frame to in-memory buffer
                 imgbuf = BytesIO()
-                self.renderer.draw(
+                self.renderer.render(
                     dataset, imgbuf,
                     animation_progress=i / num_iterations
                 )

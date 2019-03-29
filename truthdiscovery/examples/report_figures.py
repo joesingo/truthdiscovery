@@ -5,14 +5,7 @@ import inspect
 import os
 import sys
 
-from truthdiscovery import (
-    ConvergenceIterator,
-    Dataset,
-    DistanceMeasures,
-    GraphRenderer,
-    PlainColourScheme,
-    Sums
-)
+from truthdiscovery import Dataset, GraphRenderer, PlainColourScheme
 
 
 class ReportRenderer(GraphRenderer):
@@ -55,7 +48,7 @@ class ExampleFigureCreator:
             ("C", "obj2", "E")
         ))
         renderer = ReportRenderer(node_size=0.5, font_size=30)
-        renderer.draw(dataset, outfile)
+        renderer.render(dataset, outfile)
 
     @example
     def sums_non_independence(self, outfile):
@@ -82,6 +75,7 @@ class ExampleFigureCreator:
 
 
 if __name__ == "__main__":
+    outdir = None
     try:
         outdir = sys.argv[1]
     except IndexError:

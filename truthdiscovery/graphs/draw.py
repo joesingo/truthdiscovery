@@ -1,9 +1,8 @@
-import math
-
-import cairo
 import numpy as np
 
+from truthdiscovery.graphs.backends import PngBackend
 from truthdiscovery.graphs.colours import NodeType, GraphColourScheme
+from truthdiscovery.graphs.entities import Rectangle, Circle, Line, Label
 
 
 class GraphRenderer:
@@ -12,7 +11,8 @@ class GraphRenderer:
     dataset
     """
     def __init__(self, width=800, height=600, node_size=0.8, line_width=3,
-                 node_border_width=3, font_size=15, colours=None):
+                 node_border_width=3, font_size=15, colours=None,
+                 backend=None):
         """
         :param width:             width of image in pixels
         :param height:            height of image in pixels
@@ -25,12 +25,16 @@ class GraphRenderer:
         :param font_size:         font size for node labels
         :param colours:           :any:`GraphColourScheme` (or sub-class)
                                   instance
+        :param backend:           a :any:`BaseBackend` object (default is PNG)
         """
         self.width = width
         self.height = height
         self.node_size = node_size
         self.node_border_width = node_border_width or 0
+        self.line_width = line_width
+        self.font_size = font_size
         self.colours = colours or GraphColourScheme()
+        self.backend = backend or PngBackend()
         if self.node_size <= 0 or self.node_size > 1:
             raise ValueError("Node size must be in (0, 1]")
 
@@ -43,20 +47,6 @@ class GraphRenderer:
         # calculated such that nodes will meet the corners exactly when
         # node_size is 1. Depends on radius, so not set here
         self.offset = None
-
-        # Initialise Cairo and draw background
-        self.surface = cairo.ImageSurface(
-            cairo.FORMAT_ARGB32, self.width, self.height
-        )
-        self.ctx = cairo.Context(self.surface)
-        self.ctx.set_line_width(line_width)
-        self.ctx.set_font_size(font_size)
-        self.draw_background()
-
-    def draw_background(self):
-        self.ctx.set_source_rgb(*self.colours.get_background_colour())
-        self.ctx.rectangle(0, 0, self.width, self.height)
-        self.ctx.fill()
 
     def _get_y_coord(self, index, num_nodes):
         available_height = self.height - 2 * self.offset
@@ -86,17 +76,23 @@ class GraphRenderer:
             val=self.dataset.val_hashes.inverse[val_hash]
         )
 
-    def draw(self, dataset, outfile, animation_progress=None):
+    def render(self, dataset, outfile, animation_progress=None):
         """
-        Draw the dataset as a graph and save as a PNG
-
         :param dataset:            a :any:`Dataset` object
         :param outfile:            file object to write to
         :param animation_progress: percentage animation progress in [0, 1] to
                                    display how far through an animation we are
                                    (None if not animating)
         """
-        self.draw_background()
+        entities = self.compile(dataset, animation_progress=animation_progress)
+        self.backend.draw_entities(entities, outfile, self.width, self.height)
+
+    def compile(self, dataset, animation_progress=None):
+        """
+        A generator of :any:`Entity` objects describing what to draw and in
+        which order
+        """
+        yield from self.compile_background()
         self.dataset = dataset
 
         # Set node radius: work out maximum pixels that can be allocated to
@@ -127,46 +123,54 @@ class GraphRenderer:
         for s_id, claim_id in np.transpose(np.nonzero(self.dataset.sc)):
             start = self.get_source_coords(s_id)
             end = self.get_claim_coords(claim_indexes[claim_id])
-            self.draw_edge(start, end)
+            yield from self.compile_edge(start, end)
 
         # Draw claims, variables and sources
         for (var_id, val_hash), claim_id in self.dataset.claim_ids.items():
             # Draw edge from claim to variable
             claim_coords = self.get_claim_coords(claim_indexes[claim_id])
             var_coords = self.get_var_coords(var_id)
-            self.draw_edge(claim_coords, var_coords)
+            yield from self.compile_edge(claim_coords, var_coords)
 
             label = self.get_claim_label(var_id, val_hash)
             hint = (
                 self.dataset.var_ids.inverse[var_id],      # variable name
                 self.dataset.val_hashes.inverse[val_hash]  # value
             )
-            self.draw_node(NodeType.CLAIM, label, claim_coords, hint)
+            yield from self.compile_node(
+                NodeType.CLAIM, label, claim_coords, hint
+            )
 
         for var, var_id in self.dataset.var_ids.items():
             label = self.get_var_label(var_id)
             coords = self.get_var_coords(var_id)
-            self.draw_node(NodeType.VARIABLE, label, coords, var)
+            yield from self.compile_node(NodeType.VARIABLE, label, coords, var)
 
         for source, s_id in self.dataset.source_ids.items():
             label = self.get_source_label(s_id)
             coords = self.get_source_coords(s_id)
-            self.draw_node(NodeType.SOURCE, label, coords, source)
+            yield from self.compile_node(
+                NodeType.SOURCE, label, coords, source
+            )
 
         # Draw animation progress bar if required
         if animation_progress is not None:
-            self.draw_animation_progress(animation_progress)
+            self.compile_animation_progress_rect(animation_progress)
+            yield from self.compile_animation_progress_rect(animation_progress)
 
-        self.write_to_file(outfile)
+    def compile_background(self):
+        """
+        Yield a Rectangle for the background
+        """
+        yield Rectangle(
+            x=0, y=0, width=self.width, height=self.height,
+            colour=self.colours.get_background_colour()
+        )
 
-    def write_to_file(self, outfile):
+    def compile_node(self, node_type, label, coords, node_hints):
         """
-        Save the current Cairo surface to the given file
-        """
-        self.surface.write_to_png(outfile)
+        Return a generator of :any:`Entity` objects for drawing a node.
 
-    def draw_node(self, node_type, label, coords, node_hints):
-        """
         :param node_type:  value from :any:`NodeType` enumeration
         :param label:      text to draw for this node
         :param coords:     a tuple (x, y)
@@ -179,65 +183,48 @@ class GraphRenderer:
 
         # Draw circle for the node
         x, y = coords
-        # first draw solid border colour...
+        # First solid border colour...
         if self.node_border_width > 0:
-            self.ctx.set_source_rgb(*border_c)
-            self.ctx.arc(x, y, self.node_radius, 0, 2 * math.pi)
-            self.ctx.fill()
-        # then interior
-        self.ctx.set_source_rgb(*node_c)
-        self.ctx.arc(
-            x, y, self.node_radius - self.node_border_width, 0, 2 * math.pi
+            yield Circle(x=x, y=y, colour=border_c, radius=self.node_radius)
+        # ...then the interior
+        label = Label(
+            x=x, y=y, colour=label_c,
+            text=str(label),
+            size=self.font_size,
+            overflow_background=self.colours.get_background_colour()
         )
-        self.ctx.fill()
+        yield Circle(
+            x=x, y=y, colour=node_c,
+            radius=self.node_radius - self.node_border_width,
+            label=label
+        )
 
-        # Label
-        label = str(label)
-        ext = self.ctx.text_extents(label)
-        # Make sure long source or var names do not run off the screen
-        label_lhs = max(0, min(self.width - ext.width, x - ext.width / 2))
+    def compile_edge(self, start, end):
+        start_x, start_y = start
+        end_x, end_y = end
+        colour = self.colours.get_edge_colour()
+        yield Line(
+            x=start_x, y=start_y, colour=colour, end_x=end_x, end_y=end_y,
+            width=self.line_width
+        )
 
-        # If label exceeds the node, draw a background-coloured box where text
-        # will go, so that the label does not clash with background/node border
-        if ext.width > 2 * self.node_radius:
-            background = self.colours.get_background_colour()
-            r, g, b = background
-            self.ctx.set_source_rgb(*background)
-            # Try and have label an 'opposite' colour for label to avoid
-            # clashing
-            label_c = (1 - r, 1 - g, 1 - b)
-
-            padding = 5  # allow some space between box border and text
-            self.ctx.rectangle(
-                label_lhs - padding,
-                y - ext.height / 2 - padding,
-                ext.width + 2 * padding,
-                ext.height + 2 * padding
-            )
-            self.ctx.fill()
-
-        self.ctx.set_source_rgb(*label_c)
-        self.ctx.move_to(label_lhs, y - ext.y_bearing / 2)
-        self.ctx.show_text(label)
-
-    def draw_edge(self, start, end):
-        self.ctx.set_source_rgb(*self.colours.get_edge_colour())
-        self.ctx.move_to(*start)
-        self.ctx.line_to(*end)
-        self.ctx.stroke()
-
-    def draw_animation_progress(self, progress):
+    def compile_animation_progress_rect(self, progress):
         """
-        Draw a bar across the bottom of the image to indicate progress through
-        an animation
+        Return a :any:`Rectangle` for a bar across the bottom of the image to
+        indicate progress through an animation
 
         :param progress: number in [0, 1] indicating width of the bar as a
                          fraction of total image width
         """
-        self.ctx.set_source_rgb(*self.colours.get_animation_progress_colour())
+        colour = self.colours.get_animation_progress_colour()
         size = 5
-        self.ctx.rectangle(0, self.height - size, self.width * progress, size)
-        self.ctx.fill()
+        yield Rectangle(
+            x=0,
+            y=self.height - size,
+            colour=colour,
+            width=self.width * progress,
+            height=size
+        )
 
 
 class MatrixDatasetGraphRenderer(GraphRenderer):

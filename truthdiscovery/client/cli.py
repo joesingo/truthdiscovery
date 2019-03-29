@@ -233,7 +233,7 @@ class CommandLineClient(BaseClient):
             action="store_true"
         )
         # HTTP server sub-parser
-        httpd_parser = subparsers.add_parser(
+        _httpd_parser = subparsers.add_parser(
             "httpd",
             help=("Start the debug Flask server for a web-interface to the "
                   "library"),
@@ -325,7 +325,7 @@ class CommandLineClient(BaseClient):
             dataset = MatrixDataset.from_csv(args.dataset)
         except ValueError as ex:
             parser.error(ex)
-        renderer.draw(dataset, args.outfile)
+        renderer.render(dataset, args.outfile)
 
 
 def main():  # pragma: no cover

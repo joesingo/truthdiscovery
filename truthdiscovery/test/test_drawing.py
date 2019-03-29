@@ -7,10 +7,13 @@ from truthdiscovery.input import Dataset, MatrixDataset
 from truthdiscovery.output import Result
 from truthdiscovery.graphs import (
     Animator,
+    BaseBackend,
+    GraphColourScheme,
     GraphRenderer,
     MatrixDatasetGraphRenderer,
     NodeType,
     PlainColourScheme,
+    PngBackend,
     ResultsGradientColourScheme
 )
 from truthdiscovery.test.utils import is_valid_png, is_valid_gif
@@ -29,40 +32,34 @@ class BaseTest:
         ))
 
 
-class TestDrawing(BaseTest):
-    @pytest.fixture
-    def mock_renderer_cls(self):
-        class Mock(GraphRenderer):
-            draw_calls = []
+class TestRendering(BaseTest):
+    def test_source_positioning(self, dataset):
+        source_colour = (0.34, 0.56, 0.78)
+        null_colour = (0, 0, 0)
 
-            def _log(m_self, args, kwargs):
-                m_self.draw_calls.append((args, kwargs))
+        class ExampleColourScheme(GraphColourScheme):
+            def get_node_colour(cself, node_type, _hints):
+                if node_type == NodeType.SOURCE:
+                    return source_colour, null_colour, null_colour
+                return null_colour, null_colour, null_colour
 
-            def draw_node(m_self, *args, **kwargs):
-                m_self._log(args, kwargs)
-
-            def draw_edge(m_self, *args, **kwargs):
-                m_self._log(args, kwargs)
-
-            def write_to_file(m_self, *args, **kwargs):
-                pass
-
-        return Mock
-
-    def test_source_positioning(self, dataset, mock_renderer_cls):
-        rend = mock_renderer_cls(width=100, height=50)
-        rend.draw(dataset, None)
-        assert len(rend.draw_calls) == (
-            4    # sources
-            + 6  # edges from sources to claims
-            + 4  # claims
-            + 4  # edges from claims to variables
-            + 3  # variables
+        cs = ExampleColourScheme()
+        rend = GraphRenderer(width=100, height=50, colours=cs)
+        # rend.render(dataset, None)
+        ents = list(rend.compile(dataset))
+        assert len(ents) == (
+            1        # background
+            + 4 * 2  # sources
+            + 6      # edges from sources to claims
+            + 4 * 2  # claims
+            + 4      # edges from claims to variables
+            + 3 * 2  # variables
         )
 
-        source_calls = rend.draw_calls[-4:]
+        source_ents = [ent for ent in ents if ent.colour == source_colour]
+        assert len(source_ents) == 4
         # Sources should be aligned in x coordinates
-        source_coords = [args[2] for args, kwargs in source_calls]
+        source_coords = [(ent.x, ent.y) for ent in source_ents]
         assert len(set(x for x, y in source_coords)) == 1
         # Check y positioning
         y_coords = sorted(y for x, y in source_coords)
@@ -72,11 +69,13 @@ class TestDrawing(BaseTest):
         invalid_sizes = (-1, -0.00001, 0, 1.00001, 10)
         for size in invalid_sizes:
             with pytest.raises(ValueError):
-                rend = GraphRenderer(dataset, node_size=size)
+                GraphRenderer(dataset, node_size=size)
 
-    def test_valid_png(self, dataset, tmpdir):
+    def test_png_is_default(self, dataset, tmpdir):
         out = tmpdir.join("mygraph.png")
-        GraphRenderer().draw(dataset, out)
+        rend = GraphRenderer(backend=None)
+        assert isinstance(rend.backend, PngBackend)
+        rend.render(dataset, out)
         with open(str(out), "rb") as f:
             assert is_valid_png(f)
 
@@ -85,11 +84,59 @@ class TestDrawing(BaseTest):
             ("a-source-with-an-extremely-long-name", "x", 1000000000000000000),
             ("source 2", "quite a complicated variable name", 100)
         ))
+        ents = list(GraphRenderer().compile(dataset))
+        assert len(ents) == (
+            1 +      # background
+            6 * 2 +  # 6 nodes, each represented by two circles
+            4        # 4 edges
+        )
+
+    def test_matrix_renderer(self):
+        buf = BytesIO()
+        buf.write(b",5,7\n,,\n1,2,3")
+        buf.seek(0)
+        dataset = MatrixDataset.from_csv(buf)
+        rend1 = MatrixDatasetGraphRenderer()
+        rend2 = MatrixDatasetGraphRenderer(zero_indexed=False)
+
+        rend1.render(dataset, BytesIO())
+        rend2.render(dataset, BytesIO())
+
+        assert rend1.get_source_label(0) == "s0"
+        assert rend2.get_source_label(0) == "s1"
+        assert rend1.get_var_label(0) == "v1"
+        assert rend2.get_var_label(0) == "v2"
+
+        # Note that source 1 (in 0-index terms) makes no claims: ID 1 should
+        # therefore be source 2 (in 0-index terms)
+        assert rend1.get_source_label(1) == "s2"
+        assert rend2.get_source_label(1) == "s3"
+
+        assert rend1.get_claim_label(0, 1) == "v1=7"
+        assert rend2.get_claim_label(0, 1) == "v2=7"
+
+
+class TestBackends(BaseTest):
+    def test_base_backend(self, dataset, tmpdir):
         out = tmpdir.join("mygraph.png")
-        GraphRenderer().draw(dataset, out)
+        with pytest.raises(NotImplementedError):
+            GraphRenderer(backend=BaseBackend()).render(out, dataset)
+
+    def test_valid_png(self, dataset, tmpdir):
+        out = tmpdir.join("mygraph.png")
+        GraphRenderer(backend=PngBackend()).render(dataset, out)
         with open(str(out), "rb") as f:
             assert is_valid_png(f)
 
+    def test_results_based_valid_png(self, dataset, tmpdir):
+        cs = ResultsGradientColourScheme(Sums().run(dataset))
+        out = tmpdir.join("mygraph.png")
+        GraphRenderer(backend=PngBackend(), colours=cs).render(dataset, out)
+        with open(str(out), "rb") as f:
+            assert is_valid_png(f)
+
+
+class TestColourSchemes:
     def test_get_gradient_colour(self):
         class Mock(ResultsGradientColourScheme):
             COLOURS = [1, 2, 3, 4]
@@ -110,9 +157,24 @@ class TestDrawing(BaseTest):
             (1, 3)
         ]
         for level, exp_index in test_cases:
-            print(level)
             colour, _ = colour_scheme.get_graded_colours(level)
             assert colour == colour_scheme.COLOURS[exp_index]
+
+    def test_plain_colour_scheme(self):
+        cs = PlainColourScheme()
+        source = cs.get_node_colour(NodeType.SOURCE, 0)
+        var = cs.get_node_colour(NodeType.VARIABLE, 0)
+        claim = cs.get_node_colour(NodeType.CLAIM, 0, 0)
+        # All nodes types should have the same colours in the plain theme
+        assert source == var == claim
+        # Label and border should be the same colour
+        assert source[1] == source[2]
+        # Edges should be the same colour as node borders
+        edge = cs.get_edge_colour()
+        assert edge == source[2]
+        # Background should be the same as node interiors
+        background = cs.get_background_colour()
+        assert background == source[0]
 
     def test_results_based_colours(self):
         results = Result(
@@ -141,53 +203,6 @@ class TestDrawing(BaseTest):
         assert l_c1 != l_c3
         assert l_c3 == l_c4
 
-    def test_results_based_valid_png(self, dataset, tmpdir):
-        cs = ResultsGradientColourScheme(Sums().run(dataset))
-        out = tmpdir.join("mygraph.png")
-        GraphRenderer(colours=cs).draw(dataset, out)
-        with open(str(out), "rb") as f:
-            assert is_valid_png(f)
-
-    def test_matrix_renderer(self):
-        buf = BytesIO()
-        buf.write(b",5,7\n,,\n1,2,3")
-        buf.seek(0)
-        dataset = MatrixDataset.from_csv(buf)
-        rend1 = MatrixDatasetGraphRenderer()
-        rend2 = MatrixDatasetGraphRenderer(zero_indexed=False)
-
-        rend1.draw(dataset, BytesIO())
-        rend2.draw(dataset, BytesIO())
-
-        assert rend1.get_source_label(0) == "s0"
-        assert rend2.get_source_label(0) == "s1"
-        assert rend1.get_var_label(0) == "v1"
-        assert rend2.get_var_label(0) == "v2"
-
-        # Note that source 1 (in 0-index terms) makes no claims: ID 1 should
-        # therefore be source 2 (in 0-index terms)
-        assert rend1.get_source_label(1) == "s2"
-        assert rend2.get_source_label(1) == "s3"
-
-        assert rend1.get_claim_label(0, 1) == "v1=7"
-        assert rend2.get_claim_label(0, 1) == "v2=7"
-
-    def test_plain_colour_scheme(self):
-        cs = PlainColourScheme()
-        source = cs.get_node_colour(NodeType.SOURCE, 0)
-        var = cs.get_node_colour(NodeType.VARIABLE, 0)
-        claim = cs.get_node_colour(NodeType.CLAIM, 0, 0)
-        # All nodes types should have the same colours in the plain theme
-        assert source == var == claim
-        # Label and border should be the same colour
-        assert source[1] == source[2]
-        # Edges should be the same colour as node borders
-        edge = cs.get_edge_colour()
-        assert edge == source[2]
-        # Background should be the same as node interiors
-        background = cs.get_background_colour()
-        assert background == source[0]
-
 
 class TestAnimations(BaseTest):
     def test_valid_gif(self, dataset):
@@ -197,8 +212,6 @@ class TestAnimations(BaseTest):
         alg = Sums()
         buf = BytesIO()
         animator.animate(buf, alg, dataset)
-        buf.seek(0)
-        print(buf.read(8))
         buf.seek(0)
         assert is_valid_gif(buf)
 

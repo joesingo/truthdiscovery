@@ -29,7 +29,7 @@ class. ::
     mydata = Dataset(tuples)
     renderer = GraphRenderer()
     with open("/tmp/my-dataset-as-a-graph.png", "wb") as imgfile:
-        renderer.draw(mydata, imgfile)
+        renderer.render(mydata, imgfile)
 
 .. figure:: images/example_graph_dataset.png
 

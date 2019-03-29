@@ -477,8 +477,8 @@ class TestCommandLineClient(ClientTestsBase):
         )
         assert rend1.width == 200
         assert rend1.height == 2500
-        assert rend1.ctx.get_font_matrix().xx == 14
-        assert rend1.ctx.get_line_width() == 9
+        assert rend1.font_size == 14
+        assert rend1.line_width == 9
         assert rend1.node_border_width == 34
         assert not rend1.zero_indexed
 

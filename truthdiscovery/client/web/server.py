@@ -8,7 +8,10 @@ from truthdiscovery.client.base import BaseClient
 from truthdiscovery.input import MatrixDataset
 from truthdiscovery.output import Result, ResultDiff
 from truthdiscovery.graphs import (
-    Animator, MatrixDatasetGraphRenderer, ResultsGradientColourScheme
+    Animator,
+    MatrixDatasetGraphRenderer,
+    ResultsGradientColourScheme,
+    PngBackend
 )
 
 
@@ -101,7 +104,8 @@ class WebClient(BaseClient):
         :return: a :any:`GraphRenderer` instance for graphs and animations
         """
         return MatrixDatasetGraphRenderer(
-            width=800, height=600, zero_indexed=False, colours=colours
+            width=800, height=600, zero_indexed=False, colours=colours,
+            backend=PngBackend()
         )
 
     @route("/")
@@ -158,7 +162,7 @@ class WebClient(BaseClient):
             cs = ResultsGradientColourScheme(results)
             renderer = self.get_graph_renderer(colours=cs)
             img_buffer = Base64BytesIO()
-            renderer.draw(dataset, img_buffer)
+            renderer.render(dataset, img_buffer)
             imagery["graph"] = img_buffer.get_base64()
 
         if "get_animation" in request.args:

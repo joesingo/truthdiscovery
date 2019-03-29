@@ -1,0 +1,55 @@
+from collections import namedtuple
+
+
+class Entity:
+    """
+    Class to represent an abstract entity that can be drawn
+    """
+    def __init__(self, x=None, y=None, colour=None):
+        self.x = x
+        self.y = y
+        self.colour = colour
+
+
+class Rectangle(Entity):
+    def __init__(self, width=None, height=None, **kwargs):
+        super().__init__(**kwargs)
+        self.width = width
+        self.height = height
+
+
+class Circle(Entity):
+    def __init__(self, radius=None, label=None, **kwargs):
+        super().__init__(**kwargs)
+        self.radius = radius
+        self.label = label
+
+
+class Line(Entity):
+    def __init__(self, end_x=None, end_y=None, width=None, **kwargs):
+        super().__init__(**kwargs)
+        self.end_x = end_x
+        self.end_y = end_y
+        self.width = width
+
+
+class Label(Entity):
+    def __init__(self, x=None, y=None, colour=None, text=None, size=None,
+                 overflow_background=None, **kwargs):
+        """
+        :param x:      centre x coordinate
+        :param y:      centre y coordinate
+        :param text:   text to draw
+        :param size:   size (backend specific units)
+        :param colour: colour for text
+        :param overflow_background: if the label is associated with another
+                                    entity and exceeds its bounds, draw the
+                                    label in a box with this background
+        """
+        super().__init__(**kwargs)
+        self.x = x
+        self.y = y
+        self.text = text
+        self.size = size
+        self.colour = colour
+        self.overflow_background = overflow_background

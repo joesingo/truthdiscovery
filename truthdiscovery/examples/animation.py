@@ -2,9 +2,13 @@ import sys
 
 import numpy.ma as ma
 
-from truthdiscovery.algorithm import *
-from truthdiscovery.input import *
-from truthdiscovery.graphs import *
+from truthdiscovery.algorithm import Investment
+from truthdiscovery.input import MatrixDataset
+from truthdiscovery.graphs import (
+    Animator,
+    MatrixDatasetGraphRenderer,
+    ResultsGradientColourScheme
+)
 from truthdiscovery.utils import ConvergenceIterator, DistanceMeasures
 
 
@@ -40,8 +44,6 @@ if __name__ == "__main__":
 
     cs = ResultsGradientColourScheme(algorithm.run(mydata))
     rend = MatrixDatasetGraphRenderer(zero_indexed=False, colours=cs)
-    # with open(out_path, "wb") as outfile:
-    #     rend.draw(mydata, outfile)
     animator = Animator(renderer=rend, frame_duration=0.2)
     with open(out_path, "wb") as outfile:
         animator.animate(outfile, algorithm, mydata)
