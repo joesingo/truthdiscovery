@@ -71,7 +71,7 @@ class ExampleFigureCreator:
             ("U", "obj5", "X"),
         ))
         renderer = ReportRenderer(node_size=0.8, font_size=30)
-        renderer.draw(dataset, outfile)
+        renderer.render(dataset, outfile)
 
 
 if __name__ == "__main__":

@@ -469,7 +469,7 @@ class TestCommandLineClient(ClientTestsBase):
         # Renderer options
         rend1 = client.get_graph_renderer(
             self.get_parsed_args(
-                "graph", "-f", "blah", "-o", "bleh", "--width", "200",
+                "graph", "-f", "blah", "-o", str(outfile), "--width", "200",
                 "--height", "2500", "--font-size", "14", "--node-size", "0.4",
                 "--line-width", "9", "--node-border-width", "34",
                 "--one-indexed"
@@ -486,7 +486,7 @@ class TestCommandLineClient(ClientTestsBase):
         # defaults
         rend2 = client.get_graph_renderer(
             self.get_parsed_args(
-                "graph", "-f", "blah", "-o", "bleh", "--width", "200"
+                "graph", "-f", "blah", "-o", str(outfile), "--width", "200"
             )
         )
         assert rend2.width == 200
