@@ -8,13 +8,16 @@ from truthdiscovery.output import Result
 from truthdiscovery.graphs import (
     Animator,
     BaseBackend,
+    Circle,
     GraphColourScheme,
     GraphRenderer,
+    Line,
     MatrixDatasetGraphRenderer,
     NodeType,
     PlainColourScheme,
     PngBackend,
-    ResultsGradientColourScheme
+    Rectangle,
+    ResultsGradientColourScheme,
 )
 from truthdiscovery.test.utils import is_valid_png, is_valid_gif
 
@@ -33,20 +36,31 @@ class BaseTest:
 
 
 class TestRendering(BaseTest):
-    def test_source_positioning(self, dataset):
-        source_colour = (0.34, 0.56, 0.78)
-        null_colour = (0, 0, 0)
+    def test_entity_positioning(self, dataset):
+        colours = {
+            NodeType.SOURCE: (0.1, 0.1, 0.1),
+            NodeType.CLAIM: (0.2, 0.2, 0.2),
+            NodeType.VARIABLE: (0.3, 0.3, 0.3),
+            "edge": (0.4, 0.4, 0.4),
+            "label": (0.5, 0.5, 0.5),
+            "border": (0.6, 0.6, 0.6),
+            "background": (0.7, 0.7, 0.7)
+        }
 
         class ExampleColourScheme(GraphColourScheme):
             def get_node_colour(cself, node_type, _hints):
-                if node_type == NodeType.SOURCE:
-                    return source_colour, null_colour, null_colour
-                return null_colour, null_colour, null_colour
+                return colours[node_type], colours["label"], colours["border"]
+
+            def get_background_colour(self):
+                return colours["background"]
+
+            def get_edge_colour(self):
+                return colours["edge"]
 
         cs = ExampleColourScheme()
         rend = GraphRenderer(width=100, height=50, colours=cs)
-        # rend.render(dataset, None)
         ents = list(rend.compile(dataset))
+
         assert len(ents) == (
             1        # background
             + 4 * 2  # sources
@@ -56,8 +70,39 @@ class TestRendering(BaseTest):
             + 3 * 2  # variables
         )
 
-        source_ents = [ent for ent in ents if ent.colour == source_colour]
+        bgs = [e for e in ents if e.colour == colours["background"]]
+        assert len(bgs) == 1
+        assert isinstance(bgs[0], Rectangle)
+        assert bgs[0].x == 0
+        assert bgs[0].y == 0
+        assert bgs[0].width == 100
+        assert bgs[0].height == 50
+
+        # Should be 4 sources, 4 claims, and 3 variables
+        source_ents = [e for e in ents if e.colour == colours[NodeType.SOURCE]]
+        claim_ents = [e for e in ents if e.colour == colours[NodeType.CLAIM]]
+        var_ents = [e for e in ents if e.colour == colours[NodeType.VARIABLE]]
+        for e in source_ents:
+            print(e.x, e.y, e.colour)
         assert len(source_ents) == 4
+        assert len(claim_ents) == 4
+        assert len(var_ents) == 3
+
+        # Should be 4 + 4 + 3 border circles
+        border_ents = [e for e in ents if e.colour == colours["border"]]
+        assert len(border_ents) == 4 + 4 + 3
+
+        # All nodes should be Circle objects
+        for e in source_ents + claim_ents + var_ents + border_ents:
+            assert isinstance(e, Circle)
+
+        # There should be 6 edges from sources to claims, and 4 from claims to
+        # variables
+        edge_ents = [e for e in ents if e.colour == colours["edge"]]
+        assert len(edge_ents) == 6 + 4
+        for e in edge_ents:
+            assert isinstance(e, Line)
+
         # Sources should be aligned in x coordinates
         source_coords = [(ent.x, ent.y) for ent in source_ents]
         assert len(set(x for x, y in source_coords)) == 1
@@ -114,6 +159,17 @@ class TestRendering(BaseTest):
 
         assert rend1.get_claim_label(0, 1) == "v1=7"
         assert rend2.get_claim_label(0, 1) == "v2=7"
+
+    def test_image_size(self, dataset):
+        buf = BytesIO()
+        w = 142
+        h = 512
+        rend = GraphRenderer(width=w, height=h, backend=PngBackend())
+        rend.render(dataset, buf)
+        buf.seek(0)
+        img_data = imageio.imread(buf)
+        got_w, got_h, _ = img_data.shape
+        assert (got_h, got_w) == (w, h)
 
 
 class TestBackends(BaseTest):

@@ -10,3 +10,10 @@ from truthdiscovery.graphs.draw import (
     GraphRenderer,
     MatrixDatasetGraphRenderer,
 )
+from truthdiscovery.graphs.entities import (
+    Circle,
+    Entity,
+    Label,
+    Line,
+    Rectangle
+)
