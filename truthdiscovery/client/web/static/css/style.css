@@ -56,3 +56,9 @@ td:hover .delete, th:hover .delete {
 .imagery-container figure {
     margin-bottom: 3em;
 }
+
+#graph-canvas {
+    display: block;
+    margin: auto;
+    margin-bottom: 1em;
+}

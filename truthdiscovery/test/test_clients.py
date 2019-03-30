@@ -657,7 +657,7 @@ class TestWebClient(ClientTestsBase):
                        "'belief' missing")
         assert exp_err_msg in resp2.json["error"]
 
-    def test_get_b64_graph(self, test_client, dataset):
+    def test_get_json_graph(self, test_client, dataset):
         # get_graph param not present: graph should NOT be rendered
         no_graph = {
             "matrix": dataset.to_csv(),
@@ -677,10 +677,14 @@ class TestWebClient(ClientTestsBase):
         assert resp2.status_code == 200
         assert "imagery" in resp2.json["data"]
         assert "graph" in resp2.json["data"]["imagery"]
-        b64_img = resp2.json["data"]["imagery"]["graph"]
-        # Check the image is valid base64, and that the data is a valid PNG
-        bin_data = base64.b64decode(b64_img)
-        assert is_valid_png(bin_data)
+        json_string = resp2.json["data"]["imagery"]["graph"]
+        # Check the image is valid JSON
+        obj = json.loads(json_string)
+        # Check object is as expected
+        assert "width" in obj
+        assert "height" in obj
+        assert "entities" in obj
+        assert isinstance(obj["entities"], list)
 
     def test_get_b64_animated_gif(self, test_client, dataset):
         no_animation = {

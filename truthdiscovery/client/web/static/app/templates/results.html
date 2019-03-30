@@ -92,25 +92,22 @@
             respectively.
         </p>
         <!-- Static graph -->
-        <figure ng-show="$ctrl.service.results.imagery.graph" class="figure">
-            <img ng-src="data:image/png;base64,{{ $ctrl.service.results.imagery.graph }}"
-                 class="img-responsive img-fit-contain"
-                 style="margin: auto;"
-                 alt="Graph respresentation of final results" />
-            <figcaption class="figure-caption text-center">
-                Final results
-            </figcaption>
-        </figure>
+        <div ng-show="$ctrl.service.results.imagery.graph">
+            <h4>Final results</h4>
+            <canvas id="graph-canvas"></canvas>
+        </div>
 
         <!-- Animation -->
-        <figure ng-show="$ctrl.service.results.imagery.animation" class="figure">
-            <img ng-src="data:image/gif;base64,{{ $ctrl.service.results.imagery.animation }}"
-                 class="img-responsive img-fit-contain"
-                 style="margin: auto;"
-                 alt="Animation showing results as algorithm iterates" />
-            <figcaption class="figure-caption text-center">
-                Animation showing results as algorithm iterates
-            </figcaption>
-        </figure>
+        <div ng-show="$ctrl.service.results.imagery.animation">
+            <h4>Animation showing results as algorithm iterates</h4>
+
+            <figure class="figure">
+                <img ng-src="data:image/gif;base64,{{ $ctrl.service.results.imagery.animation }}"
+                     class="img-responsive img-fit-contain"
+                     style="margin: auto;"
+                     alt="Animation showing results as algorithm iterates" />
+            </figure>
+        </div>
     </div>
+
 </div>

@@ -4,6 +4,8 @@ const DATA = (JSON.parse(document.getElementById("data-json").innerHTML
 
 angular.module("tdApp", []);
 
+var graph_drawer = new GraphDrawer();
+
 // Service to make HTTP requests and get results
 angular.
     module("tdApp").
@@ -50,8 +52,13 @@ angular.
                 // of self.results without affecting data sent to server
                 self.previous_results = JSON.parse(JSON.stringify(self.results));
 
-                // Remove imagery from previous results, if present
-                if ("imagery" in self.previous_results) {
+                if ("imagery" in self.results) {
+                    if ("graph" in self.results.imagery) {
+                        var obj = JSON.parse(self.results.imagery.graph);
+                        graph_drawer.grab_canvas();
+                        graph_drawer.draw_graph(obj);
+                    }
+                    // Remove imagery from previous results, if present
                     delete self.previous_results.imagery;
                 }
 

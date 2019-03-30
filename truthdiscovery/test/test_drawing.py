@@ -1,4 +1,6 @@
-from io import BytesIO
+from io import BytesIO, StringIO
+import json
+
 import imageio
 import pytest
 
@@ -11,6 +13,8 @@ from truthdiscovery.graphs import (
     Circle,
     GraphColourScheme,
     GraphRenderer,
+    JsonBackend,
+    Label,
     Line,
     MatrixDatasetGraphRenderer,
     NodeType,
@@ -190,6 +194,99 @@ class TestBackends(BaseTest):
         GraphRenderer(backend=PngBackend(), colours=cs).render(dataset, out)
         with open(str(out), "rb") as f:
             assert is_valid_png(f)
+
+    def test_json_backend(self):
+        w = 123
+        h = 456
+        rend = GraphRenderer(width=w, height=h, backend=JsonBackend())
+        buf = StringIO()
+
+        data = Dataset((
+            ("s1", "x", 0),
+            ("s2", "y", 1)
+        ))
+
+        rend.render(data, buf)
+        buf.seek(0)
+        obj = json.load(buf)
+        assert isinstance(obj, dict)
+        assert "width" in obj
+        assert "height" in obj
+        assert "entities" in obj
+        obj["width"] == w
+        obj["height"] == h
+
+        ents = obj["entities"]
+        assert isinstance(ents, list)
+        assert len(ents) == (
+            1        # background
+            + 6 * 2  # 6 nodes
+            + 4      # 4 edges
+        )
+        assert ents[0] == {
+            "type": "rectangle",
+            "x": 0,
+            "y": 0,
+            "colour": list(rend.colours.get_background_colour()),
+            "width": w,
+            "height": h
+        }
+
+    def test_json_backend_entity_serialisation(self):
+        rect = Rectangle(x=1, y=2, colour=(0.5, 0.6, 0.7), width=10, height=20)
+        assert JsonBackend.entity_to_dict(rect) == {
+            "type": "rectangle",
+            "x": 1,
+            "y": 2,
+            "colour": (0.5, 0.6, 0.7),
+            "width": 10,
+            "height": 20
+        }
+        circ = Circle(x=1, y=2, colour=(0.5, 0.6, 0.7), radius=11)
+        assert JsonBackend.entity_to_dict(circ) == {
+            "type": "circle",
+            "x": 1,
+            "y": 2,
+            "colour": (0.5, 0.6, 0.7),
+            "radius": 11,
+            "label": None
+        }
+        line = Line(
+            x=1, y=2, colour=(0.5, 0.6, 0.7), end_x=10, end_y=100, width=202
+        )
+        assert JsonBackend.entity_to_dict(line) == {
+            "type": "line",
+            "x": 1,
+            "y": 2,
+            "colour": (0.5, 0.6, 0.7),
+            "end_x": 10,
+            "end_y": 100,
+            "width": 202
+        }
+        label = Label(
+            x=1, y=2, colour=(0.1, 0.4, 0.9), text="hello", size=123,
+            overflow_background=(0.9, 0.4, 0.1)
+        )
+        assert JsonBackend.entity_to_dict(label) == {
+            "type": "label",
+            "x": 1,
+            "y": 2,
+            "colour": (0.1, 0.4, 0.9),
+            "text": "hello",
+            "size": 123,
+            "overflow_background": (0.9, 0.4, 0.1)
+        }
+        cirl_with_label = Circle(
+            x=1, y=2, colour=(0.5, 0.6, 0.7), radius=11, label=label
+        )
+        assert JsonBackend.entity_to_dict(cirl_with_label) == {
+            "type": "circle",
+            "x": 1,
+            "y": 2,
+            "colour": (0.5, 0.6, 0.7),
+            "radius": 11,
+            "label": JsonBackend.entity_to_dict(label)
+        }
 
 
 class TestColourSchemes:

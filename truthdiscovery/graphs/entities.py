@@ -34,22 +34,17 @@ class Line(Entity):
 
 
 class Label(Entity):
-    def __init__(self, x=None, y=None, colour=None, text=None, size=None,
-                 overflow_background=None, **kwargs):
+    def __init__(self, text=None, size=None, overflow_background=None,
+                 **kwargs):
         """
-        :param x:      centre x coordinate
-        :param y:      centre y coordinate
         :param text:   text to draw
         :param size:   size (backend specific units)
-        :param colour: colour for text
         :param overflow_background: if the label is associated with another
                                     entity and exceeds its bounds, draw the
                                     label in a box with this background
         """
+        # Note: coordinates of label are the coordinates of the *centre*
         super().__init__(**kwargs)
-        self.x = x
-        self.y = y
         self.text = text
         self.size = size
-        self.colour = colour
         self.overflow_background = overflow_background

@@ -1,5 +1,5 @@
 import base64
-from io import BytesIO
+from io import BytesIO, StringIO
 import json
 
 from flask import Flask, render_template, request, jsonify
@@ -9,9 +9,10 @@ from truthdiscovery.input import MatrixDataset
 from truthdiscovery.output import Result, ResultDiff
 from truthdiscovery.graphs import (
     Animator,
+    JsonBackend,
     MatrixDatasetGraphRenderer,
-    ResultsGradientColourScheme,
-    PngBackend
+    PngBackend,
+    ResultsGradientColourScheme
 )
 
 
@@ -105,7 +106,7 @@ class WebClient(BaseClient):
         """
         return MatrixDatasetGraphRenderer(
             width=800, height=600, zero_indexed=False, colours=colours,
-            backend=PngBackend()
+            font_size=20, backend=JsonBackend()
         )
 
     @route("/")
@@ -161,12 +162,14 @@ class WebClient(BaseClient):
         if "get_graph" in request.args:
             cs = ResultsGradientColourScheme(results)
             renderer = self.get_graph_renderer(colours=cs)
-            img_buffer = Base64BytesIO()
-            renderer.render(dataset, img_buffer)
-            imagery["graph"] = img_buffer.get_base64()
+            json_buffer = StringIO()
+            renderer.render(dataset, json_buffer)
+            imagery["graph"] = json_buffer.getvalue()
 
         if "get_animation" in request.args:
             renderer = self.get_graph_renderer()
+            # TODO: update to use JSON backend
+            renderer.backend = PngBackend()
             animator = Animator(renderer=renderer)
             img_buffer = Base64BytesIO()
             animator.animate(img_buffer, alg, dataset)
