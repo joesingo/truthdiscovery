@@ -382,13 +382,8 @@ formulation of truth-discovery.
 \subsection{Standard definitions and notation}
 
 \begin{definition}
-A \emph{relation} $R$ on a set $X$ is a subset $R \subseteq X \times X$. We
-use the infix notation $x \mathbin{R} y$ to mean $(x, y) \in R$.
-\end{definition}
-
-\begin{definition}
-A \emph{preorder} on a set $X$ is a relation $\preceq$ that is reflexive and
-transitive:
+A \emph{preorder} on a set $X$ is a binary relation $\preceq$ that is reflexive
+and transitive:
 \begin{enumerate}
 \item $x \preceq x$ for all $x \in X$ (reflexivity)
 \item If $x \preceq y$ and $y \preceq z$, then $x \preceq z$ for all $x, y, z
@@ -413,9 +408,6 @@ an equivalence relation on $X$.
 A \emph{permutation} of a set $X$ is a bijective mapping $X \rightarrow X$. We
 use cyclic notation for permutations: $\pi=(a, b, c)$ is the mapping $\pi(a) =
 b$, $\pi(b) = c$, $\pi(c) = a$, and $\pi(x) = x$ for $x \notin \{a, b, c\}$.
-Juxtaposition of cycles denotes function composition. It is well known that any
-permutation can be expressed as a composition of disjoint cycles.\todo{find
-source for this if it will actually be used anywhere.}
 \end{definition}
 
 \begin{definition}
@@ -451,9 +443,9 @@ For sets $X$ and $Y$, $Y^X$ denotes the set of all functions $X \rightarrow Y$.
 
 \subsection{Truth-discovery definitions}
 
-We consider fixed finite sets $\S$, $\F$ and $\O$, called the \emph{sources},
-\emph{facts} and \emph{objects} respectively. All definitions and axioms will
-be stated with respect to these sets.
+We consider fixed finite and mutually disjoint sets $\S$, $\F$ and $\O$, called
+the \emph{sources}, \emph{facts} and \emph{objects} respectively. All
+definitions and axioms will be stated with respect to these sets.
 
 % Input network definition
 \begin{definition}
@@ -649,12 +641,12 @@ they are). If so provide an example of an operator satisfying one but not the
 others.}
 \end{remark}
 
-{
+\begin{figure}
     \centering
     \includegraphics[width=\linewidth]{symmetry_example}
-    \captionof{figure}{Example of a permutation of a truth-discovery network}
+    \caption{Example of a permutation of a truth-discovery network}
     \label{img:permutation_of_a_tdn}
-}
+\end{figure}
 
 \begin{proposition}
 \label{prop:symm_iff_fact_source_object_symm}
@@ -860,9 +852,6 @@ That is, if $f$ receives additional support from a new source $s$, its ranking
 should not get worse.
 \end{axiom}
 
-\todo{Is there a simpler version of this? It's looking a bit complicated for a
-simple concept}
-
 \subsubsection{Coherence}
 
 \rough{
@@ -1051,11 +1040,42 @@ non-dictatorship (axiom \ref{axiom:non_dict}), unanimity (axiom
 \ref{axiom:unanimity}) and groundedness (axiom \ref{axiom:groundedness})
 \end{theorem}
 
+\begin{figure}
+    \centering
+    \includegraphics[width=25em]{sums_not_all_equal_trust}
+    \caption{Network in which Sums does not rank all sources equally}
+    \label{img:sums_not_all_equal_trust}
+\end{figure}
+
+The proof of theorem \ref{theorem:sums_axioms} uses lemma
+\ref{lemma:iterative_axiom_suff_conds}, and can be found in the appendix. For
+non-dictatorship, it is sufficient by proposition \ref{prop:symm_and_dict} and
+symmetry to find a single truth-discovery network in which Sums does not rank
+all sources equally. Figure \ref{img:sums_not_all_equal_trust} shows such a
+network: in this network $A$ ranks strictly above $B$ and $C$, which are ranked
+equally.
+
 \begin{theorem}
 \label{theorem:sums_non_indep}
 Sums does not satisfy Independence of Irrelevant Stuff (axiom
 \ref{axiom:indep}).
 \end{theorem}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=25em]{sums_non_independence}
+    \caption{
+        Counter-example to independence for Sums: this network contains the one
+        show in figure \ref{img:sums_not_all_equal_trust} as a connected
+        component, but $A$ is ranked equal to $B$ here whereas it ranks
+        strictly above $B$ in figure \ref{img:sums_not_all_equal_trust}.
+    }
+    \label{img:sums_non_indep}
+\end{figure}
+
+Figure \ref{img:sums_non_indep} and figure \ref{img:sums_not_all_equal_trust}
+provides an example of Sums failing to satisfy independence. The details can be
+found in the proof in the appendix.
 
 We conjecture that Sums is indeed convergent for any input network. Indeed, it
 is easy to see that Sums closely related to Hubs and Authorities
@@ -1259,13 +1279,6 @@ independence of irrelevant stuff.
 
 \subsection{Proof of theorem \ref{theorem:sums_axioms}}
 
-{
-    \centering
-    \includegraphics[width=25em]{sums_not_all_equal_trust}
-    \captionof{figure}{Network in which Sums does not rank all sources equally}
-    \label{img:sums_not_all_equal_trust}
-}
-
 \begin{proof}
 Assume Sums is convergent. Since trust and belief scores for Sums are always in
 the range $[0, 1]$ lemma \ref{lemma:iterative_axiom_suff_conds} can be applied.
@@ -1390,18 +1403,6 @@ groundedness.
 \end{proof}
 
 \subsection{Proof of theorem \ref{theorem:sums_non_indep}}
-
-{
-    \centering
-    \includegraphics[width=25em]{sums_non_independence}
-    \captionof{figure}{
-        Network containing the network in figure
-        \ref{img:sums_not_all_equal_trust} as a connected component, but in
-        which Sums does not give the same ranking of the sources in this
-        component.
-    }
-    \label{img:sums_non_indep}
-}
 
 \begin{proof}
 Let $N_1$ be the network shown in figure \ref{img:sums_not_all_equal_trust},
