@@ -832,7 +832,27 @@ equal, and the restrictions of $\fle_{N_1}^T$ and $\fle_{N_2}^T$ to $G \cap \F$
 are equal.
 \end{axiom}
 
-\todo{Give an example of $N_1$, $N_2$ and $G$}
+Independence of irrelevant stuff requires that $s_1 \sle_{N_1}^T s_2$ if and
+only if $s_1 \sle_{N_2}^T s_2$. A weaker version is to require only that the
+ranking of $s_1$ and $s_2$ in $N_1$ is \emph{not reversed} in $N_2$, not
+necessarily that the ranking if the same (for example, a strict inequality in
+$N_1$ may become weak in $N_2$).
+
+\begin{axiom}[Weak Independence Of Irrelevant Stuff]
+\label{axiom:weak_indep}
+For any truth-discovery networks $N_1$, $N_2$ with a common connected component
+$G$ and for any $s_1, s_2 \in G \cap S$ and $f_1, f_2 \in G \cap \F$:
+\[
+    s_1 \slt_{N_1}^T s_2 \implies s_1 \sle_{N_2}^T s_2
+\]
+\[
+    f_1 \flt_{N_1}^T f_2 \implies f_1 \fle_{N_2}^T f_2
+\]
+\end{axiom}
+
+Clearly axiom \ref{axiom:indep} implies axiom \ref{axiom:weak_indep}.
+
+\todo{Give an example of $N_1$, $N_2$ and $G$ and independence}
 
 \subsubsection{Monotonicity}
 
@@ -984,7 +1004,16 @@ $t_N^n(s) \in [0, 1], b_N^n(f) \in [0, 1]$ for all $N, s, f$ and $n$.
     \item If for any networks $N_1$, $N_2$ with a common connected component
     $G$ it holds that $t_{N_1}^n(s) = t_{N_2}^n(s)$ and $b_{N_1}^n(f) =
     b_{N_2}^n(f)$ for $s \in G \cap \S$ and $f \in G \cap \F$, then $I$
-    satisfies independence (axiom \ref{axiom:indep}).
+    satisfies independence of irrelevant stuff (axiom \ref{axiom:indep}).
+
+    \item If for any networks $N_1$, $N_2$ with a common connected component
+    $G$ there are sequences of non-negative numbers $(\alpha_n)_{n \in \Nat}$,
+    $(\beta_n)_{n \in \Nat}$ such that, for all $n \in \Nat$, $s \in G \cap \S$
+    and $f \in G \cap \F$,
+        \[ t_{N_2}^n(s) = \alpha_n \cdot t_{N_1}^n(s) \]
+        \[ b_{N_2}^n(f) = \beta_n \cdot b_{N_1}^n(f) \]
+    then $I$ satisfies weak independence of irrelevant stuff (axiom
+    \ref{axiom:weak_indep}).
 
 \end{enumerate}
 \end{lemma}
@@ -1073,8 +1102,8 @@ Sums does not satisfy Independence of Irrelevant Stuff (axiom
     \label{img:sums_non_indep}
 \end{figure}
 
-Figure \ref{img:sums_non_indep} and figure \ref{img:sums_not_all_equal_trust}
-provides an example of Sums failing to satisfy independence. The details can be
+Figures \ref{img:sums_not_all_equal_trust} and \ref{img:sums_non_indep}
+provide an example of Sums failing to satisfy independence. The details can be
 found in the proof in the appendix.
 
 We conjecture that Sums is indeed convergent for any input network. Indeed, it
@@ -1221,7 +1250,41 @@ but not unanimity.
 \end{proof}
 
 \subsection{Proof of lemma \ref{lemma:iterative_axiom_suff_conds}}
+
+The following lemma will be used to prove the claim regarding weak
+independence.
+
+\begin{lemma}
+\label{lemma:sequence_lemma}
+
+Let $(a_n)_{n \in \Nat}$, $(b_n)_{n \in \Nat}$ be convergent sequences of real
+numbers, and let $L = \lim_{n \rightarrow \infty}a_n$, $M = \lim_{n \rightarrow
+\infty}b_n$.
+\begin{enumerate}
+    \item If $L < M$, then $a_n < b_n$ for sufficiently large $n$.
+    \item If $a_n \le b_n$ for sufficiently large $n$, then $L \le M$.
+\end{enumerate}
+\end{lemma}
+
 \begin{proof}
+
+For the first claim, suppose $L < M$. Set $\epsilon = \frac{1}{2}(M - L) > 0$.
+By definition of the limit $a_n \rightarrow L$, there is $N_1 \in \Nat$ such
+that $|a_n - L| < \epsilon$ for all $n > N_1$. In particular, $a_n - L <
+\epsilon = \frac{1}{2}M - \frac{1}{2}L$ and so $a_n < \frac{1}{2}(M + L)$.
+
+On the other hand, by definition of $b_n \rightarrow M$ there is $N_2 \in \Nat$
+such that $|b_n - M| < \epsilon$ for $n > N_2$, and in particular $b_n - M >
+-\epsilon = \frac{1}{2}L - \frac{1}{2}M$ and so $b_n > \frac{1}{2}(M + L)$.
+Thus, for $n > N:=\max\{N_1, N_2\}$ we have $a_n < \frac{1}{2}(M + L) < b_n$.
+
+The second claim is now immediate; if $a_n \le b_n$ for sufficiently large $n$
+and $L \le M$ were false, then by the first claim we would have $b_n < a_n$ for
+sufficiently large $n$, which is a contradiction.
+
+\end{proof}
+
+\begin{proof}[Proof of lemma \ref{lemma:iterative_axiom_suff_conds}]
 Let $I$ be as in the statement of the lemma.
 
 \begin{enumerate}
@@ -1273,6 +1336,19 @@ for $n$ sufficiently large, so $b_N^*(f)=0 \le b_N^*(f')$ for any $f'$, and $f
 \end{align*}
 and an identical argument proves the same for facts. Hence $I$ satisfies
 independence of irrelevant stuff.
+
+\item Let $G$, $N_1$, $N_2$ be as in the statement of the claim. Let $s_1, s_2
+\in G \cap \S$ and suppose $s_1 \slt_{N_1}^I s_2$, i.e. $\lim_{n \rightarrow
+\infty}{t_{N_1}^n(s_1)} < \lim_{n \rightarrow \infty}{t_{N_1}^n(s_2)}$. By
+lemma \ref{lemma:sequence_lemma} part 1, there is $K \in \Nat$ such that
+$t_{N_1}^n(s_1) < t_{N_1}^n(s_2)$ for $n > K$. For any such $n$, $\alpha_n \ge
+0$ means $t_{N_2}^n(s_1) = \alpha_n \cdot t_{N_1}^n(s_1) \le \alpha_n \cdot
+t_{N_1}^n(s_2) = t_{N_2}^n(s_2)$. Lemma \ref{lemma:sequence_lemma} part 2 then
+gives $\lim_{n \rightarrow \infty}t_{N_2}^n(s_1) \le \lim_{n \rightarrow
+\infty}t_{N_2}^n(s_2)$, i.e. $s_1 \sle_{N_2}^I s_2$.
+
+An identical argument proves the result for fact ranking. Hence $I$ satisfies
+weak independence.
 \end{enumerate}
 
 \end{proof}
@@ -1281,7 +1357,8 @@ independence of irrelevant stuff.
 
 \begin{proof}
 Assume Sums is convergent. Since trust and belief scores for Sums are always in
-the range $[0, 1]$ lemma \ref{lemma:iterative_axiom_suff_conds} can be applied.
+the range $[0, 1]$, lemma \ref{lemma:iterative_axiom_suff_conds} can be
+applied.
 
 \begin{enumerate}
 
