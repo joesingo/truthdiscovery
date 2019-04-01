@@ -695,13 +695,6 @@ for all networks.
 An operator $T$ should not be a dictatorship.
 \end{axiom}
 
-\todo{
-    Maybe should also have an axiom for operators that have \emph{some}
-    authoritative source for each network, but not necessarily a fixed one;
-    e.g. could select the source that makes the most claims, and have that be
-    authoritative. This would be symmetric, which a dictatorship cannot be.
-}
-
 As noted above, source-symmetry and dictatorship are conceptually at odds with
 one another. This is expressed formally in the following proposition, which
 essentially shows that only trivial operators can satisfy both properties.
@@ -743,6 +736,46 @@ $T$ is trivially a dictatorship for \emph{any} $s^* \in \S$. It can be easily
 checked that $\fle_N^T$ is a well-defined total preorder, and that $T$ is also
 symmetric. However any fact in $\F \setminus F_+$ ranks strictly below any fact
 in $F_+$.
+\end{example}
+
+Dictatorship requires there to be a fixed source that is authoritative
+in all networks. A weaker form of dictatorship, which is more compatible with
+symmetry, is where the authoritative source may depend on $N$.
+
+\begin{definition}
+\label{def:gen_dict}
+$T$ is a \emph{generalised dictatorship} if for every network $N$ there exists
+a source $s_N \in \S$ that is authoritative for $N$ with $T$. A
+\emph{generalised strict dictatorship} is defined similarly.
+\end{definition}
+
+\begin{axiom}[Non-generalised dictatorship]
+\label{axiom:non_gen_dict}
+An operator $T$ should not be a generalised dictatorship.
+\end{axiom}
+\todo{Is hyphenation above correct?}
+
+Clearly a dictatorship is a generalised dictatorship, so axiom
+\ref{axiom:non_gen_dict} implies axiom \ref{axiom:non_dict}.
+
+\begin{example}
+An example operator that is both symmetric and a generalised dictatorship is
+the numeric operator defined as follows. For any truth-discovery network $N$,
+let $Q_N = \{s \in \S \colon |\fact(N, s)| = \max_{x \in \S}{|\fact(N, x)|}\}$
+be the set of sources making the maximal number of claims, and set
+\[
+    t_N(s) = \begin{cases}
+        1 & \text{ if } s \in Q_N \\
+        0 & \text{ otherwise}
+    \end{cases}
+\]
+\[
+    b_N(f) = \begin{cases}
+        1 & \text{ if } \src(N, f) \cap Q_N \ne \emptyset \\
+        0 & \text{ otherwise}
+    \end{cases}
+\]
+Any source in $Q_N$ is authoritative. \todo{Show this operator is symmetric}
 \end{example}
 
 \subsubsection{Unanimity}
