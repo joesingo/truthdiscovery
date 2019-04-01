@@ -672,9 +672,9 @@ considered.
 
 \begin{definition}
 
-A source $s^* \in \S$ is \emph{authoritative} for a network $N=(V, E)$ and
-operator $T$ if $s \sle_N^T s^*$ for all $s \in S$, and $(s^*, f^*) \in E$
-implies $f \fle_N^T f^*$ for all $f \in \F$.
+A source $s^* \in \S$ is \emph{authoritative} for a network $N=(V, E)$ with
+respect to an operator $T$ if $s \sle_N^T s^*$ for all $s \in S$, and $(s^*,
+f^*) \in E$ implies $f \fle_N^T f^*$ for all $f \in \F$.
 
 In other words, $s^*$ is more (or equally) trusted than all other sources, and
 its facts are more (or equally) believable than all others.
@@ -735,7 +735,8 @@ network $N$ write $F_{+} = \{f \in \F : \src(N, f) \ne \emptyset \}$, and
 define $T$ by $s_1 \seq_N^{T} s_2 \text{ for all } s_1, s_2 \in \S$, and
 $$
     f_1 \fle_N^{T} f_2 \iff f_2 \in F_{+} \text{ or } f_1 \notin F_{+}
-    \text{ for all } f_1, f_2 \in \F
+    \quad
+    (f_1, f_2 \in \F)
 $$
 
 $T$ is trivially a dictatorship for \emph{any} $s^* \in \S$. It can be easily
