@@ -537,13 +537,13 @@ systems{\cite{altman,altman_personalised}}. \todo{find more references for this
 (e.g. Arrow, 1951, p17)}
 
 Dispensing with numeric values is further justified by the fact that
-trust/belief scores produced by numeric operators often do not have any
+trust/belief scores produced by numericl operators often do not have any
 semantic meaning\cite{pasternack}, and so only the \emph{ranking} of
 sources/facts is important.
 
 One downside to this approach is that whilst we can tell whether or not $s_1$
 is more trustworthy than $s_2$, we cannot tell by \emph{how much}.  For
-example, consider two numeric operators $T$ and $T'$ and $\S=\{s_1, s_2\}$
+example, consider two numerical operators $T$ and $T'$ and $\S=\{s_1, s_2\}$
 such that $t_N(s_1)=0.5, t_N(s_2)=0.51$, and $t_N'(s_1)=0.01,
 t_N'(s_2)=0.99$. Both operators induce the same ranking on $\S$, yet $T$
 considers the two sources to have similar trust values while $T'$ considers
@@ -586,7 +586,7 @@ other facts, and ranks its claimed facts equally.\footnotemark
 Several axioms applicable to social welfare and social choice functions from
 classical social choice can be directly adapted to truth-discovery.
 
-\subsubsection{Symmetry}
+\subsubsection{Symmetry and dictatorship}
 
 \begin{definition}
 Two truth-discovery networks $N$ and $N'$ are \emph{equivalent} if there is a
@@ -695,13 +695,6 @@ for all networks.
 An operator $T$ should not be a dictatorship.
 \end{axiom}
 
-\todo{
-    Maybe should also have an axiom for operators that have \emph{some}
-    authoritative source for each network, but not necessarily a fixed one;
-    e.g. could select the source that makes the most claims, and have that be
-    authoritative. This would be symmetric, which a dictatorship cannot be.
-}
-
 As noted above, source-symmetry and dictatorship are conceptually at odds with
 one another. This is expressed formally in the following proposition, which
 essentially shows that only trivial operators can satisfy both properties.
@@ -744,6 +737,92 @@ checked that $\fle_N^T$ is a well-defined total preorder, and that $T$ is also
 symmetric. However any fact in $\F \setminus F_+$ ranks strictly below any fact
 in $F_+$.
 \end{example}
+
+Dictatorship requires there to be a fixed source that is authoritative
+in all networks. A weaker form of dictatorship, which is more compatible with
+symmetry, is where the authoritative source may depend on $N$.
+
+\begin{definition}
+\label{def:gen_dict}
+A truth-discovery operator $T$ is a \emph{generalised dictatorship} if for
+every network $N$ there exists a source $s_N \in \S$ that is authoritative for
+$N$ with $T$. A \emph{generalised strict dictatorship} is defined similarly.
+\end{definition}
+
+Clearly a dictatorship is also a generalised dictatorship.
+
+\begin{example}
+\label{example:symm_and_gen_dict}
+An operator that is both symmetric and a generalised dictatorship is the
+numerical operator defined as follows. For any truth-discovery network $N$, let
+$Q_N = \{s \in \S \colon |\fact(N, s)| = \max_{x \in \S}{|\fact(N, x)|}\}$ be
+the set of sources making the maximal number of claims, and set
+\[
+    t_N(s) = \begin{cases}
+        1 & \text{ if } s \in Q_N \\
+        0 & \text{ otherwise}
+    \end{cases}
+\]
+\[
+    b_N(f) = \begin{cases}
+        1 & \text{ if } \src(N, f) \cap Q_N \ne \emptyset \\
+        0 & \text{ otherwise}
+    \end{cases}
+\]
+Any source in $Q_N$ is authoritative. \todo{Show symmetry}
+\end{example}
+
+Note that to be a generalised dictatorship, and operator needs only to rank
+facts claimed by the most trusted source(s) above all other facts. One may
+argue that this is not necessarily an undesirable property, since the most
+trusted source presumably claims believable facts, which \emph{should} rank
+highly.
+
+However, the operator in example \ref{example:symm_and_gen_dict} has the
+additional property that the ranking is `binary': it is two-level ranking where
+all non-authoritative sources rank equally to each other and
+strictly below the authoritative ones. This behaviour is captured in the
+following definition.
+
+\begin{definition}
+A truth-discovery operator $T$ is a \emph{binary generalised dictatorship} if
+for every network $N$ there is a set of sources $Q_N \subseteq \S$ such that,
+with
+\begin{align*}
+    t_N(s) & = \begin{cases}
+        1 & \text{ if } s \in Q_N \\
+        0 & \text{ otherwise}
+    \end{cases} \\
+    b_N(f) & = \begin{cases}
+        1 & \text{ if } \src(N, f) \cap Q_N \ne \emptyset \\
+        0 & \text{ otherwise}
+    \end{cases}
+\end{align*}
+it holds that
+\[ s_1 \sle_N^T s_2 \iff t_N(s_1) \le t_N(s_2) \]
+\[ f_1 \fle_N^T f_2 \iff b_N(f_1) \le b_N(f_2) \]
+
+\end{definition}
+
+\begin{remark}
+If $T$ is a binary generalised dictatorship, it clear that for each network
+$N$, each source in $Q_N$ is authoritative.
+
+In such case the orderings $\sle_N^T$ and $\fle_N^T$ are fully determined by
+the choice of $Q_N$. Therefore a binary generalised dictatorship can be
+identified with a mapping $\N \rightarrow 2^\S$ that selects the authoritative
+sources for each truth-discovery network.
+\end{remark}
+
+\begin{axiom}
+\label{axiom:non_bin_gen_dict}
+An operator $T$ should not be a binary generalised dictatorship.
+\end{axiom}
+
+\begin{proposition}
+\label{prop:non_dict_and_non_bin_gen_dict_indep}
+Non-dictatorship and non- binary generalised dictatorship are independent.
+\end{proposition}
 
 \subsubsection{Unanimity}
 
@@ -1225,6 +1304,39 @@ This implies there is no source-symmetric strict dictatorship. If $T$ were such
 an operator then $T$ is also a non-strict dictatorship, so symmetry implies
 all sources are ranked equally, but this contradicts $s \slt_N^T s^*$ for all
 $s \ne s^*$.
+
+\end{proof}
+
+\subsection{Proof of proposition \ref{prop:non_dict_and_non_bin_gen_dict_indep}}
+\begin{proof}
+
+The operator $T$ defined in example \ref{example:symm_and_gen_dict} is not a
+dictatorship but is a binary generalised dictatorship. Indeed, it is clearly a
+binary generalised dictatorship from the definition. To show it is not a
+dictatorship, it is sufficient by symmetry and proposition
+\ref{prop:symm_and_dict} to find a network in which $T$ does not rank all
+sources equally. A suitable example is a network $N$ where a source $s$ claims
+two facts and all other sources claim only one fact. Then $Q_N = \{s\}$, so $s$
+is ranked strictly above all other sources.
+
+For an operator that is a dictatorship but not a binary generalised
+dictatorship, fix two distinct sources $s^*, s^{**} \in \S$ and consider the
+numerical operator $T'$ defined by
+\begin{align*}
+    t_N(s) & = \begin{cases}
+        2 & \text{ if } s = s^* \\
+        1 & \text{ if } s = s^{**} \\
+        0 & \text{ otherwise}
+    \end{cases} \\
+    b_N(f) & = \begin{cases}
+        1 & \text{ if } s^* \in \src(N, f) \\
+        0 & \text{ otherwise}
+    \end{cases} \\
+\end{align*}
+Clearly this is a dictatorship with dictator source $s^*$. Also, for any
+network $N$ we have $s \slt_N^{T'} s^{**} \slt_N^{T'} s^*$; such a chain of
+strict inequalities cannot occur for a binary generalised dictatorship, so we
+are done.
 
 \end{proof}
 
