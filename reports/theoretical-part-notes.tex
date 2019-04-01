@@ -754,9 +754,9 @@ Clearly a dictatorship is also a generalised dictatorship.
 \begin{example}
 \label{example:symm_and_gen_dict}
 An operator that is both symmetric and a generalised dictatorship is the
-numerical operator defined as follows. For any truth-discovery network $N$, let
-$Q_N = \{s \in \S \colon |\fact(N, s)| = \max_{x \in \S}{|\fact(N, x)|}\}$ be
-the set of sources making the maximal number of claims, and set
+numerical operator $T$ defined as follows. For any truth-discovery network $N$,
+let $Q_N = \{s \in \S \colon |\fact(N, s)| = \max_{x \in \S}{|\fact(N, x)|}\}$
+be the set of sources making the maximal number of claims, and set
 \[
     t_N(s) = \begin{cases}
         1 & \text{ if } s \in Q_N \\
@@ -769,10 +769,41 @@ the set of sources making the maximal number of claims, and set
         0 & \text{ otherwise}
     \end{cases}
 \]
-Any source in $Q_N$ is authoritative. \todo{Show symmetry}
+Clearly any source in $Q_N$ is authoritative.
+
+For symmetry, let $N$ and $\pi(N)$ be equivalent networks. Let $s \in \S$.
+First note that $f \in \fact(N, s)$ iff $\pi(f) \in \fact(\pi(N), \pi(s))$ by
+definition of equivalent networks, and in particular the restriction of $\pi$
+to $\fact(N, s)$ is a bijection into $\fact(\pi(N), \pi(s))$; hence $|\fact(N,
+s)| = |\fact(\pi(N), \pi(s))|$. Also, since $\pi$ restricted to $\S$ is a
+bijection into $\S$, we have
+\begin{align*}
+    \max_{x \in \S}{|\fact(N, x)|} & = \max_{x \in \S}{|\fact(\pi(N), \pi(x))|} \\
+                                   & = \max_{x \in \S}{|\fact(\pi(N), x)|}
+\end{align*}
+\begin{align*}
+    s \in Q_N & \iff |\fact(N, s)| = \max_{x \in S}{|\fact(N, x)|} \\
+              & \iff |\fact(\pi(N), \pi(s))| = \max_{x \in S}{|\fact(\pi(N), x)|} \\
+              & \iff \pi(s) \in Q_{\pi(N)}
+\end{align*}
+We see that $t_N(s) = t_{\pi(N)}(\pi(s))$ for any $s \in \S$.
+
+Now let $f \in \F$. Note that $s \in \src(N, f)$ iff $\pi(s) \in \src(\pi(N),
+\pi(f))$. Using this fact and $s \in Q_N \iff \pi(s) \in Q_{\pi(N)}$, it is
+easy to see that $\src(N, f) \cap Q_N \ne \emptyset$ iff $\src(\pi(N), \pi(f))
+\cap Q_{\pi(N)} \ne \emptyset$, i.e. $b_N(f) = b_{\pi(N)}(\pi(f))$.
+
+Finally this means, for any $s_1, s_2 \in \S$ and $f_1, f_2 \in \F$:
+\begin{align*}
+    s_1 \sle_N^T s_2 & \iff t_N(s_1) \le t_N(s_2) \\
+                     & \iff t_{\pi(N)}(\pi(s_1)) \le t_{\pi(N)}(\pi(s_2)) \\
+                     & \iff \pi(s_1) \sle_{\pi(N)}^T \pi(s_2)
+\end{align*}
+and similarly $f_1 \fle_N^T f_2$ iff $\pi(f_1) \fle_{\pi(N)}^T f_2$. Hence $T$
+is symmetric.
 \end{example}
 
-Note that to be a generalised dictatorship, and operator needs only to rank
+Note that to be a generalised dictatorship, an operator needs only to rank
 facts claimed by the most trusted source(s) above all other facts. One may
 argue that this is not necessarily an undesirable property, since the most
 trusted source presumably claims believable facts, which \emph{should} rank
