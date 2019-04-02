@@ -122,7 +122,7 @@ angular.
             this.algorithm = "sums";
             this.compare_results = false;
             this.imagery = {
-                "graph": false,
+                "graph": true,
                 "animation": true
             };
 
