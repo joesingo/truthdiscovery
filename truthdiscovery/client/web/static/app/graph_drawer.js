@@ -9,9 +9,9 @@ function GraphDrawer() {
 /*
  * Retrieve the <canvas> element and create a context
  */
-GraphDrawer.prototype.grab_canvas = function() {
+GraphDrawer.prototype.grab_canvas = function(canvas_id) {
     if (this.canvas === null) {
-        this.canvas = document.getElementById("graph-canvas");
+        this.canvas = document.getElementById(canvas_id);
         this.ctx = this.canvas.getContext("2d");
     }
 };

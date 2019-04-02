@@ -99,14 +99,34 @@
 
         <!-- Animation -->
         <div ng-show="$ctrl.service.results.imagery.animation">
-            <h4>Animation showing results as algorithm iterates</h4>
+            <h4>Results as algorithm iterates</h4>
+            <canvas id="animation-canvas"></canvas>
 
-            <figure class="figure">
-                <img ng-src="data:image/gif;base64,{{ $ctrl.service.results.imagery.animation }}"
-                     class="img-responsive img-fit-contain"
-                     style="margin: auto;"
-                     alt="Animation showing results as algorithm iterates" />
-            </figure>
+            <!-- Slider to control which frame is shown -->
+            <label for="frame-slider">Iteration number:</label>
+            <input class="slider tooltip" type="range" id="frame-slider"
+                   min="0"
+                   max="{{ $ctrl.animator.frames.length - 1 }}"
+                   value="0"
+                   ng-model="$ctrl.animator.current_frame"
+                   ng-change="$ctrl.animator.redraw()"
+                   oninput="this.setAttribute('value', this.value);" />
+
+            <!-- TODO: make buttons update slider tooltip -->
+            <!-- <1!-- Next and previous buttons --1> -->
+            <!-- <div style="text-align: center;"> -->
+            <!--     <button class="btn btn-primary" type="button" -->
+            <!--             ng-disabled="$ctrl.animator.current_frame == 0" -->
+            <!--             ng-click="$ctrl.animator.previousFrame()"> -->
+            <!--         <i class="icon icon-back"></i> -->
+            <!--     </button> -->
+            <!--     <button class="btn btn-primary" type="button" -->
+            <!--         ng-disabled="$ctrl.animator.current_frame == $ctrl.animator.frames.length - 1" -->
+            <!--         ng-click="$ctrl.animator.nextFrame()"> -->
+
+            <!--         <i class="icon icon-forward"></i> -->
+            <!--     </button> -->
+            <!-- </div> -->
         </div>
     </div>
 

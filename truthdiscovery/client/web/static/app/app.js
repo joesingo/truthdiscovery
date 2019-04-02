@@ -5,6 +5,7 @@ const DATA = (JSON.parse(document.getElementById("data-json").innerHTML
 angular.module("tdApp", []);
 
 var graph_drawer = new GraphDrawer();
+var animator = new Animator();
 
 // Service to make HTTP requests and get results
 angular.
@@ -55,8 +56,12 @@ angular.
                 if ("imagery" in self.results) {
                     if ("graph" in self.results.imagery) {
                         var obj = JSON.parse(self.results.imagery.graph);
-                        graph_drawer.grab_canvas();
+                        graph_drawer.grab_canvas("graph-canvas");
                         graph_drawer.draw_graph(obj);
+                    }
+                    if ("animation" in self.results.imagery) {
+                        var obj = JSON.parse(self.results.imagery.animation);
+                        animator.load(obj);
                     }
                     // Remove imagery from previous results, if present
                     delete self.previous_results.imagery;
@@ -117,8 +122,8 @@ angular.
             this.algorithm = "sums";
             this.compare_results = false;
             this.imagery = {
-                "graph": true,
-                "animation": false
+                "graph": false,
+                "animation": true
             };
 
             this.preset_datasets = {
@@ -293,6 +298,8 @@ angular.
                 "val": icon_names.unsorted,
                 "belief": icon_names.unsorted
             };
+
+            this.animator = animator;  // global animator
 
             var self = this;
 

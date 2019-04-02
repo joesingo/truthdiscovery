@@ -57,7 +57,7 @@ td:hover .delete, th:hover .delete {
     margin-bottom: 3em;
 }
 
-#graph-canvas {
+.imagery-container canvas {
     display: block;
     margin: auto;
     margin-bottom: 1em;
