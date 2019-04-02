@@ -1179,7 +1179,8 @@ ensures that the maximum in the denominator for $t_n$ and $b_n$ is non-zero.
 \label{theorem:sums_axioms}
 If Sums is convergent, it satisfies symmetry (axiom \ref{axiom:symm}),
 non-dictatorship (axiom \ref{axiom:non_dict}), unanimity (axiom
-\ref{axiom:unanimity}) and groundedness (axiom \ref{axiom:groundedness})
+\ref{axiom:unanimity}), groundedness (axiom \ref{axiom:groundedness}) and
+weak independence of irrelevant stuff (axiom \ref{axiom:weak_indep}).
 \end{theorem}
 
 \begin{figure}
@@ -1620,6 +1621,93 @@ using the fact that $\hat{t}_n(s) \ge 0$. Therefore $\max_{y \in
 \in \F$ has $\src(N, f) = \emptyset$. By definition $b_n(f) = 0$ for all $n >
 1$, so by lemma \ref{lemma:iterative_axiom_suff_conds}, Sums satisfies
 groundedness.
+
+\item\textbf{Weak independence}: To show weak independence we will use lemma
+\ref{lemma:iterative_axiom_suff_conds} part 6. Let $N_1$, $N_2$ be
+truth-discovery networks with a common connected component $G$. Suitable
+sequences $(\alpha_n)_{n \in \Nat}$, $(\beta_n)_{n \in \Nat}$ will be defined
+recursively. For $n = 1$, set $\alpha_1 = \beta_1 = 1$. We have, by definition
+of Sums,
+\[
+    t_{N_2}^1(s) = \frac{1}{2}
+                 = \alpha_1 \cdot \frac{1}{2}
+                 = \alpha_1 \cdot t_{N_1}^1(s)
+\]
+\[
+    b_{N_2}^1(f) = \frac{1}{2}
+                 = \beta_1 \cdot \frac{1}{2}
+                 = \beta_1 \cdot b_{N_1}^1(f)
+\]
+for any $s \in G \cap \S$ and $f \in G \cap \F$. Now suppose $n \in \Nat$ is
+such that there are $\alpha_{n - 1}, \beta_{n - 1}
+\ge 0$ with
+\[
+    t_{N_2}^{n - 1}(s) = \alpha_{n - 1} \cdot t_{N_1}^{n - 1}(s)
+\]
+\[
+    b_{N_2}^{n - 1}(f) = \beta_{n - 1} \cdot b_{N_1}^{n - 1}(f)
+\]
+for all $s \in G \cap \S$ and $f \in G \cap \F$. Fix a source $s \in G \cap
+\S$. Let $E_1$, $E_2$ and $E_G$ denote the set of edges in $N_1$,$N_2$ and $G$
+respectively. Note that for any fact $f \in \F$,
+\begin{align*}
+    f \in \fact(N_1, s) & \iff (s, f) \in E_1 \\
+                        & \iff (s, f) \in E_G \\
+                        & \iff (s, f) \in E_2 \\
+                        & \iff f \in \fact(N_2, s)
+\end{align*}
+so $\fact(N_1, s) = \fact(N_2, s)$. Hence
+\begin{align*}
+    \hat{t}_{N_2}^n(s) & = \sum_{f \in \fact(N_2, s)}{b_{N_2}^{n - 1}(f)} \\
+                       & = \sum_{f \in \fact(N_1, s)}{\beta_{n - 1} \cdot b_{N_1}^{n - 1}(f)} \\
+                       & = \beta_{n - 1}\sum_{f \in \fact(N_1, s)}{b_{N_1}^{n - 1}(f)} \\
+                       & = \beta_{n - 1}\hat{t}_{N_1}^n(s)
+\end{align*}
+Write
+\[
+    \gamma_1 = \frac{1}{\max\limits_{x \in \S}{\hat{t}_{N_1}^n(x)}},
+    \quad
+    \gamma_2 = \frac{1}{\max\limits_{x \in \S}{\hat{t}_{N_2}^n(x)}}
+\]
+so that
+\begin{align*}
+    t_{N_1}^n(s) & = \gamma_1 \cdot \hat{t}_{N_1}^n(s) \\
+    t_{N_2}^n(s) & = \gamma_2 \cdot \hat{t}_{N_2}^n(s) \\
+     & = \gamma_2 \cdot \beta_{n - 1} \cdot \hat{t}_{N_1}^n(s) \\
+     & = \frac{\gamma_2 \cdot \beta_{n - 1}}{\gamma_1} \cdot \gamma_1 \cdot \hat{t}_{N_1}^n(s) \\
+     & = \frac{\gamma_2 \cdot \beta_{n - 1}}{\gamma_1} \cdot t_{N_1}^n(s)
+\end{align*}
+Taking $\alpha_n = \frac{\gamma_2\beta_{n-1}}{\gamma_1}$ we have the desired
+equality for trust scores. Note that $\gamma_1, \gamma_2 > 0$, so $\alpha_n \ge
+0$.
+
+The argument for belief scores is similar. Fix $f \in G \cap \F$. We have
+$\src(N_1, f) = \src(N_2, f)$, so
+\begin{align*}
+    \hat{b}_{N_2}^n(f) & = \sum_{s \in \src(N_2, f)}{\hat{t}_{N_2}^n(s)} \\
+       & = \sum_{s \in \src(N_1, f)}{\beta_{n-1} \cdot \hat{t}_{N_1}^n(s)} \\
+       & = \beta_{n-1} \cdot \hat{b}_{N_1}^n(f)
+\end{align*}
+Write
+\[
+    \delta_1 = \frac{1}{\max\limits_{y \in \F}{\hat{b}_{N_1}^n(y)}},
+    \quad
+    \delta_2 = \frac{1}{\max\limits_{y \in \F}{\hat{b}_{N_2}^n(y)}}
+\]
+Then
+\begin{align*}
+    b_{N_1}^n(f) & = \delta_1 \cdot \hat{b}_{N_1}^n(f) \\
+    b_{N_2}^n(f) & = \delta_2 \cdot \hat{b}_{N_2}^n(f) \\
+     & = \delta_2 \cdot \beta_{n - 1} \cdot \hat{b}_{N_1}^n(f) \\
+     & = \frac{\delta_2 \cdot \beta_{n - 1}}{\delta_1} \cdot \delta_1 \cdot \hat{b}_{N_1}^n(f) \\
+     & = \frac{\delta_2 \cdot \beta_{n - 1}}{\delta_1} \cdot b_{N_1}^n(f)
+\end{align*}
+so we may take $\beta_n = \frac{\delta_2\beta_{n-1}}{\delta_1}$.
+
+By induction, there exist sequences $(\alpha_n)_{n \in \Nat}$, $(\beta_n)_{n
+\in \Nat}$, satisfying the hypothesis of lemma
+\ref{lemma:iterative_axiom_suff_conds} part 6, so Sums satisfies weak
+independece.
 
 \end{enumerate}
 
