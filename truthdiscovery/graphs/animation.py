@@ -36,29 +36,30 @@ class BaseAnimator:
                 .format(self.renderer.backend.__class__, clses)
             )
 
-    def animate(self, outfile, algorithm, dataset):
+    def animate(self, outfile, algorithm, dataset, show_progress=True):
         """
-        :param outfile:   file object to write to
-        :param algorithm: :any:`BaseIterativeAlgorithm` sub-class instance
-        :param dataset:   :any:`Dataset` object
+        :param outfile:       file object to write to
+        :param algorithm:     :any:`BaseIterativeAlgorithm` sub-class instance
+        :param dataset:       :any:`Dataset` object
+        :param show_progress: if True, show a progress bar in the animation
         """
-        frames = self.get_frames(algorithm, dataset)
+        frames = self.get_frames(algorithm, dataset, show_progress)
         self.write(frames, outfile)
 
-    def get_frames(self, algorithm, dataset):
+    def get_frames(self, algorithm, dataset, show_progress):
         """
         A generator of ``buffer_cls`` objects for each frame in the animation
         """
         # Note: must collect all results so we can get total number of
         # iterations to work out completion percentage at each step
         all_results = tuple(algorithm.run_iter(dataset))
-        num_iterations = len(all_results)
+        num_iterations = len(all_results) - 1
 
         for i, results in enumerate(all_results):
             self.renderer.colours = ResultsGradientColourScheme(results)
             # Draw frame to in-memory buffer
             buf = self.buffer_cls()
-            progress = i / num_iterations
+            progress = i / num_iterations if show_progress else None
             self.renderer.render(dataset, buf, animation_progress=progress)
             buf.seek(0)
             yield buf

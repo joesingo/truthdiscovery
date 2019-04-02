@@ -178,6 +178,27 @@ class TestRendering(BaseTest):
         got_w, got_h, _ = img_data.shape
         assert (got_h, got_w) == (w, h)
 
+    def test_progress_bar(self, dataset):
+        w = 200
+        h = 512
+        anim_colour = (0.34, 0.99, 0.34)
+
+        class MyColourScheme(GraphColourScheme):
+            def get_animation_progress_colour(self):
+                return anim_colour
+
+        rend = GraphRenderer(width=w, height=h, colours=MyColourScheme())
+        ents = list(rend.compile(dataset, animation_progress=0.25))
+        rects = [e for e in ents if e.colour == anim_colour]
+        assert len(rects) == 1
+        assert rects[0].x == 0
+        assert rects[0].width == 50
+
+        # Test without progress bar
+        ents2 = list(rend.compile(dataset, animation_progress=None))
+        rects2 = [e for e in ents2 if e.colour == anim_colour]
+        assert len(rects2) == 0
+
 
 class TestBackends(BaseTest):
     def test_base_backend(self, dataset, tmpdir):
@@ -437,3 +458,37 @@ class TestAnimations(BaseTest):
 
         anim = MyAnimator()
         assert isinstance(anim.renderer.backend, SomeClass)
+
+    def test_progress_bar(self, dataset):
+        w = 200
+        h = 200
+        rend = GraphRenderer(width=w, height=h, backend=JsonBackend())
+        anim = JsonAnimator(renderer=rend)
+
+        buf = StringIO()
+        it = FixedIterator(20)
+        alg = Sums(iterator=it)
+        anim.animate(buf, alg, dataset, show_progress=True)
+        buf.seek(0)
+        obj = json.load(buf)
+        # Get the frame for the 5th iteration, which is 1 / 4 through
+        frame = obj["frames"][5]
+        rects = [
+            e for e in frame["entities"]
+            if e["type"] == "rectangle" and e["width"] != w
+        ]
+        assert len(rects) == 1
+        assert rects[0]["x"] == 0
+        assert rects[0]["width"] == w / 4
+
+        # Test without progress
+        buf2 = StringIO()
+        anim.animate(buf2, alg, dataset, show_progress=False)
+        buf2.seek(0)
+        obj2 = json.load(buf2)
+        frame2 = obj2["frames"][5]
+        rects2 = [
+            e for e in frame2["entities"]
+            if e["type"] == "rectangle" and e["width"] != w
+        ]
+        assert len(rects2) == 0

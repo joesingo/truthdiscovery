@@ -159,7 +159,7 @@ class WebClient(BaseClient):
         if "get_animation" in request.args:
             animator = JsonAnimator(renderer=self.get_graph_renderer())
             json_buffer = StringIO()
-            animator.animate(json_buffer, alg, dataset)
+            animator.animate(json_buffer, alg, dataset, show_progress=False)
             imagery["animation"] = json_buffer.getvalue()
 
         if imagery:

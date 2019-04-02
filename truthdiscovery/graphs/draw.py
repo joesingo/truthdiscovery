@@ -155,7 +155,6 @@ class GraphRenderer:
 
         # Draw animation progress bar if required
         if animation_progress is not None:
-            self.compile_animation_progress_rect(animation_progress)
             yield from self.compile_animation_progress_rect(animation_progress)
 
     def compile_background(self):
