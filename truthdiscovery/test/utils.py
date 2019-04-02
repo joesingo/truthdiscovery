@@ -1,13 +1,10 @@
 def _is_valid_file_type(data, signature):
     """
-    :param data: file-like object or bytes
+    :param data: file-like object
     :param signature: expected signature
     """
     size = len(signature)
-    try:
-        return data.read(size) == signature
-    except AttributeError:
-        return data[:size] == signature
+    return data.read(size) == signature
 
 
 def is_valid_png(data):

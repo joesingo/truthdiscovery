@@ -5,7 +5,7 @@ import numpy.ma as ma
 from truthdiscovery.algorithm import Investment
 from truthdiscovery.input import MatrixDataset
 from truthdiscovery.graphs import (
-    Animator,
+    GifAnimator,
     MatrixDatasetGraphRenderer,
     ResultsGradientColourScheme
 )
@@ -44,6 +44,6 @@ if __name__ == "__main__":
 
     cs = ResultsGradientColourScheme(algorithm.run(mydata))
     rend = MatrixDatasetGraphRenderer(zero_indexed=False, colours=cs)
-    animator = Animator(renderer=rend, frame_duration=0.2)
+    animator = GifAnimator(renderer=rend, frame_duration=0.2)
     with open(out_path, "wb") as outfile:
         animator.animate(outfile, algorithm, mydata)

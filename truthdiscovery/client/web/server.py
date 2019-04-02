@@ -1,4 +1,3 @@
-import base64
 from io import BytesIO, StringIO
 import json
 
@@ -8,21 +7,11 @@ from truthdiscovery.client.base import BaseClient
 from truthdiscovery.input import MatrixDataset
 from truthdiscovery.output import Result, ResultDiff
 from truthdiscovery.graphs import (
-    Animator,
+    JsonAnimator,
     JsonBackend,
     MatrixDatasetGraphRenderer,
-    PngBackend,
     ResultsGradientColourScheme
 )
-
-
-class Base64BytesIO(BytesIO):
-    """
-    In-memory bytes buffer that can be converted to a base64 encoded string
-    """
-    def get_base64(self):
-        self.seek(0)
-        return base64.b64encode(self.read()).decode()
 
 
 class route:
@@ -80,6 +69,7 @@ class WebClient(BaseClient):
     def get_results_object(self, res_str):
         """
         Construct a :any:`Result` object from a JSON string
+
         :raises ValueError: if string is not valid JSON or does not contain the
                             fields required to construct a :any:`Result` object
         """
@@ -167,13 +157,10 @@ class WebClient(BaseClient):
             imagery["graph"] = json_buffer.getvalue()
 
         if "get_animation" in request.args:
-            renderer = self.get_graph_renderer()
-            # TODO: update to use JSON backend
-            renderer.backend = PngBackend()
-            animator = Animator(renderer=renderer)
-            img_buffer = Base64BytesIO()
-            animator.animate(img_buffer, alg, dataset)
-            imagery["animation"] = img_buffer.get_base64()
+            animator = JsonAnimator(renderer=self.get_graph_renderer())
+            json_buffer = StringIO()
+            animator.animate(json_buffer, alg, dataset)
+            imagery["animation"] = json_buffer.getvalue()
 
         if imagery:
             output["imagery"] = imagery

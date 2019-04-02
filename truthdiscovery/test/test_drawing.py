@@ -8,11 +8,13 @@ from truthdiscovery.algorithm import Sums
 from truthdiscovery.input import Dataset, MatrixDataset
 from truthdiscovery.output import Result
 from truthdiscovery.graphs import (
-    Animator,
+    BaseAnimator,
     BaseBackend,
     Circle,
+    GifAnimator,
     GraphColourScheme,
     GraphRenderer,
+    JsonAnimator,
     JsonBackend,
     Label,
     Line,
@@ -23,6 +25,7 @@ from truthdiscovery.graphs import (
     Rectangle,
     ResultsGradientColourScheme,
 )
+from truthdiscovery.utils import FixedIterator
 from truthdiscovery.test.utils import is_valid_png, is_valid_gif
 
 
@@ -213,8 +216,8 @@ class TestBackends(BaseTest):
         assert "width" in obj
         assert "height" in obj
         assert "entities" in obj
-        obj["width"] == w
-        obj["height"] == h
+        assert obj["width"] == w
+        assert obj["height"] == h
 
         ents = obj["entities"]
         assert isinstance(ents, list)
@@ -358,10 +361,17 @@ class TestColourSchemes:
 
 
 class TestAnimations(BaseTest):
-    def test_valid_gif(self, dataset):
+    def test_base(self, dataset):
+        class MyAnimator(BaseAnimator):
+            supported_backends = (PngBackend,)
+
+        with pytest.raises(NotImplementedError):
+            MyAnimator().animate(BytesIO(), Sums(), dataset)
+
+    def test_gif_animation(self, dataset):
         w, h = 123, 78
         renderer = GraphRenderer(width=w, height=h)
-        animator = Animator(renderer=renderer)
+        animator = GifAnimator(renderer=renderer)
         alg = Sums()
         buf = BytesIO()
         animator.animate(buf, alg, dataset)
@@ -374,16 +384,56 @@ class TestAnimations(BaseTest):
         got_w, got_h, _ = img_data.shape
         assert (got_h, got_w) == (w, h)
 
+    def test_json_animation(self, dataset):
+        w, h = 123, 78
+        renderer = GraphRenderer(width=w, height=h, backend=JsonBackend())
+        animator = JsonAnimator(renderer=renderer, frame_duration=1 / 9)
+        alg = Sums(iterator=FixedIterator(4))
+        buf = StringIO()
+        animator.animate(buf, alg, dataset)
+        buf.seek(0)
+        obj = json.load(buf)
+
+        assert "fps" in obj
+        assert obj["fps"] == 9
+        assert "frames" in obj
+        assert isinstance(obj["frames"], list)
+        assert len(obj["frames"]) == 5
+        assert isinstance(obj["frames"][0], dict)
+        assert "width" in obj["frames"][0]
+        assert "height" in obj["frames"][0]
+        assert "entities" in obj["frames"][0]
+        assert obj["frames"][0]["width"] == w
+        assert obj["frames"][0]["height"] == h
+
     def test_renderer(self):
         # Custom renderer should be used if provided
         custom_renderer = GraphRenderer(font_size=10000)
-        anim = Animator(renderer=custom_renderer)
+        anim = GifAnimator(renderer=custom_renderer)
         assert anim.renderer == custom_renderer
 
         # Otherwise a default renderer
-        anim2 = Animator()
+        anim2 = GifAnimator()
         assert isinstance(anim2.renderer, GraphRenderer)
 
     def test_fps(self):
-        anim = Animator(frame_duration=1 / 3)
+        anim = GifAnimator(frame_duration=1 / 3)
         assert anim.fps == 3
+
+    def test_invalid_backend(self):
+        png_rend = GraphRenderer(backend=PngBackend())
+        json_rend = GraphRenderer(backend=JsonBackend())
+        with pytest.raises(TypeError):
+            GifAnimator(renderer=json_rend)
+        with pytest.raises(TypeError):
+            JsonAnimator(renderer=png_rend)
+
+    def test_default_backend(self):
+        class SomeClass:
+            pass
+
+        class MyAnimator(BaseAnimator):
+            supported_backends = (SomeClass, float, int)
+
+        anim = MyAnimator()
+        assert isinstance(anim.renderer.backend, SomeClass)

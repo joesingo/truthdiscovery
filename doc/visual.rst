@@ -63,15 +63,22 @@ Animations
 
 For iterative algorithms, one may wish to visualise not just the final results,
 but the partial results at each iteration as the algorithm progresses. The
-:any:`Animator` class implements creating animated GIF files for this
+:any:`GifAnimator` class implements creating animated GIF files for this
 purpose: ::
 
     from truthdiscovery import (
-        Animator, ConvergenceIterator, DistanceMeasures, Investment
+        ConvergenceIterator, Dataset, DistanceMeasures, GifAnimator, Investment
     )
 
+    tuples = [
+        ("source 1", "x", 4), ("source 1", "y", 7), ("source 2", "y", 7),
+        ("source 2", "z", 5), ("source 3", "x", 3), ("source 3", "z", 5),
+        ("source 4", "x", 3), ("source 4", "y", 6), ("source 4", "z", 8)
+    ]
+    mydata = Dataset(tuples)
+
     alg = Investment(iterator=ConvergenceIterator(DistanceMeasures.L2, 0.01))
-    animator = Animator(frame_duration=0.2)  # 0.2 seconds per iteration
+    animator = GifAnimator(frame_duration=0.2)  # 0.2 seconds per iteration
 
     with open("/tmp/animation.gif", "wb") as imgfile:
         animator.animate(imgfile, alg, mydata)

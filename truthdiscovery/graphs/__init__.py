@@ -1,4 +1,8 @@
-from truthdiscovery.graphs.animation import Animator
+from truthdiscovery.graphs.animation import (
+    BaseAnimator,
+    GifAnimator,
+    JsonAnimator
+)
 from truthdiscovery.graphs.backends import BaseBackend, PngBackend, JsonBackend
 from truthdiscovery.graphs.colours import (
     GraphColourScheme,

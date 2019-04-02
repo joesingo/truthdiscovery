@@ -1,4 +1,3 @@
-import base64
 import json
 
 from flask import Flask
@@ -15,7 +14,7 @@ from truthdiscovery.utils import (
     DistanceMeasures,
     FixedIterator
 )
-from truthdiscovery.test.utils import is_valid_png, is_valid_gif
+from truthdiscovery.test.utils import is_valid_png
 
 
 class ClientTestsBase:
@@ -686,7 +685,7 @@ class TestWebClient(ClientTestsBase):
         assert "entities" in obj
         assert isinstance(obj["entities"], list)
 
-    def test_get_b64_animated_gif(self, test_client, dataset):
+    def test_get_json_animated_gif(self, test_client, dataset):
         no_animation = {
             "matrix": dataset.to_csv(),
             "algorithm": "sums"
@@ -706,6 +705,15 @@ class TestWebClient(ClientTestsBase):
         assert resp2.status_code == 200
         assert "imagery" in resp2.json["data"]
         assert "animation" in resp2.json["data"]["imagery"]
-        b64_img = resp2.json["data"]["imagery"]["animation"]
-        bin_data = base64.b64decode(b64_img)
-        assert is_valid_gif(bin_data)
+        json_string = resp2.json["data"]["imagery"]["animation"]
+        # Check animation is valid JSON
+        obj = json.loads(json_string)
+        # Check object is as expected
+        assert "fps" in obj
+        assert "frames" in obj
+        assert isinstance(obj["frames"], list)
+        assert len(obj["frames"]) == 5
+        assert isinstance(obj["frames"][0], dict)
+        assert "width" in obj["frames"][0]
+        assert "height" in obj["frames"][0]
+        assert "entities" in obj["frames"][0]

@@ -1,6 +1,13 @@
 truthdiscovery.graphs package
 =============================
 
+Subpackages
+-----------
+
+.. toctree::
+
+    truthdiscovery.graphs.backends
+
 Submodules
 ----------
 
@@ -24,6 +31,14 @@ truthdiscovery.graphs.draw module
 ---------------------------------
 
 .. automodule:: truthdiscovery.graphs.draw
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+truthdiscovery.graphs.entities module
+-------------------------------------
+
+.. automodule:: truthdiscovery.graphs.entities
     :members:
     :undoc-members:
     :show-inheritance:
