@@ -19,9 +19,10 @@ class MajorityVoting(BaseAlgorithm):
         """
         start_time = time.time()
         claim_belief = data.sc.T @ np.ones((data.num_sources),)
+        normalised_belief = claim_belief / np.max(claim_belief)
         end_time = time.time()
         return Result(
             trust=data.get_source_trust_dict([1] * data.num_sources),
-            belief=data.get_belief_dict(claim_belief),
+            belief=data.get_belief_dict(normalised_belief),
             time_taken=end_time - start_time
         )

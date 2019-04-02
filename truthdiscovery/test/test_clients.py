@@ -314,6 +314,7 @@ class TestCommandLineClient(ClientTestsBase):
         assert set(results.keys()) == {
             "time", "iterations", "trust", "belief"
         }
+        assert results["iterations"] is None
 
     def test_custom_output(self, csv_dataset, capsys):
         self.run("run", "-a", "sums", "-f", csv_dataset, "-o", "time")
@@ -626,8 +627,9 @@ class TestWebClient(ClientTestsBase):
         output = resp2.json["data"]
         assert "diff" in output
         assert output["diff"]["trust"] == {"0": 0, "1": 0}  # no trust changes
-        # Votes for var1 == 2 should have increased by one
-        assert output["diff"]["belief"] == {"0": {"1.0": 0}, "1": {"2.0": 1}}
+        assert output["diff"]["belief"] == {
+            "0": {"1.0": -0.5}, "1": {"2.0": 0}
+        }
 
     def test_results_diff_invalid_previous_results(self, test_client):
         # Invalid JSON for previous results

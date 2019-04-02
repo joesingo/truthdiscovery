@@ -57,9 +57,9 @@ class TestVoting(BaseTest):
         results = voting.run(data)
         assert results.trust == {"s1": 1, "s2": 1, "s3": 1}
         assert results.belief == {
-            "x": {"one": 2},
-            "y": {"nine": 1, "eight": 1},
-            "z": {"seven": 2}
+            "x": {"one": 1},
+            "y": {"nine": 0.5, "eight": 0.5},
+            "z": {"seven": 1}
         }
 
 

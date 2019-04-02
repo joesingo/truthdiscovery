@@ -540,8 +540,8 @@ class TestFileDataset:
 
         assert res.trust == {"source abc": 1, "source def": 1, "source ghi": 1}
         assert res.belief == {
-            "var xyz": {85: 1, 7: 1},
-            "var XYZ": {15: 2, 13: 1}
+            "var xyz": {85: 0.5, 7: 0.5},
+            "var XYZ": {15: 1, 13: 0.5}
         }
 
     def test_implications(self, example_cls, file_contents, tmpdir):
