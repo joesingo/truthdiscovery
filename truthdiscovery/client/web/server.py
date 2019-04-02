@@ -3,6 +3,7 @@ import json
 
 from flask import Flask, render_template, request, jsonify
 
+from truthdiscovery.algorithm import BaseIterativeAlgorithm
 from truthdiscovery.client.base import BaseClient
 from truthdiscovery.input import MatrixDataset
 from truthdiscovery.output import Result, ResultDiff
@@ -157,6 +158,12 @@ class WebClient(BaseClient):
             imagery["graph"] = json_buffer.getvalue()
 
         if "get_animation" in request.args:
+            if not isinstance(alg, BaseIterativeAlgorithm):
+                err_msg = (
+                    "animation not supported for non-iterative algorithm '{}'"
+                    .format(alg_label)
+                )
+                return jsonify(ok=False, error=err_msg), 400
             animator = JsonAnimator(renderer=self.get_graph_renderer())
             json_buffer = StringIO()
             animator.animate(json_buffer, alg, dataset, show_progress=False)

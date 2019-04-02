@@ -719,3 +719,17 @@ class TestWebClient(ClientTestsBase):
         assert "width" in obj["frames"][0]
         assert "height" in obj["frames"][0]
         assert "entities" in obj["frames"][0]
+
+    def test_animation_voting(self, test_client, dataset):
+        data = {
+            "matrix": dataset.to_csv(),
+            "algorithm": "voting",
+            "get_animation": "you-know-it"
+        }
+        resp = test_client.get("/run/", query_string=data)
+        assert resp.status_code == 400
+        assert resp.json == {
+            "ok": False,
+            "error":  ("animation not supported for non-iterative algorithm "
+                       "'voting'")
+        }

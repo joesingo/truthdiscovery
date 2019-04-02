@@ -11,7 +11,8 @@
             </div>
             <div class="col-9 col-sm-12">
                 <select class="form-select" name="algorithm" id="algorithm"
-                        ng-model="$ctrl.algorithm">
+                        ng-model="$ctrl.algorithm"
+                        ng-change="$ctrl.imagery.animation = false">
                     <option ng-repeat="(label, display_name) in $ctrl.algorithm_labels"
                             value="{{ label }}">
                         {{ display_name }}
@@ -109,7 +110,8 @@
         </div>
         <div class="form-group">
             <label class="form-checkbox">
-                <input type="checkbox" ng-model="$ctrl.imagery.animation" />
+                <input type="checkbox" ng-model="$ctrl.imagery.animation"
+                       ng-disabled="$ctrl.algorithm == 'voting'" />
                 <i class="form-icon"></i>
                 Get animation of results
             </label>
