@@ -121,8 +121,7 @@ class ConvergenceIterator(Iterator):
             return True
         if self.it_count >= self.limit:
             raise ConvergenceError(
-                "Distance did not go beneath threshold in {} iterations"
-                .format(self.limit)
+                "Did not converge in {} iterations".format(self.limit)
             )
         return False
 

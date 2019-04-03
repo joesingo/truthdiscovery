@@ -20,11 +20,18 @@ angular.
         /*
          * Make the HTTP request to get results of an algorithm
          */
-        this.getResults = function(algorithm, matrix, compare_previous, imagery) {
+        this.getResults = function(algorithm, matrix, compare_previous, iteration, imagery) {
             // Build parameters to send to server
+            var alg_params = null;
+            if (algorithm !== "voting") {
+                alg_params = this.getIterationString(iteration);
+            }
             var params = {
                 "algorithm": algorithm,
-                "matrix": matrix,
+                "matrix": matrix
+            };
+            if (alg_params !== null) {
+                params.parameters = alg_params;
             };
             if (compare_previous && this.previous_results !== null) {
                 params.previous_results = JSON.stringify(this.previous_results);
@@ -33,7 +40,7 @@ angular.
             if (imagery.graph) {
                 params.get_graph = "yes-please";
             }
-            if (imagery.animation) {
+            if (imagery.animation && algorithm !== "voting") {
                 params.get_animation = "an-animation-would-be-splendid";
             }
 
@@ -108,7 +115,27 @@ angular.
                 self.state = "empty";
             });
             return promise;
-        }
+        };
+
+        /*
+         * Convert an object of iteration settings to a key=value string to be
+         * passed to the server
+         */
+        this.getIterationString = function(iteration) {
+            var value = null;
+            if (iteration.type == "fixed") {
+                value = "fixed-" + iteration.limit.toString();
+            }
+            else if (iteration.type == "convergence") {
+                value = iteration.measure + "-convergence-"
+                        + iteration.threshold.toFixed(10) + "-limit-100";
+            }
+            else {
+                throw "unknown iteration type: " + iteration.type;
+            }
+
+            return "iterator=" + value;
+        };
     }]);
 
 // Form component
@@ -121,6 +148,12 @@ angular.
             this.error = null;  // error message to show underneath form
             this.algorithm = "sums";
             this.compare_results = false;
+            this.iteration = {
+                "type": "fixed",
+                "limit": 20,
+                "measure": "l2",
+                "threshold": 0.001
+            };
             this.imagery = {
                 "graph": true,
                 "animation": true
@@ -182,6 +215,7 @@ angular.
             };
 
             this.algorithm_labels = DATA.algorithm_labels;
+            this.distance_measures = DATA.distance_measures;
 
             var self = this;
 
@@ -225,7 +259,7 @@ angular.
             this.run = function() {
                 var promise = tdService.getResults(
                     self.algorithm, self.matrix.asCSV(), self.compare_results,
-                    self.imagery
+                    self.iteration, self.imagery
                 );
                 // Cancel errors while we wait for response
                 self.error = null;
@@ -330,4 +364,13 @@ angular.
                 return prefix + self.sorting[table].col;
             };
         }
+    });
+
+angular.
+    module("tdApp").
+    filter("formatDistanceMeasure", function() {
+        return function(input) {
+            var no_under = input.replace("_", " ");
+            return no_under[0].toUpperCase() + no_under.slice(1);
+        };
     });

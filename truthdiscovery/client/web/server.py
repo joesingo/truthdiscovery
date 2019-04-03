@@ -5,6 +5,7 @@ from flask import Flask, render_template, request, jsonify
 
 from truthdiscovery.algorithm import BaseIterativeAlgorithm
 from truthdiscovery.client.base import BaseClient
+from truthdiscovery.exceptions import ConvergenceError
 from truthdiscovery.input import MatrixDataset
 from truthdiscovery.output import Result, ResultDiff
 from truthdiscovery.graphs import (
@@ -13,6 +14,7 @@ from truthdiscovery.graphs import (
     MatrixDatasetGraphRenderer,
     ResultsGradientColourScheme
 )
+from truthdiscovery.utils import DistanceMeasures
 
 
 class route:
@@ -105,10 +107,12 @@ class WebClient(BaseClient):
         # Map algorithm labels to display name
         labels = {label: cls.__name__
                   for label, cls in self.ALG_LABEL_MAPPING.items()}
-        return render_template(
-            "index.html",
-            data_json=json.dumps({"algorithm_labels": labels})
-        )
+        # Data that the JS client needs to construct forms etc
+        static_data = {
+            "algorithm_labels": labels,
+            "distance_measures": [m.value for m in DistanceMeasures]
+        }
+        return render_template("index.html", data_json=json.dumps(static_data))
 
     @route("/run/", methods=["GET"])
     def run(self):
@@ -145,7 +149,11 @@ class WebClient(BaseClient):
         except ValueError as ex:
             return jsonify(ok=False, error=str(ex)), 400
 
-        results = alg.run(dataset)
+        try:
+            results = alg.run(dataset)
+        except ConvergenceError as ex:
+            return jsonify(ok=False, error=str(ex)), 500
+
         output = self.get_output_obj(results)
 
         # Construct a graph and/or animation if requested

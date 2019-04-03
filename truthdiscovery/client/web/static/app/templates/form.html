@@ -11,8 +11,7 @@
             </div>
             <div class="col-9 col-sm-12">
                 <select class="form-select" name="algorithm" id="algorithm"
-                        ng-model="$ctrl.algorithm"
-                        ng-change="$ctrl.imagery.animation = false">
+                        ng-model="$ctrl.algorithm">
                     <option ng-repeat="(label, display_name) in $ctrl.algorithm_labels"
                             value="{{ label }}">
                         {{ display_name }}
@@ -89,6 +88,53 @@
                 <p class="text-gray">
                     {{ $ctrl.preset_datasets[$ctrl.selected_preset].description }}
                 </p>
+            </div>
+        </div>
+
+        <!-- Algorithm parameters -->
+        <div class="form-group">
+            <div class="col-3 col-sm-12">
+                <label class="form-label">Iteration method:</label>
+            </div>
+            <div class="col-9 col-sm-12">
+                <label class="form-radio">
+                    <input type="radio" ng-model="$ctrl.iteration.type" value="fixed" />
+                    <i class="form-icon"></i>
+                    Fixed
+                </label>
+                <label class="form-radio">
+                    <input type="radio" ng-model="$ctrl.iteration.type" value="convergence" />
+                    <i class="form-icon"></i>
+                    Convergence
+                </label>
+
+                <!-- 'fixed' options -->
+                <div ng-show="$ctrl.iteration.type == 'fixed'">
+                    <label class="form-label form-inline">
+                        Number of iterations:
+                        <input type="number" class="form-input" min="0" max="100"
+                               step="1" ng-model="$ctrl.iteration.limit" />
+                    </label>
+                </div>
+
+                <!-- 'convergence' options -->
+                <div ng-show="$ctrl.iteration.type == 'convergence'">
+                    <label class="form-label form-inline">
+                        Distance measure:
+                        <select class="form-select" ng-model="$ctrl.iteration.measure">
+                            <option ng-repeat="measure in $ctrl.distance_measures"
+                                    value="{{ measure }}">
+                                {{ measure | formatDistanceMeasure }}
+                            </option>
+                        </select>
+                    </label>
+
+                    <label class="form-label form-inline">
+                        Threshold:
+                        <input type="number" class="form-input" step="0.0000001"
+                               ng-model="$ctrl.iteration.threshold" />
+                    </label>
+                </div>
             </div>
         </div>
 
