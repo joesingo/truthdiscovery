@@ -51,7 +51,8 @@
                             </td>
                             <td ng-repeat="col in row track by $index">
                                 <input ng-model="$ctrl.matrix.entries[$parent.$index][$index]"
-                                       type="number" placeholder="-" onfocus="this.select()" />
+                                       class="form-input" type="number" placeholder="-"
+                                       step="0.001" onfocus="this.select()" />
                             </td>
                         </tr>
                     </tbody>
