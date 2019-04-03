@@ -5,31 +5,19 @@
  */
 function Matrix(entries) {
     this.entries = entries;
-
-    this.being_edited = [];
-    for (var i=0; i<entries.length; i++) {
-        this.being_edited.push([]);
-        for (var j=0; j<entries[i].length; j++) {
-            this.being_edited[i].push(false);
-        }
-    }
 }
 
 Matrix.prototype.addSource = function() {
     var new_claims = [];
-    var new_editing = [];
     for (var i=0; i<this.entries[0].length; i++) {
         new_claims.push(null);
-        new_editing.push(false);
     }
     this.entries.push(new_claims);
-    this.being_edited.push(new_editing);
 };
 
 Matrix.prototype.addVariable = function() {
     for (var i=0; i<this.entries.length; i++) {
         this.entries[i].push(null);
-        this.being_edited[i].push(false);
     }
 };
 
@@ -38,7 +26,6 @@ Matrix.prototype.addVariable = function() {
  */
 Matrix.prototype.deleteSource = function(i) {
     this.entries.splice(i, 1);
-    this.being_edited.splice(i, 1);
 }
 
 /*
@@ -47,15 +34,7 @@ Matrix.prototype.deleteSource = function(i) {
 Matrix.prototype.deleteVariable = function(j) {
     for (var i=0; i<this.entries.length; i++) {
         this.entries[i].splice(j, 1);
-        this.being_edited[i].splice(j, 1);
     }
-}
-
-/*
- * Mark the given cell as being currently edited
- */
-Matrix.prototype.editCell = function(row, col) {
-    this.being_edited[row][col] = true;
 }
 
 Matrix.prototype.parseStringValue = function(val) {
@@ -63,19 +42,10 @@ Matrix.prototype.parseStringValue = function(val) {
 }
 
 /*
- * Validate the given entry and mark it as no longer being edited
- */
-Matrix.prototype.stopEditingCell = function(row, col) {
-    this.entries[row][col] = this.parseStringValue(this.entries[row][col]);
-    this.being_edited[row][col] = false;
-}
-
-/*
  * Return a Matrix object loaded from a CSV string
  */
 Matrix.prototype.loadFromCSV = function(csv) {
     var entries = [];
-    var editing = [];
 
     var lines = csv.split("\n");
     var num_cols = lines[0].split(",").length;

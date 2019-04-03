@@ -49,18 +49,9 @@
                                    ng-show="$ctrl.matrix.entries.length > 1">
                                 </i>
                             </td>
-                            <td ng-repeat="col in row track by $index"
-                                ng-click="$ctrl.startEditingCell($parent.$index, $index, $event)">
-
-                                <span ng-show="!$ctrl.matrix.being_edited[$parent.$index][$index]">
-                                    {{ col || "-" }}
-                                </span>
-
-                                <input ng-show="$ctrl.matrix.being_edited[$parent.$index][$index]"
-                                       ng-model="$ctrl.matrix.entries[$parent.$index][$index]"
-                                       ng-blur="$ctrl.stopEditingCell($parent.$index, $index)"
-                                       type="number" />
-
+                            <td ng-repeat="col in row track by $index">
+                                <input ng-model="$ctrl.matrix.entries[$parent.$index][$index]"
+                                       type="number" placeholder="-" onfocus="this.select()" />
                             </td>
                         </tr>
                     </tbody>

@@ -185,26 +185,6 @@ angular.
 
             var self = this;
 
-            /*
-             * Mark a cell in the matrix as being edited, and focus the input
-             * box
-             */
-            this.startEditingCell = function(row, col, event) {
-                self.matrix.editCell(row, col);
-                // Get text input and focus manually.
-                // Seems that we cannot focus input immediately here since it
-                // is not visible until after angular model change...
-                var input = $(event.target).find("input");
-                window.setTimeout(function() {
-                    input.focus();
-                }, MATRIX_INPUT_FOCUS_DELAY);
-                // TODO: find a better way of doing this...
-            };
-
-            this.stopEditingCell = function(row, col) {
-                self.matrix.stopEditingCell(row, col);
-            };
-
             this.toggleCsvDialog = function() {
                 self.load_csv.dialog_open ^= true;
                 self.load_csv.error = "";

@@ -12,16 +12,19 @@ table {
     text-align: center;
 }
 
-.matrix-table input {
-    width: 2em;
-}
-
 .matrix-table td:first-child {
     font-weight: bold;
 }
 
 .matrix-table td {
     cursor: pointer;
+}
+
+.matrix-table input {
+    width: 5em;
+    background: inherit;
+    border: 0;
+    text-align: center;
 }
 
 /*
