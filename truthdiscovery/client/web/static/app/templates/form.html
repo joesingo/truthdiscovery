@@ -100,12 +100,12 @@
                 <label class="form-radio">
                     <input type="radio" ng-model="$ctrl.iteration.type" value="fixed" />
                     <i class="form-icon"></i>
-                    Fixed
+                    Fixed number of iterations
                 </label>
                 <label class="form-radio">
                     <input type="radio" ng-model="$ctrl.iteration.type" value="convergence" />
                     <i class="form-icon"></i>
-                    Convergence
+                    Until convergence
                 </label>
 
                 <!-- 'fixed' options -->
@@ -119,6 +119,10 @@
 
                 <!-- 'convergence' options -->
                 <div ng-show="$ctrl.iteration.type == 'convergence'">
+                    <div class="text-gray">
+                        Iterate until the distance between successive trust
+                        scores becomes less than the given threshold
+                    </div>
                     <label class="form-label form-inline">
                         Distance measure:
                         <select class="form-select" ng-model="$ctrl.iteration.measure">
