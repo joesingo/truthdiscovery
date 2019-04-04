@@ -7,8 +7,11 @@
     </p>
 
     <div>
-        <h3>Source trust scores</h3>
-        <table class="table table-hover striped">
+        <h3 ng-click="$ctrl.output.trust = !$ctrl.output.trust">
+            <i class="icon" ng-class="$ctrl.getSectionIcon('trust')"></i>
+            Source trust scores
+        </h3>
+        <table class="table table-hover striped" ng-show="$ctrl.output.trust">
             <thead>
                 <tr>
                     <th>
@@ -45,8 +48,11 @@
     </div>
 
     <div>
-        <h3>Claim belief scores</h3>
-        <table class="claim-belief table table-hover">
+        <h3 ng-click="$ctrl.output.belief = !$ctrl.output.belief">
+            <i class="icon" ng-class="$ctrl.getSectionIcon('belief')"></i>
+            Claim belief scores
+        </h3>
+        <table class="claim-belief table table-hover" ng-show="$ctrl.output.belief">
             <thead>
                 <tr>
                     <th>Variable ID</th>
@@ -86,47 +92,52 @@
     </div>
 
     <div ng-show="$ctrl.service.results.imagery" class="imagery-container">
-        <h3>Visualisation</h3>
-        <p class="text-gray">
-            Light and dark colours represent low and high trust/belief scores
-            respectively.
-        </p>
-        <!-- Static graph -->
-        <div ng-show="$ctrl.service.results.imagery.graph">
-            <h4>Final results</h4>
-            <canvas id="graph-canvas"></canvas>
-        </div>
+        <h3 ng-click="$ctrl.output.visual = !$ctrl.output.visual">
+            <i class="icon" ng-class="$ctrl.getSectionIcon('visual')"></i>
+            Visualisation
+        </h3>
+        <div ng-show="$ctrl.output.visual">
+            <p class="text-gray">
+                Light and dark colours represent low and high trust/belief scores
+                respectively.
+            </p>
+            <!-- Static graph -->
+            <div ng-show="$ctrl.service.results.imagery.graph">
+                <h4>Final results</h4>
+                <canvas id="graph-canvas"></canvas>
+            </div>
 
-        <!-- Animation -->
-        <div ng-show="$ctrl.service.results.imagery.animation">
-            <h4>Results as algorithm iterates</h4>
-            <canvas id="animation-canvas"></canvas>
+            <!-- Animation -->
+            <div ng-show="$ctrl.service.results.imagery.animation">
+                <h4>Results as algorithm iterates</h4>
+                <canvas id="animation-canvas"></canvas>
 
-            <!-- Slider to control which frame is shown -->
-            <label for="frame-slider">Iteration number:</label>
-            <input class="slider tooltip" type="range" id="frame-slider"
-                   min="0"
-                   max="{{ $ctrl.animator.frames.length - 1 }}"
-                   value="0"
-                   ng-model="$ctrl.animator.current_frame"
-                   ng-change="$ctrl.animator.redraw()"
-                   oninput="this.setAttribute('value', this.value);" />
+                <!-- Slider to control which frame is shown -->
+                <label for="frame-slider">Iteration number:</label>
+                <input class="slider tooltip" type="range" id="frame-slider"
+                       min="0"
+                       max="{{ $ctrl.animator.frames.length - 1 }}"
+                       value="0"
+                       ng-model="$ctrl.animator.current_frame"
+                       ng-change="$ctrl.animator.redraw()"
+                       oninput="this.setAttribute('value', this.value);" />
 
-            <!-- TODO: make buttons update slider tooltip -->
-            <!-- <1!-- Next and previous buttons --1> -->
-            <!-- <div style="text-align: center;"> -->
-            <!--     <button class="btn btn-primary" type="button" -->
-            <!--             ng-disabled="$ctrl.animator.current_frame == 0" -->
-            <!--             ng-click="$ctrl.animator.previousFrame()"> -->
-            <!--         <i class="icon icon-back"></i> -->
-            <!--     </button> -->
-            <!--     <button class="btn btn-primary" type="button" -->
-            <!--         ng-disabled="$ctrl.animator.current_frame == $ctrl.animator.frames.length - 1" -->
-            <!--         ng-click="$ctrl.animator.nextFrame()"> -->
+                <!-- TODO: make buttons update slider tooltip -->
+                <!-- <1!-- Next and previous buttons --1> -->
+                <!-- <div style="text-align: center;"> -->
+                <!--     <button class="btn btn-primary" type="button" -->
+                <!--             ng-disabled="$ctrl.animator.current_frame == 0" -->
+                <!--             ng-click="$ctrl.animator.previousFrame()"> -->
+                <!--         <i class="icon icon-back"></i> -->
+                <!--     </button> -->
+                <!--     <button class="btn btn-primary" type="button" -->
+                <!--         ng-disabled="$ctrl.animator.current_frame == $ctrl.animator.frames.length - 1" -->
+                <!--         ng-click="$ctrl.animator.nextFrame()"> -->
 
-            <!--         <i class="icon icon-forward"></i> -->
-            <!--     </button> -->
-            <!-- </div> -->
+                <!--         <i class="icon icon-forward"></i> -->
+                <!--     </button> -->
+                <!-- </div> -->
+            </div>
         </div>
     </div>
 

@@ -4,6 +4,15 @@ body {
     max-width: 50em;
 }
 
+h3 {
+    cursor: pointer;
+}
+
+/* Icons in h3 */
+h3 i.icon {
+    font-size: 0.6em;
+}
+
 table {
     margin-bottom: 1em;
 }

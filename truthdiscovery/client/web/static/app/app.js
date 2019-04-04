@@ -150,7 +150,7 @@ angular.
             this.service = tdService;
             this.error = null;  // error message to show underneath form
             this.algorithm = "sums";
-            this.compare_results = false;
+            this.compare_results = true;
             this.iteration = {
                 "type": "fixed",
                 "limit": 20,
@@ -292,6 +292,13 @@ angular.
         "controller": function ResultsController(tdService) {
             this.service = tdService;
 
+            // Flags for which sections to display
+            this.output = {
+                "trust": true,
+                "belief": true,
+                "visual": true
+            };
+
             this.sorting = {
                 "trust": {
                     "col": "source",
@@ -365,6 +372,15 @@ angular.
             this.getSortOrderBy = function(table) {
                 var prefix = (self.sorting[table].ascending ? "+" : "-");
                 return prefix + self.sorting[table].col;
+            };
+
+            /*
+             * Return the CSS class for the icon to show next to a section
+             * heading, which changes depending on whether the section is
+             * expanded or not
+             */
+            this.getSectionIcon = function(section) {
+                return self.output[section] ? "icon-arrow-down" : "icon-arrow-right";
             };
         }
     });
