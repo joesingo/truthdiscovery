@@ -382,6 +382,23 @@ angular.
             this.getSectionIcon = function(section) {
                 return self.output[section] ? "icon-arrow-down" : "icon-arrow-right";
             };
+
+            /*
+             * Handle a keypress on <canvas> for animation
+             */
+            this.animationKeyHandler = function(event) {
+                const left = 37;
+                const right = 39;
+
+                switch (event.keyCode) {
+                    case left:
+                        self.animator.previousFrame();
+                        break;
+                    case right:
+                        self.animator.nextFrame();
+                        break;
+                }
+            };
         }
     });
 

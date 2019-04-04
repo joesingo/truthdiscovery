@@ -110,11 +110,16 @@
             <!-- Animation -->
             <div ng-show="$ctrl.service.results.imagery.animation">
                 <h4>Results as algorithm iterates</h4>
-                <canvas id="animation-canvas"></canvas>
+                <canvas id="animation-canvas" tabindex="1"
+                        ng-keydown="$ctrl.animationKeyHandler($event)"></canvas>
+
+                <p class="text-gray">
+                    Use the slider or buttons to change iteration number, or
+                    click on the graph and use arrow keys.
+                </p>
 
                 <!-- Slider to control which frame is shown -->
-                <label for="frame-slider">Iteration number:</label>
-                <input class="slider tooltip" type="range" id="frame-slider"
+                <input class="slider" type="range"
                        min="0"
                        max="{{ $ctrl.animator.frames.length - 1 }}"
                        value="0"
@@ -122,21 +127,29 @@
                        ng-change="$ctrl.animator.redraw()"
                        oninput="this.setAttribute('value', this.value);" />
 
-                <!-- TODO: make buttons update slider tooltip -->
-                <!-- <1!-- Next and previous buttons --1> -->
-                <!-- <div style="text-align: center;"> -->
-                <!--     <button class="btn btn-primary" type="button" -->
-                <!--             ng-disabled="$ctrl.animator.current_frame == 0" -->
-                <!--             ng-click="$ctrl.animator.previousFrame()"> -->
-                <!--         <i class="icon icon-back"></i> -->
-                <!--     </button> -->
-                <!--     <button class="btn btn-primary" type="button" -->
-                <!--         ng-disabled="$ctrl.animator.current_frame == $ctrl.animator.frames.length - 1" -->
-                <!--         ng-click="$ctrl.animator.nextFrame()"> -->
+                <!-- Next and previous buttons -->
+                <div style="text-align: center;">
+                    <button class="btn btn-primary" type="button"
+                            ng-disabled="$ctrl.animator.current_frame == 0"
+                            ng-click="$ctrl.animator.previousFrame()">
+                        <i class="icon icon-back"></i>
+                    </button>
 
-                <!--         <i class="icon icon-forward"></i> -->
-                <!--     </button> -->
-                <!-- </div> -->
+                    <span style="display: inline-block; margin: 2em;">
+                        Iteration
+                        <b>
+                            {{ $ctrl.animator.current_frame }}
+                            / {{ $ctrl.animator.frames.length - 1 }}
+                        </b>
+                    </span>
+
+                    <button class="btn btn-primary" type="button"
+                        ng-disabled="$ctrl.animator.current_frame == $ctrl.animator.frames.length - 1"
+                        ng-click="$ctrl.animator.nextFrame()">
+
+                        <i class="icon icon-forward"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>

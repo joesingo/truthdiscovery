@@ -73,4 +73,5 @@ td:hover .delete, th:hover .delete {
     display: block;
     margin: auto;
     margin-bottom: 1em;
+    outline: none;
 }
