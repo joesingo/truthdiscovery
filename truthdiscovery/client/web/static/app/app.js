@@ -269,14 +269,13 @@ angular.
                 self.error = null;
 
                 promise.catch(function(response) {
-                    if ("error" in response.data) {
+                    if (typeof(response.data) === "object" && "error" in response.data) {
                         // Set error message on failure
                         self.error = response.data.error;
                         self.error = self.error[0].toUpperCase() + self.error.slice(1);
                     }
                     else {
-                        // throw any unknown errors
-                        throw response;
+                        self.error = "Unknown error :("
                     }
                 });
             };

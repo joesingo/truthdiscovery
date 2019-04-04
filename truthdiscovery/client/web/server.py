@@ -27,7 +27,7 @@ class route:
     particular instance of the class.
 
     As such we keep a record of the parameters passed to the decorator and the
-    method names, and delay actually adding the routes in flask until an
+    method names, and defer actually adding the routes in flask until an
     instance has been created and passed to ``add_routes``
     """
     # Note: this list is shared amongst all ``route`` instances
