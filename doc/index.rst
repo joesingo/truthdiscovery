@@ -37,6 +37,14 @@ believably claims, and believable claims are made my trustworthy sources.
 Most approaches are *unsupervised*, in that they do not use any prior knowledge
 for the trustworthiness of sources etc.
 
+.. figure:: images/example_graph_dataset.png
+   :figclass: align-center
+
+   Graph representation of an example truth-discovery problem
+
+The library can be used via its Python API, command-line client, or web
+interface.
+
 Installation
 ------------
 
@@ -80,8 +88,7 @@ See :ref:`input-page` for how to construct different types of datasets,
 they can accept, and :ref:`output-page` for how to use the results returned
 from an algorithm.
 
-The command-line client can be used to run truth-discovery on a dataset in CSV
-format: ::
+Command-line client (for datasets in :ref:`csv-format`): ::
 
     truthdiscovery run --algorithm sums --dataset mydata.csv
 
@@ -112,16 +119,19 @@ format: ::
         --output time iterations belief most-believed-values
 
     # Synthetic data generation
-    truthdiscovery synth --trust 0.5 0.6 0.7 --num-vars 5 --domain-size 10 \
-        --claim-prob 0.8
+    truthdiscovery synth --trust 0.5 0.6 0.7 --num-vars 5 \
+        --domain-size 10 --claim-prob 0.8
 
-    # --supervised treats the first row of the dataset as known true values,
-    # and allows accuracy to be calculated
+    # --supervised treats the first row of the dataset as known
+    # true values, and allows accuracy to be calculated
     truthdiscovery run -a sums -f mydata.csv --supervised -o accuracy
 
 See ``truthdiscovery --help`` and ``truthdiscovery <COMMAND> --help`` for
 detailed usage and all the available options.
 
+The web interface can be started on ``localhost:5000`` with ``truthdiscovery
+httpd`` (note that this uses the debug Flask server, so should not be used in a
+production environment).
 
 Indices and tables
 ==================

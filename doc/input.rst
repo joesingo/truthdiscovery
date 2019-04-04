@@ -76,6 +76,11 @@ can be constructed as follows. ::
        [3, 6, 8]
    ], 0))
 
+.. _csv-format:
+
+CSV format
+~~~~~~~~~~
+
 :any:`MatrixDataset` objects can also be loaded from a file using the
 :meth:`~truthdiscovery.input.matrix_dataset.MatrixDataset.from_csv` method. The
 above dataset in CSV format would be::
