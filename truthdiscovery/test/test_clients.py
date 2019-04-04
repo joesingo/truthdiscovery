@@ -251,7 +251,7 @@ class TestCommandLineClient(ClientTestsBase):
             )
         err = capsys.readouterr().err
         assert "invalid parameter" in err
-        assert "myextraparm" in err
+        assert "TruthFinder" in err
 
         # Invalid format
         with pytest.raises(SystemExit):

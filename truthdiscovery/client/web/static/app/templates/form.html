@@ -93,6 +93,7 @@
 
         <!-- Algorithm parameters -->
         <div class="form-group">
+            <!-- Iteration method -->
             <div class="col-3 col-sm-12">
                 <label class="form-label">Iteration method:</label>
             </div>
@@ -138,6 +139,18 @@
                         <input type="number" class="form-input" step="0.0000001"
                                ng-model="$ctrl.iteration.threshold" />
                     </label>
+                </div>
+            </div>
+
+            <!-- Algorithm-specific parameters -->
+            <div class="col-3 col-sm-12">
+                <label class="form-label">Algorithm parameters:</label>
+            </div>
+            <div class="col-9 col-sm-12">
+                <textarea ng-model="$ctrl.alg_params" class="form-input"></textarea>
+                <div class="text-gray">
+                    Algorithm-specific parameters in the form <code>key=value</code>
+                    (one per line)
                 </div>
             </div>
         </div>

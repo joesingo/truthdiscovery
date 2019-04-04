@@ -20,17 +20,20 @@ angular.
         /*
          * Make the HTTP request to get results of an algorithm
          */
-        this.getResults = function(algorithm, matrix, compare_previous, iteration, imagery) {
+        this.getResults = function(algorithm, matrix, compare_previous,
+                                   iteration, alg_params, imagery) {
             // Build parameters to send to server
-            var alg_params = null;
             if (algorithm !== "voting") {
-                alg_params = this.getIterationString(iteration);
+                if (alg_params !== "") {
+                    alg_params += "\n";
+                }
+                alg_params += this.getIterationString(iteration);
             }
             var params = {
                 "algorithm": algorithm,
                 "matrix": matrix
             };
-            if (alg_params !== null) {
+            if (alg_params !== "") {
                 params.parameters = alg_params;
             };
             if (compare_previous && this.previous_results !== null) {
@@ -154,6 +157,7 @@ angular.
                 "measure": "l2",
                 "threshold": 0.001
             };
+            this.alg_params = "";
             this.imagery = {
                 "graph": true,
                 "animation": true
@@ -259,7 +263,7 @@ angular.
             this.run = function() {
                 var promise = tdService.getResults(
                     self.algorithm, self.matrix.asCSV(), self.compare_results,
-                    self.iteration, self.imagery
+                    self.iteration, self.alg_params, self.imagery
                 );
                 // Cancel errors while we wait for response
                 self.error = null;

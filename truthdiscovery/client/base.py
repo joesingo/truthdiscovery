@@ -118,8 +118,7 @@ class BaseClient:
             return alg_cls(**param_dict)
         except TypeError:
             raise ValueError(
-                "invalid parameters {} for {}"
-                .format(param_dict, alg_cls.__name__)
+                "invalid parameters for {}".format(alg_cls.__name__)
             )
 
     def get_output_obj(self, results, output_fields=None, sup_data=None):
