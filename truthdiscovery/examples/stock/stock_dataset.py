@@ -5,6 +5,7 @@ truth-discovery.
 import csv
 import sys
 import time
+import pickle
 
 from truthdiscovery.algorithm import (
     AverageLog,
@@ -64,35 +65,55 @@ class SupervisedStockData(FileSupervisedData, StockBase):
 
 def usage(stream=sys.stdout):
     print("usage: {} DATA_TSV TRUTH_TSV".format(sys.argv[0]), file=stream)
+    print("       {} PICKLE_FILE".format(sys.argv[0]), file=stream)
 
 
 def main():
     # Show usage
     if len(sys.argv) > 1 and sys.argv[1] in ("-h", "--help"):
         usage()
-        sys.exit(0)
+        return
 
-    try:
+    dataset = None
+    sup = None
+
+    # Unpickle dataset from a file if only one argument given
+    if len(sys.argv) == 2:
+        print("unpickling data...")
+        start = time.time()
+        with open(sys.argv[1], "rb") as pickle_file:
+            sup = pickle.load(pickle_file)
+        end = time.time()
+        print("  unpickled in {:.3f} seconds".format(end - start))
+        dataset = sup.data
+
+    elif len(sys.argv) == 3:
         data_path, truth_path = sys.argv[1:]
-    except ValueError:
+        print("loading data...")
+        start = time.time()
+        dataset = StockDataset(data_path)
+        end = time.time()
+        print("  loaded in {:.3f} seconds".format(end - start))
+
+        print("loading true values...")
+        start = time.time()
+        sup = SupervisedStockData(dataset, truth_path)
+        end = time.time()
+        print("  loaded in {:.3f} seconds".format(end - start))
+
+        pickle_path = "/tmp/stock_data.pickle"
+        with open(pickle_path, "wb") as pickle_file:
+            pickle.dump(sup, pickle_file)
+        print("pickled to {}".format(pickle_path))
+
+    else:
         usage(sys.stderr)
         sys.exit(1)
 
-    print("loading data...")
-    start = time.time()
-    dataset = StockDataset(data_path)
-    end = time.time()
-    print("  loaded in {:.3f} seconds".format(end - start))
+    print("")
     print("dataset has {} sources, {} claims, {} variables".format(
         dataset.num_sources, dataset.num_claims, dataset.num_variables
     ))
-
-    print("loading true values...")
-    start = time.time()
-    sup = SupervisedStockData(dataset, truth_path)
-    end = time.time()
-    print("  loaded in {:.3f} seconds".format(end - start))
-    print("")
 
     algorithms = [
         MajorityVoting(), Sums(), AverageLog(), Investment(),
