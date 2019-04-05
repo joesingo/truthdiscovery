@@ -37,6 +37,17 @@ Matrix.prototype.deleteVariable = function(j) {
     }
 }
 
+/*
+ * Clear all entries
+ */
+Matrix.prototype.clear = function(j) {
+    for (var i=0; i<this.entries.length; i++) {
+        for (var j=0; j<this.entries[i].length; j++) {
+            this.entries[i][j] = null;
+        }
+    }
+}
+
 Matrix.prototype.parseStringValue = function(val) {
     return parseFloat(val) || null;
 }
