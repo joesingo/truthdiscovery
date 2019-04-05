@@ -1,5 +1,6 @@
 from io import BytesIO, StringIO
 import json
+from operator import attrgetter
 
 import imageio
 import pytest
@@ -29,6 +30,28 @@ from truthdiscovery.utils import FixedIterator
 from truthdiscovery.test.utils import is_valid_png, is_valid_gif
 
 
+class ExampleColourScheme(GraphColourScheme):
+    colours = {
+        NodeType.SOURCE: (0.1, 0.1, 0.1),
+        NodeType.CLAIM: (0.2, 0.2, 0.2),
+        NodeType.VARIABLE: (0.3, 0.3, 0.3),
+        "edge": (0.4, 0.4, 0.4),
+        "label": (0.5, 0.5, 0.5),
+        "border": (0.6, 0.6, 0.6),
+        "background": (0.7, 0.7, 0.7)
+    }
+
+    def get_node_colour(self, node_type, _hints):
+        cs = self.colours
+        return cs[node_type], cs["label"], cs["border"]
+
+    def get_background_colour(self):
+        return self.colours["background"]
+
+    def get_edge_colour(self):
+        return self.colours["edge"]
+
+
 class BaseTest:
     @pytest.fixture
     def dataset(self):
@@ -44,26 +67,6 @@ class BaseTest:
 
 class TestRendering(BaseTest):
     def test_entity_positioning(self, dataset):
-        colours = {
-            NodeType.SOURCE: (0.1, 0.1, 0.1),
-            NodeType.CLAIM: (0.2, 0.2, 0.2),
-            NodeType.VARIABLE: (0.3, 0.3, 0.3),
-            "edge": (0.4, 0.4, 0.4),
-            "label": (0.5, 0.5, 0.5),
-            "border": (0.6, 0.6, 0.6),
-            "background": (0.7, 0.7, 0.7)
-        }
-
-        class ExampleColourScheme(GraphColourScheme):
-            def get_node_colour(cself, node_type, _hints):
-                return colours[node_type], colours["label"], colours["border"]
-
-            def get_background_colour(self):
-                return colours["background"]
-
-            def get_edge_colour(self):
-                return colours["edge"]
-
         cs = ExampleColourScheme()
         rend = GraphRenderer(width=100, height=50, colours=cs)
         ents = list(rend.compile(dataset))
@@ -77,6 +80,7 @@ class TestRendering(BaseTest):
             + 3 * 2  # variables
         )
 
+        colours = ExampleColourScheme.colours
         bgs = [e for e in ents if e.colour == colours["background"]]
         assert len(bgs) == 1
         assert isinstance(bgs[0], Rectangle)
@@ -116,6 +120,55 @@ class TestRendering(BaseTest):
         # Check y positioning
         y_coords = sorted(y for x, y in source_coords)
         assert y_coords == [6.25, 18.75, 31.25, 43.75]
+
+    def test_node_ordering(self):
+        # Construct a dataset where claim tuples are not sorted by source,
+        # variable or value
+        dataset = Dataset((
+            ("source 4", "z", 9),
+            ("source 3", "x", 4),
+            ("source 1", "x", 1),
+            ("source 1", "y", 2),
+            ("source 2", "x", 6),
+            ("source 2", "z", 3)
+        ))
+
+        # Claims should be sorted first by their variable's label, and then by
+        # their own label. Change the default claim label method so that we can
+        # distinguish between the correct behaviour and when the claims are
+        # incorrectly sorted only by their own labels.
+        class ExampleGraphRenderer(GraphRenderer):
+            def get_claim_label(rend_self, var_id, val_hash):
+                return "{val} = {var}".format(
+                    val=rend_self.dataset.val_hashes.inverse[val_hash],
+                    var=rend_self.dataset.var_ids.inverse[var_id]
+                )
+
+        rend = ExampleGraphRenderer(colours=ExampleColourScheme())
+        ents = list(rend.compile(dataset))
+
+        c = ExampleColourScheme.colours
+        source_ls = [e.label for e in ents if e.colour == c[NodeType.SOURCE]]
+        var_ls = [e.label for e in ents if e.colour == c[NodeType.VARIABLE]]
+        claim_ls = [e.label for e in ents if e.colour == c[NodeType.CLAIM]]
+
+        source_ls.sort(key=attrgetter("y"))
+        var_ls.sort(key=attrgetter("y"))
+        claim_ls.sort(key=attrgetter("y"))
+
+        sorted_sources = [l.text for l in source_ls]
+        sorted_vars = [l.text for l in var_ls]
+        sorted_claims = [l.text for l in claim_ls]
+
+        assert sorted_sources == [
+            "source 1", "source 2", "source 3", "source 4"
+        ]
+        assert sorted_vars == ["x", "y", "z"]
+        assert sorted_claims == [
+            "1 = x", "4 = x", "6 = x",
+            "2 = y",
+            "3 = z", "9 = z"
+        ]
 
     def test_invalid_node_size(self, dataset):
         invalid_sizes = (-1, -0.00001, 0, 1.00001, 10)

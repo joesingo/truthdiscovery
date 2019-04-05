@@ -5,6 +5,14 @@ from truthdiscovery.graphs.colours import NodeType, GraphColourScheme
 from truthdiscovery.graphs.entities import Rectangle, Circle, Line, Label
 
 
+def _sort_keys_by_value(dct):
+    """
+    :param dct: a dictionary
+    :return: a list of the keys in ``dict`` sorted by their corresponding value
+    """
+    return sorted(dct, key=lambda key: dct[key])
+
+
 class GraphRenderer:
     """
     Create an image that shows a graph representation of a truth-discovery
@@ -52,12 +60,12 @@ class GraphRenderer:
         available_height = self.height - 2 * self.offset
         return self.offset + available_height * index / (num_nodes - 1)
 
-    def get_source_coords(self, source_id):
-        y = self._get_y_coord(source_id, self.dataset.num_sources)
+    def get_source_coords(self, index):
+        y = self._get_y_coord(index, self.dataset.num_sources)
         return (self.offset, y)
 
-    def get_var_coords(self, var_id):
-        y = self._get_y_coord(var_id, self.dataset.num_variables)
+    def get_var_coords(self, index):
+        y = self._get_y_coord(index, self.dataset.num_variables)
         return (self.width - self.offset, y)
 
     def get_claim_coords(self, index):
@@ -108,47 +116,70 @@ class GraphRenderer:
         # Set offset, which depends on radius
         self.offset = max_px_per_node / 2
 
-        # We want to position claims so that claims for the same variable are
-        # next to each other: sort claims by their variable ID and construct a
-        # map claim ID -> index to do this
-        claim_indexes = {}
-        var_claim_pairs = (
-            (var_id, claim_id)
-            for (var_id, _), claim_id in self.dataset.claim_ids.items()
-        )
-        for i, (_, claim_id) in enumerate(sorted(var_claim_pairs)):
-            claim_indexes[claim_id] = i
+        # Get labels for nodes
+        source_labels = {}
+        var_labels = {}
+        claim_labels = {}
+
+        for s_id in self.dataset.source_ids.values():
+            source_labels[s_id] = self.get_source_label(s_id)
+        for var_id in self.dataset.var_ids.values():
+            var_labels[var_id] = self.get_var_label(var_id)
+        for ((var_id, val_hash), claim_id) in self.dataset.claim_ids.items():
+            claim_labels[claim_id] = self.get_claim_label(var_id, val_hash)
+
+        # Get y-coordinates for all nodes. We sort nodes of each type by their
+        # label to determine the ordering
+        source_coords = {}
+        var_coords = {}
+        claim_coords = {}
+        for i, s_id in enumerate(_sort_keys_by_value(source_labels)):
+            source_coords[s_id] = self.get_source_coords(i)
+        for i, var_id in enumerate(_sort_keys_by_value(var_labels)):
+            var_coords[var_id] = self.get_var_coords(i)
+        # For claims, we sort first by variable label and then by claim label:
+        # this ensures that claims for the same variable are all next to each
+        # other
+        claim_sort_keys = {}
+        for ((var_id, _), claim_id) in self.dataset.claim_ids.items():
+            sort_key = (var_labels[var_id], claim_labels[claim_id])
+            claim_sort_keys[claim_id] = sort_key
+        for i, claim_id in enumerate(_sort_keys_by_value(claim_sort_keys)):
+            claim_coords[claim_id] = self.get_claim_coords(i)
 
         # Draw edges between sources and claims
         for s_id, claim_id in np.transpose(np.nonzero(self.dataset.sc)):
-            start = self.get_source_coords(s_id)
-            end = self.get_claim_coords(claim_indexes[claim_id])
-            yield from self.compile_edge(start, end)
+            yield from self.compile_edge(
+                source_coords[s_id], claim_coords[claim_id]
+            )
 
         # Draw claims, variables and sources
         for (var_id, val_hash), claim_id in self.dataset.claim_ids.items():
             # Draw edge from claim to variable
-            claim_coords = self.get_claim_coords(claim_indexes[claim_id])
-            var_coords = self.get_var_coords(var_id)
-            yield from self.compile_edge(claim_coords, var_coords)
+            yield from self.compile_edge(
+                claim_coords[claim_id], var_coords[var_id]
+            )
 
-            label = self.get_claim_label(var_id, val_hash)
+            # Draw claim
             hint = (
                 self.dataset.var_ids.inverse[var_id],      # variable name
                 self.dataset.val_hashes.inverse[val_hash]  # value
             )
             yield from self.compile_node(
-                NodeType.CLAIM, label, claim_coords, hint
+                NodeType.CLAIM, claim_labels[claim_id], claim_coords[claim_id],
+                hint
             )
 
+        # Variables
         for var, var_id in self.dataset.var_ids.items():
-            label = self.get_var_label(var_id)
-            coords = self.get_var_coords(var_id)
+            coords = var_coords[var_id]
+            label = var_labels[var_id]
             yield from self.compile_node(NodeType.VARIABLE, label, coords, var)
 
+        # Sources
         for source, s_id in self.dataset.source_ids.items():
-            label = self.get_source_label(s_id)
-            coords = self.get_source_coords(s_id)
+            coords = source_coords[s_id]
+            label = source_labels[s_id]
             yield from self.compile_node(
                 NodeType.SOURCE, label, coords, source
             )
