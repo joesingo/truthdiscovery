@@ -1,6 +1,3 @@
-from collections import namedtuple
-
-
 class Entity:
     """
     Class to represent an abstract entity that can be drawn

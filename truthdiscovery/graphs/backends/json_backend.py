@@ -1,7 +1,7 @@
 import json
 
 from truthdiscovery.graphs.backends.base import BaseBackend
-from truthdiscovery.graphs.entities import Entity, Rectangle, Circle, Line
+from truthdiscovery.graphs.entities import Entity
 
 
 class JsonBackend(BaseBackend):
