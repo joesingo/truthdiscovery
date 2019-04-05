@@ -733,3 +733,24 @@ class TestWebClient(ClientTestsBase):
             "error":  ("animation not supported for non-iterative algorithm "
                        "'voting'")
         }
+
+    def test_empty_dataset(self, test_client):
+        data = {
+            "algorithm": "sums",
+            "matrix": ",,,\n,,,\n,,,\n,,,"
+        }
+        resp = test_client.get("/run/", query_string=data)
+        assert resp.status_code == 400
+        err_msg = "Cannot run algorithm on empty dataset"
+        assert resp.json == {"ok": False, "error": err_msg}
+
+    def test_non_convergence(self, test_client):
+        data = {
+            "algorithm": "sums",
+            "matrix": "1,2,3\n4,5,6",
+            "parameters": "iterator=l1-convergence-0-limit-25"
+        }
+        resp = test_client.get("/run/", query_string=data)
+        assert resp.status_code == 500
+        err_msg = "Did not converge in 25 iterations"
+        assert resp.json == {"ok": False, "error": err_msg}

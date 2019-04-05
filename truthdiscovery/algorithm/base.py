@@ -3,6 +3,7 @@ import time
 
 import numpy as np
 
+from truthdiscovery.exceptions import EmptyDatasetError
 from truthdiscovery.output import Result
 from truthdiscovery.utils.iterator import FixedIterator
 
@@ -29,8 +30,12 @@ class BaseAlgorithm:
 
         :param data: input data as a :any:`Dataset` object
         :return: the results as a :any:`Result` tuple
+
+        :raises EmptyDatasetError: if the dataset contains no claims
         """
-        raise NotImplementedError("Must be implemented in child classes")
+        if data.num_claims == 0:
+            raise EmptyDatasetError("Cannot run algorithm on empty dataset")
+        # Real work must be performed in child classes
 
 
 class BaseIterativeAlgorithm(BaseAlgorithm):
@@ -85,6 +90,7 @@ class BaseIterativeAlgorithm(BaseAlgorithm):
         )
 
     def run(self, data):
+        super().run(data)
         self.iterator.reset()
         self.start_time = time.time()
         self.results_log = None
@@ -102,6 +108,7 @@ class BaseIterativeAlgorithm(BaseAlgorithm):
         Return a generator of partial :any:`Result` objects as the algorithm
         iterates
         """
+        super().run(data)
         self.iterator.reset()
         self.start_time = time.time()
         self.results_log = []

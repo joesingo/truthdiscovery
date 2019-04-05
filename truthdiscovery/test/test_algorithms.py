@@ -3,12 +3,10 @@ import math
 from os import path
 
 import numpy as np
-import numpy.ma as ma
 import pytest
 
 from truthdiscovery.algorithm import (
     AverageLog,
-    BaseAlgorithm,
     BaseIterativeAlgorithm,
     Investment,
     MajorityVoting,
@@ -17,6 +15,7 @@ from truthdiscovery.algorithm import (
     Sums,
     TruthFinder
 )
+from truthdiscovery.exceptions import EmptyDatasetError
 from truthdiscovery.input import Dataset, MatrixDataset
 from truthdiscovery.utils import (
     ConvergenceIterator,
@@ -45,10 +44,20 @@ class BaseTest:
 
 
 class TestBase(BaseTest):
-    def test_run_base_fail(self, data):
-        alg = BaseAlgorithm()
-        with pytest.raises(NotImplementedError):
-            alg.run(data)
+    def test_empty_dataset(self):
+        data = Dataset([])
+        non_it = MajorityVoting()
+        it = Sums()
+        for alg in [non_it, it]:
+            with pytest.raises(EmptyDatasetError) as excinfo:
+                alg.run(data)
+        err_msg = "Cannot run algorithm on empty dataset"
+        assert str(excinfo.value) == err_msg
+
+        # Test with run_iter also
+        with pytest.raises(EmptyDatasetError) as excinfo2:
+            _l = list(it.run_iter(data))
+        assert str(excinfo2.value) == err_msg
 
 
 class TestVoting(BaseTest):

@@ -5,7 +5,7 @@ from flask import Flask, render_template, request, jsonify
 
 from truthdiscovery.algorithm import BaseIterativeAlgorithm
 from truthdiscovery.client.base import BaseClient
-from truthdiscovery.exceptions import ConvergenceError
+from truthdiscovery.exceptions import ConvergenceError, EmptyDatasetError
 from truthdiscovery.input import MatrixDataset
 from truthdiscovery.output import Result, ResultDiff
 from truthdiscovery.graphs import (
@@ -153,6 +153,8 @@ class WebClient(BaseClient):
             results = alg.run(dataset)
         except ConvergenceError as ex:
             return jsonify(ok=False, error=str(ex)), 500
+        except EmptyDatasetError as ex:
+            return jsonify(ok=False, error=str(ex)), 400
 
         output = self.get_output_obj(results)
 
@@ -174,6 +176,8 @@ class WebClient(BaseClient):
                 return jsonify(ok=False, error=err_msg), 400
             animator = JsonAnimator(renderer=self.get_graph_renderer())
             json_buffer = StringIO()
+            # Note: empty data and convergence error would already have been
+            # caught above, so no need to check here
             animator.animate(json_buffer, alg, dataset, show_progress=False)
             imagery["animation"] = json_buffer.getvalue()
 

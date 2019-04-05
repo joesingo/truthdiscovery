@@ -17,6 +17,7 @@ class MajorityVoting(BaseAlgorithm):
         :param data: input data as a :any:`Dataset` object
         :return: results as a :any:`Result` object
         """
+        super().run(data)
         start_time = time.time()
         claim_belief = data.sc.T @ np.ones((data.num_sources),)
         normalised_belief = claim_belief / np.max(claim_belief)
