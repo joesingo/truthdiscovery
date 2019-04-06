@@ -131,7 +131,7 @@ class TestMatrixDataset:
             "5,1,3,1,1"
         ]))
 
-        data = MatrixDataset.from_csv(str(filepath))
+        data = MatrixDataset.from_csv(filepath)
         expected_matrix = ma.masked_values([
             [1, 0, 3, 2, 6],
             [0, 9, 2, 2, 5],
@@ -228,7 +228,7 @@ class TestSupervisedData:
             "5,1,3,1,1"
         ]))
 
-        sup = SupervisedData.from_csv(str(filepath))
+        sup = SupervisedData.from_csv(filepath)
         data = sup.data
         expected_matrix = ma.masked_values([
             [1, 0, 3, 2, 6],
@@ -400,7 +400,7 @@ class TestSyntheticData:
 
         filename = tmpdir.join("mydata.csv")
         filename.write(csv_string)
-        loaded = SupervisedData.from_csv(str(filename))
+        loaded = SupervisedData.from_csv(filename)
         assert np.array_equal(loaded.values, synth.values)
         assert np.array_equal(
             loaded.data.sc.toarray(),

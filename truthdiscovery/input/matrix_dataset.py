@@ -40,16 +40,16 @@ class MatrixDataset(Dataset):
                     yield (source, var, val)
 
     @classmethod
-    def from_csv(cls, path):
+    def from_csv(cls, fileobj):
         """
         Load a matrix from a CSV file
 
-        :param path: path on disk to a CSV file
-        :return: a :any:`MatrixDataset` object representing the matrix encoded
-                 by the CSV
+        :param fileobj: file object to read from
+        :return:        a :any:`MatrixDataset` object representing the matrix
+                        encoded by the CSV
         """
         try:
-            return cls(np.genfromtxt(path, delimiter=",", usemask=True))
+            return cls(np.genfromtxt(fileobj, delimiter=",", usemask=True))
         except ValueError as ex:
             raise ValueError("invalid matrix CSV: {}".format(ex))
 

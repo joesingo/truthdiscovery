@@ -60,17 +60,18 @@ class SupervisedData:
         return count / total
 
     @classmethod
-    def from_csv(cls, path):
+    def from_csv(cls, fileobj):
         """
         Load a matrix from a CSV file along with true values. The format is the
         same as for loading an unsupervised matrix dataset, but the first row
         contains the true values.
 
-        :param path: path on disk to a CSV file
-        :return:     a :any:`SupervisedData` object representing the matrix
-                     encoded by the CSV
+        :param fileobj: file object to read from
+        :return:        a :any:`SupervisedData` object representing the matrix
+                        encoded by the CSV
         """
-        temp = MatrixDataset.from_csv(path)  # Load the whole thing as a matrix
+        # Load the whole thing as a matrix
+        temp = MatrixDataset.from_csv(fileobj)
         # Get true values from first row
         true_values = {i: v for i, v in enumerate(temp.sv[0, :])
                        if not ma.is_masked(v)}

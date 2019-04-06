@@ -28,10 +28,14 @@ class ClientTestsBase:
         ], 0))
 
     @pytest.fixture
-    def csv_dataset(self, dataset, tmpdir):
+    def csv_fileobj(self, dataset, tmpdir):
         csvfile = tmpdir.join("data.csv")
         csvfile.write(dataset.to_csv())
-        return str(csvfile)
+        return csvfile
+
+    @pytest.fixture
+    def csv_dataset(self, csv_fileobj):
+        return str(csv_fileobj)
 
 
 class TestBaseClient(ClientTestsBase):
@@ -94,8 +98,8 @@ class TestBaseClient(ClientTestsBase):
         assert name3 == "ppp"
         assert val3 == 3.4
 
-    def test_get_output_obj(self, csv_dataset):
-        dataset = MatrixDataset.from_csv(csv_dataset)
+    def test_get_output_obj(self, csv_fileobj):
+        dataset = MatrixDataset.from_csv(csv_fileobj)
         alg = Sums(iterator=FixedIterator(5))
         # Default should be all fields if none are given, but not accuracy
         # unless supervised data given
@@ -106,7 +110,7 @@ class TestBaseClient(ClientTestsBase):
         }
         assert set(out1.keys()) == exp_keys
 
-        sup_data = SupervisedData.from_csv(csv_dataset)
+        sup_data = SupervisedData.from_csv(csv_fileobj)
         sup_results = alg.run(sup_data.data)
         out2 = BaseClient().get_output_obj(sup_results, sup_data=sup_data)
         assert set(out2.keys()) == {f.value for f in OutputFields}
@@ -145,12 +149,12 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "--algorithm", "sums", "-f", csv_dataset
         )
 
-    def test_results(self, csv_dataset, capsys):
+    def test_results(self, csv_dataset, csv_fileobj, capsys):
         self.run(
             "run", "-a", "average_log", "-f", csv_dataset
         )
         got_results = yaml.load(capsys.readouterr().out)
-        exp_results = AverageLog().run(MatrixDataset.from_csv(csv_dataset))
+        exp_results = AverageLog().run(MatrixDataset.from_csv(csv_fileobj))
         assert got_results["trust"] == exp_results.trust
         assert got_results["belief"] == exp_results.belief
         assert got_results["iterations"] == exp_results.iterations
@@ -316,7 +320,7 @@ class TestCommandLineClient(ClientTestsBase):
         }
         assert results["iterations"] is None
 
-    def test_custom_output(self, csv_dataset, capsys):
+    def test_custom_output(self, csv_fileobj, csv_dataset, capsys):
         self.run("run", "-a", "sums", "-f", csv_dataset, "-o", "time")
         results = yaml.load(capsys.readouterr().out)
         assert set(results.keys()) == {"time"}
@@ -334,7 +338,7 @@ class TestCommandLineClient(ClientTestsBase):
         )
         results = yaml.load(capsys.readouterr().out)
         assert set(results.keys()) == {"trust", "trust_stats"}
-        exp_mean, exp_stddev = (Sums().run(MatrixDataset.from_csv(csv_dataset))
+        exp_mean, exp_stddev = (Sums().run(MatrixDataset.from_csv(csv_fileobj))
                                 .get_trust_stats())
         assert results["trust_stats"] == {
             "mean": exp_mean, "stddev": exp_stddev
@@ -362,11 +366,11 @@ class TestCommandLineClient(ClientTestsBase):
             3: [2]
         }
 
-    def test_belief_stats(self, csv_dataset, capsys):
+    def test_belief_stats(self, csv_dataset, csv_fileobj, capsys):
         self.run("run", "-a", "sums", "-f", csv_dataset, "-o", "belief_stats")
         results = yaml.load(capsys.readouterr().out)
         assert set(results.keys()) == {"belief_stats"}
-        exp_belief_stats = (Sums().run(MatrixDataset.from_csv(csv_dataset))
+        exp_belief_stats = (Sums().run(MatrixDataset.from_csv(csv_fileobj))
                             .get_belief_stats())
         assert results["belief_stats"] == {
             var: {"mean": mean, "stddev": stddev}
@@ -469,9 +473,9 @@ class TestCommandLineClient(ClientTestsBase):
         # Renderer options
         rend1 = client.get_graph_renderer(
             self.get_parsed_args(
-                "graph", "-f", "blah", "-o", str(outfile), "--width", "200",
-                "--height", "2500", "--font-size", "14", "--node-size", "0.4",
-                "--line-width", "9", "--node-border-width", "34",
+                "graph", "-f", csv_dataset, "-o", str(outfile), "--width",
+                "200", "--height", "2500", "--font-size", "14", "--node-size",
+                "0.4", "--line-width", "9", "--node-border-width", "34",
                 "--one-indexed"
             )
         )
@@ -486,7 +490,8 @@ class TestCommandLineClient(ClientTestsBase):
         # defaults
         rend2 = client.get_graph_renderer(
             self.get_parsed_args(
-                "graph", "-f", "blah", "-o", str(outfile), "--width", "200"
+                "graph", "-f", csv_dataset, "-o", str(outfile), "--width",
+                "200"
             )
         )
         assert rend2.width == 200

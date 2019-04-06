@@ -524,7 +524,9 @@ class TestOnLargeData:
     """
     @pytest.fixture
     def data(self):
-        return MatrixDataset.from_csv(self.get_filepath("data.csv"))
+        data_path = self.get_filepath("data.csv")
+        with open(data_path) as csv_file:
+            return MatrixDataset.from_csv(csv_file)
 
     def get_filepath(self, name):
         here = path.abspath(path.dirname(__file__))

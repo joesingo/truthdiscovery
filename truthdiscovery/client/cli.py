@@ -85,6 +85,7 @@ class CommandLineClient(BaseClient):
         run_parser.add_argument(
             "-f", "--dataset",
             help="CSV file to run the algorithm on",
+            type=argparse.FileType("r"),
             required=True
         )
         run_parser.add_argument(
@@ -182,6 +183,7 @@ class CommandLineClient(BaseClient):
         graph_parser.add_argument(
             "-f", "--dataset",
             help="CSV file to create a graph for",
+            type=argparse.FileType("r"),
             required=True
         )
         graph_parser.add_argument(

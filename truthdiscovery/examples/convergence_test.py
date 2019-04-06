@@ -36,12 +36,12 @@ MEASURE_NAMES = {
 }
 
 
-def main():
+def main(csv_file):
     """
     Perform the test
     """
     print("Loading data...")
-    sup = SupervisedData.from_csv(DATA_CSV)
+    sup = SupervisedData.from_csv(csv_file)
     fig, axes = plt.subplots(2, 2)
     plt.subplots_adjust(hspace=0.3)
     fig.suptitle(
@@ -97,4 +97,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    with open(DATA_CSV) as csv_file:
+        main(csv_file)
