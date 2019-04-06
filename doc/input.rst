@@ -258,13 +258,11 @@ the file we simply pass the file path to the constructor::
     >>> results.trust
     {'source 1': 1, 'source 2': 1, 'source 3': 1, 'source 4': 1}
     >>> results.belief
-    {'x': {'4': 1.0, '8': 1.0, '3': 2.0}, 'y': {'7': 2.0, '6': 1.0}, 'z': {'5':
-    1.0, '8': 1.0}}
+    {'x': {'4': 0.5, '8': 0.5, '3': 1.0}, 'y': {'7': 1.0, '6': 0.5}, 'z': {'5': 0.5, '8': 0.5}}
     >>>
 
-The results of majority voting (where the belief score for a claim is simply
-the number of sources making that claim, and all sources receive trust score 1)
-shows that the data was loaded as expected.
+The results of :ref:`majority-voting` shows that the data was loaded as
+expected.
 
 Loading supervised data from a file is similar: we may create a sub-class of
 :any:`FileSupervisedData` and implement

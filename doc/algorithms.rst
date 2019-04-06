@@ -22,13 +22,15 @@ below. See :ref:`output-page` for details on the format of the results as
 returned by the :meth:`~truthdiscovery.algorithm.base.BaseAlgorithm.run`
 method.
 
+.. _majority-voting:
+
 Majority voting
 ---------------
 Majority voting is a simple baseline algorithm where all sources are assigned a
 trust score of 1, and the belief score for a variable taking a given value
 is simply the number of sources who make that assertion, divided by the maximum
-number of sources (to ensure all belief scores are between 0 and 1). There are
-no optional parameters. ::
+number of sources for a claim (to ensure all belief scores are between 0 and
+1). There are no optional parameters. ::
 
     from truthdiscovery import MajorityVoting
     voting = MajorityVoting()
