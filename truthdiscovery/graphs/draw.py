@@ -106,14 +106,17 @@ class GraphRenderer:
         self.dataset = dataset
 
         # Set node radius: work out maximum pixels that can be allocated to
-        # each node without vertical overlapping - radius is a proportion of
-        # this maximum size
+        # each node without vertical or horizontal overlapping - radius is a
+        # proportion of this maximum size
         max_vertical_nodes = max(
             self.dataset.num_sources,
             self.dataset.num_claims,
             self.dataset.num_variables
         )
-        max_px_per_node = self.height / max_vertical_nodes
+        max_px_per_node = min(
+            self.height / max_vertical_nodes,
+            self.width / 3  # there are 3 columns: sources, claims, variables
+        )
         self.node_radius = max_px_per_node * self.node_size / 2
         # Set offset, which depends on radius
         self.offset = max_px_per_node / 2

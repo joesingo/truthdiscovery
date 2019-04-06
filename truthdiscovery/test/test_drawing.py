@@ -200,6 +200,20 @@ class TestRendering(BaseTest):
             with pytest.raises(ValueError):
                 GraphRenderer(dataset, node_size=size)
 
+    def test_no_horizontal_overlapping(self):
+        dataset = Dataset([("source 1", "x", 100)])
+        size = 30
+        rend = GraphRenderer(
+            colours=ExampleColourScheme(), width=size, height=size, node_size=1
+        )
+        ents = list(rend.compile(dataset))
+        colours = ExampleColourScheme.colours
+        nodes = [e for e in ents if e.colour == colours["border"]]
+        assert len(nodes) == 3
+        radii = set([e.radius for e in nodes])
+        assert len(radii) == 1
+        assert list(radii)[0] == size / 6
+
     def test_png_is_default(self, dataset, tmpdir):
         out = tmpdir.join("mygraph.png")
         rend = GraphRenderer(backend=None)
