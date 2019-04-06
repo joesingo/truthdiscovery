@@ -1,4 +1,4 @@
-from io import BytesIO, StringIO
+from io import StringIO
 import json
 
 from flask import Flask, render_template, request, jsonify
@@ -145,7 +145,7 @@ class WebClient(BaseClient):
             alg_cls = self.algorithm_cls(alg_label)
             params = self.get_param_dict(params_str)
             alg = self.get_algorithm_object(alg_cls, params)
-            dataset = MatrixDataset.from_csv(BytesIO(matrix_csv.encode()))
+            dataset = MatrixDataset.from_csv(StringIO(matrix_csv))
         except ValueError as ex:
             return jsonify(ok=False, error=str(ex)), 400
 

@@ -1,7 +1,36 @@
+import os
+
 import numpy as np
 import numpy.ma as ma
 
 from truthdiscovery.input.dataset import Dataset
+
+
+def csv_to_masked_array(fileobj):
+    """
+    Parse a CSV file and return a numpy masked array
+
+    :param fileobj:     fileobj to read from
+    :return:            a numpy masked array representing the matrix encoded by
+                        the CSV
+    :raises ValueError: if CSV contains values that cannot be converted to
+                        floats, or if shape is invalid
+    """
+    entries = []
+    width = None
+    csv = fileobj.read().strip()
+    for i, line in enumerate(csv.split(os.linesep)):
+        # Split by comma and remove extra whitespace from each value
+        row = list(map(str.strip, line.split(",")))
+        if width is None:
+            width = len(row)
+        elif len(row) != width:
+            raise ValueError("Expected {} entries in row {}, got {}"
+                             .format(width, i + 1, len(row)))
+        entries.append([float(val) if val else np.nan for val in row])
+
+    matrix = np.array(entries)
+    return ma.masked_array(matrix, np.isnan(matrix))
 
 
 class MatrixDataset(Dataset):
@@ -44,12 +73,12 @@ class MatrixDataset(Dataset):
         """
         Load a matrix from a CSV file
 
-        :param fileobj: file object to read from
-        :return:        a :any:`MatrixDataset` object representing the matrix
-                        encoded by the CSV
+        :param fileobj:     file object to read from
+        :return:            a :any:`MatrixDataset` object
+        :raises ValueError: if CSV is invalid
         """
         try:
-            return cls(np.genfromtxt(fileobj, delimiter=",", usemask=True))
+            return cls(csv_to_masked_array(fileobj))
         except ValueError as ex:
             raise ValueError("invalid matrix CSV: {}".format(ex))
 

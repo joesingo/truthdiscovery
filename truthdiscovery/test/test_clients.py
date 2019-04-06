@@ -384,7 +384,6 @@ class TestCommandLineClient(ClientTestsBase):
         )
         output = capsys.readouterr().out.strip()
         lines = output.split("\n")
-        print(output)
         assert len(lines) == 4  # first row is true values, then 3 source rows
         for line in lines:
             columns = line.split(",")
@@ -563,8 +562,8 @@ class TestWebClient(ClientTestsBase):
         # Invalid matrices
         invalid_matrices = (
             "hello",
-            "1,2,3",           # only one row
-            "1,2,3\n1,2,3,4",  # inconsistent shape
+            "1,2,3\n1,2,3,4",     # inconsistent shape
+            "1,2,3ree\n1,2,3,4",  # non-float values
         )
         for matrix in invalid_matrices:
             data = {"algorithm": "sums", "matrix": matrix}
@@ -581,7 +580,6 @@ class TestWebClient(ClientTestsBase):
             ("dampening_factor=0.1", "for Sums"),
         )
         for params, exp_err in invalid_params:
-            print(params)
             data = {
                 "algorithm": "sums",
                 "matrix": "1,2,3\n4,5,6",

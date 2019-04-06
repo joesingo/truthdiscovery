@@ -2,7 +2,10 @@ import random
 
 import numpy.ma as ma
 
-from truthdiscovery.input.matrix_dataset import MatrixDataset
+from truthdiscovery.input.matrix_dataset import (
+    csv_to_masked_array,
+    MatrixDataset
+)
 
 
 class SupervisedData:
@@ -71,9 +74,9 @@ class SupervisedData:
                         encoded by the CSV
         """
         # Load the whole thing as a matrix
-        temp = MatrixDataset.from_csv(fileobj)
+        temp = csv_to_masked_array(fileobj)
         # Get true values from first row
-        true_values = {i: v for i, v in enumerate(temp.sv[0, :])
+        true_values = {i: v for i, v in enumerate(temp[0, :])
                        if not ma.is_masked(v)}
-        sv_mat = temp.sv[1:, :]
+        sv_mat = temp[1:, :]
         return cls(MatrixDataset(sv_mat), true_values)

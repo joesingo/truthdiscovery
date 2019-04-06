@@ -65,7 +65,7 @@ class TestDataset:
 
     def test_source_multiple_claims_for_a_single_variable(self):
         with pytest.raises(ValueError) as excinfo:
-            data = Dataset((
+            Dataset((
                 ("s1", "x", 4),
                 ("s2", "x", 5),
                 ("s1", "x", 5)
@@ -117,33 +117,85 @@ class TestMatrixDataset:
         assert mat.num_claims == 8
 
     def test_dimension(self):
+        arr = np.zeros((3, 3, 3))
         with pytest.raises(ValueError):
-            arr = np.zeros((3, 3, 3))
-            m = MatrixDataset(arr)
+            MatrixDataset(arr)
 
     def test_from_csv(self, tmpdir):
         filepath = tmpdir.join("data.csv")
-        csv_file = filepath.write("\n".join([
-            "1,,3,2,6",
-            ",9,2,2,5",
-            "3,9,,,1",
-            "1,9,5,3,4",
-            "5,1,3,1,1"
+        filepath.write("\n".join([
+            "1,,3, 2,6  ",  # extra whitespace should not matter
+            ", 9,0,2,5",
+            "3,9,  ,,1",
+            "1,9  , 5.7,3,4",
+            "5,1,3,1,1",
+            "\n"  # new lines at the end of file should not matter
         ]))
 
-        data = MatrixDataset.from_csv(filepath)
+        data = MatrixDataset.from_csv(filepath.open())
         expected_matrix = ma.masked_values([
-            [1, 0, 3, 2, 6],
-            [0, 9, 2, 2, 5],
-            [3, 9, 0, 0, 1],
-            [1, 9, 5, 3, 4],
+            [1, 999, 3, 2, 6],
+            [999, 9, 0, 2, 5],
+            [3, 9, 999, 999, 1],
+            [1, 9, 5.7, 3, 4],
             [5, 1, 3, 1, 1]
-        ], 0)
+        ], 999)
         assert data.num_sources == 5
         assert data.num_variables == 5
         assert data.num_claims == 15
         assert np.array_equal(data.sv.mask, expected_matrix.mask)
         assert (data.sv == expected_matrix).all()
+
+    def test_invalid_csv_shape(self, tmpdir):
+        filepath = tmpdir.join("data.csv")
+        filepath.write("\n".join([
+            "1,2,",
+            "1,2"
+        ]))
+        with pytest.raises(ValueError) as excinfo:
+            MatrixDataset.from_csv(filepath.open())
+        assert "Expected 3 entries in row 2, got 2" in str(excinfo.value)
+
+    def test_from_csv_empty_rows(self, tmpdir):
+        filepath = tmpdir.join("data.csv")
+        filepath.write("\n".join([
+            "1,2,",
+            ",,",
+            " ,\t,",
+            "3,4,5"
+        ]))
+        data = MatrixDataset.from_csv(filepath.open())
+        expected_matrix = ma.masked_values([
+            [1, 2, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+            [3, 4, 5]
+        ], 0)
+        assert np.array_equal(data.sv.mask, expected_matrix.mask)
+        assert (data.sv == expected_matrix).all()
+
+    def test_from_csv_single_row_or_column(self, tmpdir):
+        filepath1 = tmpdir.join("data1.csv")
+        filepath1.write("1,,3,2,6")
+        data1 = MatrixDataset.from_csv(filepath1.open())
+        exp_sv1 = ma.masked_values([
+            [1, 0, 3, 2, 6]
+        ], 0)
+        assert data1.num_sources == 1
+        assert data1.num_variables == 4
+        assert data1.num_claims == 4
+        assert np.array_equal(data1.sv.mask, exp_sv1.mask)
+        assert (data1.sv == exp_sv1).all()
+
+        filepath2 = tmpdir.join("data2.csv")
+        filepath2.write("1\n\n3\n2\n6")
+        data2 = MatrixDataset.from_csv(filepath2.open())
+        exp_sv2 = exp_sv1.T
+        assert data2.num_sources == 4
+        assert data2.num_variables == 1
+        assert data2.num_claims == 4
+        assert np.array_equal(data2.sv.mask, exp_sv2.mask)
+        assert (data2.sv == exp_sv2).all()
 
     def test_claims_matrix(self):
         data = MatrixDataset(ma.masked_values([
@@ -219,7 +271,7 @@ class TestSupervisedData:
 
     def test_from_csv(self, tmpdir):
         filepath = tmpdir.join("data.csv")
-        csv_file = filepath.write("\n".join([
+        filepath.write("\n".join([
             "7,8,,100,",  # true values
             "1,,3,2,6",
             ",9,2,2,5",
@@ -228,7 +280,7 @@ class TestSupervisedData:
             "5,1,3,1,1"
         ]))
 
-        sup = SupervisedData.from_csv(filepath)
+        sup = SupervisedData.from_csv(filepath.open())
         data = sup.data
         expected_matrix = ma.masked_values([
             [1, 0, 3, 2, 6],
@@ -400,7 +452,7 @@ class TestSyntheticData:
 
         filename = tmpdir.join("mydata.csv")
         filename.write(csv_string)
-        loaded = SupervisedData.from_csv(filename)
+        loaded = SupervisedData.from_csv(filename.open())
         assert np.array_equal(loaded.values, synth.values)
         assert np.array_equal(
             loaded.data.sc.toarray(),

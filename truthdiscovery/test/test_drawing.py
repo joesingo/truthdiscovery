@@ -210,7 +210,7 @@ class TestRendering(BaseTest):
         colours = ExampleColourScheme.colours
         nodes = [e for e in ents if e.colour == colours["border"]]
         assert len(nodes) == 3
-        radii = set([e.radius for e in nodes])
+        radii = {e.radius for e in nodes}
         assert len(radii) == 1
         assert list(radii)[0] == size / 6
 
@@ -222,7 +222,7 @@ class TestRendering(BaseTest):
         with open(str(out), "rb") as f:
             assert is_valid_png(f)
 
-    def test_long_labels(self, tmpdir):
+    def test_long_labels(self):
         dataset = Dataset((
             ("a-source-with-an-extremely-long-name", "x", 1000000000000000000),
             ("source 2", "quite a complicated variable name", 100)
@@ -235,8 +235,8 @@ class TestRendering(BaseTest):
         )
 
     def test_matrix_renderer(self):
-        buf = BytesIO()
-        buf.write(b",5,7\n,,\n1,2,3")
+        buf = StringIO()
+        buf.write(",5,7\n,,\n1,2,3")
         buf.seek(0)
         dataset = MatrixDataset.from_csv(buf)
         rend1 = MatrixDatasetGraphRenderer()
@@ -288,7 +288,7 @@ class TestRendering(BaseTest):
         # Test without progress bar
         ents2 = list(rend.compile(dataset, animation_progress=None))
         rects2 = [e for e in ents2 if e.colour == anim_colour]
-        assert len(rects2) == 0
+        assert not len(rects2)
 
 
 class TestBackends(BaseTest):
@@ -582,4 +582,4 @@ class TestAnimations(BaseTest):
             e for e in frame2["entities"]
             if e["type"] == "rectangle" and e["width"] != w
         ]
-        assert len(rects2) == 0
+        assert not len(rects2)
