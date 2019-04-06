@@ -170,6 +170,30 @@ class TestRendering(BaseTest):
             "3 = z", "9 = z"
         ]
 
+    def test_single_source(self):
+        one_source_dataset = Dataset((
+            ("source 1", "x", 1),
+            ("source 1", "y", 1)
+        ))
+        one_var_dataset = Dataset((
+            ("source 1", "x", 1),
+            ("source 2", "x", 2)
+        ))
+        one_claim_dataset = Dataset((
+            ("source 1", "x", 1),
+            ("source 2", "x", 1)
+        ))
+        rend = GraphRenderer(colours=ExampleColourScheme())
+        # Check the positioning of nodes for the one-source dataset
+        ents = list(rend.compile(one_source_dataset))
+        colours = ExampleColourScheme.colours
+        sources = [e for e in ents if e.colour == colours[NodeType.SOURCE]]
+        assert len(sources) == 1
+        assert sources[0].y == rend.height / 2
+        # Check the other two don't raise any exceptions
+        list(rend.compile(one_var_dataset))
+        list(rend.compile(one_claim_dataset))
+
     def test_invalid_node_size(self, dataset):
         invalid_sizes = (-1, -0.00001, 0, 1.00001, 10)
         for size in invalid_sizes:

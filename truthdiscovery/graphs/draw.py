@@ -57,8 +57,10 @@ class GraphRenderer:
         self.offset = None
 
     def _get_y_coord(self, index, num_nodes):
-        available_height = self.height - 2 * self.offset
-        return self.offset + available_height * index / (num_nodes - 1)
+        if num_nodes > 1:
+            available_height = self.height - 2 * self.offset
+            return self.offset + available_height * index / (num_nodes - 1)
+        return self.height / 2
 
     def get_source_coords(self, index):
         y = self._get_y_coord(index, self.dataset.num_sources)
