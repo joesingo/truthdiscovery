@@ -1,4 +1,5 @@
 from enum import Enum
+import inspect
 import time
 
 import numpy as np
@@ -36,6 +37,22 @@ class BaseAlgorithm:
         if data.num_claims == 0:
             raise EmptyDatasetError("Cannot run algorithm on empty dataset")
         # Real work must be performed in child classes
+
+    @classmethod
+    def get_parameter_names(cls):
+        """
+        Find the names of all parameters that this algorithm make take in its
+        constructor (including parameters from parent classes)
+
+        :return: a set of parameter names as strings
+        """
+        def yield_names(alg_cls):
+            for param in inspect.signature(alg_cls.__init__).parameters:
+                if param not in ("self", "args", "kwargs"):
+                    yield param
+            for base in alg_cls.__bases__:
+                yield from yield_names(base)
+        return set(yield_names(cls))
 
 
 class BaseIterativeAlgorithm(BaseAlgorithm):

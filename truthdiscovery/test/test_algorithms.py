@@ -59,6 +59,16 @@ class TestBase(BaseTest):
             _l = list(it.run_iter(data))
         assert str(excinfo2.value) == err_msg
 
+    def test_get_parameter_names(self):
+        assert MajorityVoting.get_parameter_names() == set([])
+        assert PooledInvestment.get_parameter_names() == {
+            "priors", "iterator", "g"
+        }
+        assert TruthFinder.get_parameter_names() == {
+            "priors", "iterator", "influence_param", "dampening_factor",
+            "initial_trust"
+        }
+
 
 class TestVoting(BaseTest):
     def test_basic(self, data):
