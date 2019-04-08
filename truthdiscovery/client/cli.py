@@ -50,29 +50,30 @@ class CommandLineClient(BaseClient):
         # Run sub-command
         run_parser = subparsers.add_parser(
             "run",
-            help="Run a truth-discovery algorithm on a CSV dataset",
+            help="Run truth-discovery algorithms on a CSV dataset",
             description="""
-                Run an algorithm on a dataset loaded from a CSV file, and
+                Run algorithms on a dataset loaded from a CSV file, and
                 return results in YAML format
             """,
         )
         run_parser.add_argument(
             "-a", "--algorithm",
-            help="The algorithm to run: choose from {}".format(
+            help="Algorithms to run: choose from {}".format(
                 ", ".join(self.ALG_LABEL_MAPPING.keys())
             ),
             required=True,
-            dest="alg_cls",
+            dest="alg_classes",
             metavar="ALGORITHM",
             type=self.make_argparse_type(self.algorithm_cls),
+            nargs="+",
         )
         run_parser.add_argument(
             "-p", "--params",
             help=("""
-                Parameters to pass to the algorithm, each in the form
-                'key=value'. For 'priors', see the PriorBelief enumeration for
-                valid values. For 'iterator', use the format 'fixed-<N>' for
-                fixed N iterations, or
+                Parameters to pass algorithms, each in the form 'key=value'.
+                Unkown parameters are ignored. For 'priors', see the
+                PriorBelief enumeration for valid values. For 'iterator', use
+                the format 'fixed-<N>' for fixed N iterations, or
                 '<measure>-convergence-<threshold>[-limit-<N>]' for convergence
                 in 'measure' within 'threshold', up to an optional maximum
                 number 'limit' iterations.
@@ -262,11 +263,15 @@ class CommandLineClient(BaseClient):
             parser.print_help()
 
     def run_algorithm(self, args, parser):
-        params = dict(args.alg_params or [])
-        try:
-            alg_obj = self.get_algorithm_object(args.alg_cls, params)
-        except ValueError as ex:
-            parser.error(ex)
+        alg_objs = []
+        all_params = dict(args.alg_params or [])
+        for cls in args.alg_classes:
+            params, ignored = self.get_algorithm_params(cls, all_params)
+            alg_objs.append(self.get_algorithm_object(cls, params))
+
+            if ignored:
+                msg = self.get_ignored_parameters_message(cls, ignored)
+                print("WARNING: {}".format(msg), file=sys.stderr)
 
         sup_data = None
         dataset = None
@@ -280,16 +285,19 @@ class CommandLineClient(BaseClient):
                 parser.error("cannot calculate accuracy without --supervised")
             dataset = MatrixDataset.from_csv(args.dataset)
 
-        results = alg_obj.run(dataset).filter(sources=args.sources,
+        output_obj = {}
+        for alg in alg_objs:
+            results = alg.run(dataset).filter(sources=args.sources,
                                               variables=args.variables)
 
-        # Get results to display
-        display_results = self.get_output_obj(
-            results,
-            output_fields=args.output_fields,
-            sup_data=sup_data
-        )
-        print(yaml.dump(display_results, indent=2, default_flow_style=False))
+            # Get results to display
+            label = self.ALG_LABEL_MAPPING.inverse[alg.__class__]
+            output_obj[label] = self.get_output_obj(
+                results,
+                output_fields=args.output_fields,
+                sup_data=sup_data
+            )
+        print(yaml.dump(output_obj, indent=2, default_flow_style=False))
 
     def generate_synthetic(self, args, parser):
         kwargs = {

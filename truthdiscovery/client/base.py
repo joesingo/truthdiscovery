@@ -1,6 +1,8 @@
 from enum import Enum
 import re
 
+from bidict import bidict
+
 from truthdiscovery.algorithm import (
     AverageLog,
     Investment,
@@ -13,6 +15,7 @@ from truthdiscovery.algorithm import (
 from truthdiscovery.utils import (
     ConvergenceIterator,
     DistanceMeasures,
+    filter_dict,
     FixedIterator
 )
 
@@ -35,18 +38,22 @@ class BaseClient:
     """
     Base class to provide functionality common to any interface to the library
     """
-    ALG_LABEL_MAPPING = {
+    ALG_LABEL_MAPPING = bidict({
         "average_log": AverageLog,
         "investment": Investment,
         "pooled_investment": PooledInvestment,
         "sums": Sums,
         "truthfinder": TruthFinder,
         "voting": MajorityVoting
-    }
+    })
 
     def algorithm_cls(self, alg_label):
         """
         Return the algorithm class corresponding to a string label
+
+        :param alg_label:     label in ``ALG_LABEL_MAPPING``
+        :return:              a :any:`BaseAlgorithm` sub-class instance
+        :raises ValueError:   if label is invalid
         """
         try:
             return self.ALG_LABEL_MAPPING[alg_label]
@@ -111,15 +118,31 @@ class BaseClient:
     def get_algorithm_object(self, alg_cls, param_dict):
         """
         Instantiate an algorithm object
-
-        :raises ValueError: if parameters are invalid
         """
-        try:
-            return alg_cls(**param_dict)
-        except TypeError:
-            raise ValueError(
-                "invalid parameters for {}".format(alg_cls.__name__)
-            )
+        return alg_cls(**param_dict)
+
+    def get_algorithm_params(self, alg_cls, param_dict):
+        """
+        :return: ``(params, ignored)``, where ``params`` is a dict containing
+                 only the keys that are valid parameters for the given
+                 algorithm class, and ``ignored`` is a set of the invalid
+                 parameter names
+        """
+        filtered = dict(filter_dict(param_dict, alg_cls.get_parameter_names()))
+        ignored = set(param_dict) - set(filtered)
+        return filtered, ignored
+
+    def get_ignored_parameters_message(self, cls, names):
+        """
+        Return a message indicating that invalid parameters have been ignored
+        when instantiating an algorithm
+
+        :param cls:   an :any:`BaseAlgorithm` sub-class
+        :param names: iterable of parameter names
+        :return: a message as a string
+        """
+        return("Ignored parameters for '{}': {}"
+               .format(cls.__name__, ", ".join(sorted(names))))
 
     def get_output_obj(self, results, output_fields=None, sup_data=None):
         """

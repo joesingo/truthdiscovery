@@ -92,9 +92,12 @@ Command-line client (for datasets in :ref:`csv-format`): ::
 
     truthdiscovery run --algorithm sums --dataset mydata.csv
 
+    # Can run multiple algorithms at once
+    truthdiscovery run --algorithm sums investment --dataset mydata.csv
+
     # Change the default parameters
-    truthdiscovery run --algorithm average_log --dataset mydata.csv \
-        --params priors=uniform
+    truthdiscovery run --algorithm sums average_log \
+        --dataset mydata.csv --params priors=uniform
 
     # Can give multiple parameters
     truthdiscovery run --algorithm investment --dataset mydata.csv \
@@ -116,7 +119,7 @@ Command-line client (for datasets in :ref:`csv-format`): ::
 
     # Fields to show in the output can be selected with --output
     truthdiscovery run --algorithm sums --dataset mydata.csv \
-        --output time iterations belief most-believed-values
+        --output time iterations belief most_believed_values
 
     # Synthetic data generation
     truthdiscovery synth --trust 0.5 0.6 0.7 --num-vars 5 \

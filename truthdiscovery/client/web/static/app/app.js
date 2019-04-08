@@ -57,7 +57,11 @@ angular.
             promise.then(function(response) {
                 // Our server's response is in response.data, and is an object
                 // with keys 'ok' and 'data' (in the success case)
-                self.results = response.data.data;
+
+                // TODO: implement showing results for multiple algorithms
+                // TODO: show warning also
+
+                self.results = response.data.data[algorithm];
                 self.state = "has_results";
                 // Save 'previous' results now, so that we may change structure
                 // of self.results without affecting data sent to server

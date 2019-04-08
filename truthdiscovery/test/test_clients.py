@@ -5,7 +5,14 @@ import numpy.ma as ma
 import pytest
 import yaml
 
-from truthdiscovery.algorithm import AverageLog, Sums, TruthFinder, PriorBelief
+from truthdiscovery.algorithm import (
+    AverageLog,
+    MajorityVoting,
+    PooledInvestment,
+    PriorBelief,
+    Sums,
+    TruthFinder
+)
 from truthdiscovery.client import BaseClient, CommandLineClient, OutputFields
 from truthdiscovery.client.web import get_flask_app, route
 from truthdiscovery.input import MatrixDataset, SupervisedData
@@ -122,15 +129,39 @@ class TestBaseClient(ClientTestsBase):
         )
         assert set(out3.keys()) == {"trust"}
 
+    def test_get_algorithm_params(self):
+        client = BaseClient()
+        params = {
+            "priors": PriorBelief.VOTED, "g": 1.99,
+            "dampening_factor": 0.5678
+        }
+
+        def get_p(*args):
+            return client.get_algorithm_params(*args)[0]
+
+        assert get_p(Sums, params) == {"priors": PriorBelief.VOTED}
+        assert get_p(TruthFinder, params) == {
+            "priors": PriorBelief.VOTED, "dampening_factor": 0.5678
+        }
+        assert get_p(PooledInvestment, params) == {
+            "priors": PriorBelief.VOTED, "g": 1.99
+        }
+        assert get_p(MajorityVoting, params) == {}
+
 
 class TestCommandLineClient(ClientTestsBase):
     @pytest.fixture
     def client(self):
         return CommandLineClient()
 
-    def get_algorithm_object(self, client, args):
-        params = dict(args.alg_params or [])
-        return client.get_algorithm_object(args.alg_cls, params)
+    def get_algorithm_objects(self, client, args):
+        all_params = dict(args.alg_params or [])
+        objs = []
+        for cls in args.alg_classes:
+            params, _ignored = client.get_algorithm_params(cls, all_params)
+            obj = client.get_algorithm_object(cls, params)
+            objs.append(obj)
+        return objs
 
     def run(self, *args):
         client = CommandLineClient()
@@ -154,10 +185,13 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "-a", "average_log", "-f", csv_dataset
         )
         got_results = yaml.load(capsys.readouterr().out)
+        assert "average_log" in got_results
+        alg_results = got_results["average_log"]
+        assert isinstance(alg_results, dict)
         exp_results = AverageLog().run(MatrixDataset.from_csv(csv_fileobj))
-        assert got_results["trust"] == exp_results.trust
-        assert got_results["belief"] == exp_results.belief
-        assert got_results["iterations"] == exp_results.iterations
+        assert alg_results["trust"] == exp_results.trust
+        assert alg_results["belief"] == exp_results.belief
+        assert alg_results["iterations"] == exp_results.iterations
 
     def test_multiple_parameters(self, csv_dataset):
         self.run(
@@ -165,22 +199,55 @@ class TestCommandLineClient(ClientTestsBase):
             "iterator=fixed-11", "priors=uniform", "-f", csv_dataset
         )
 
+    def test_multiple_algorithms(self, capsys, csv_dataset):
+        # Mirrors an identical test for web client below
+        self.run(
+            "run", "-a", "investment", "sums", "voting", "-f", csv_dataset,
+            "-p", "iterator=fixed-11", "g=1.16"
+        )
+        outerr = capsys.readouterr()
+        got_results = yaml.load(outerr.out)
+
+        assert set(got_results.keys()) == {"investment", "sums", "voting"}
+        assert got_results["investment"]["iterations"] == 11
+        assert got_results["sums"]["iterations"] == 11
+        assert got_results["voting"]["iterations"] is None
+
+        assert got_results["voting"]["trust"] == {i: 1 for i in range(4)}
+        assert got_results["sums"]["trust"] == {
+            0: 1.0, 1: 0.5323216608830517, 2: 0.3472167514190226,
+            3: 5.9742483641484065e-05
+        }
+        assert got_results["investment"]["trust"] == {
+            0: 1.0, 1: 0.8725062856135304, 2: 0.6845094785538429,
+            3: 0.1211362221507375
+        }
+
+        # Should get warnings for the invalid parameters
+        expected_warnings = {
+            "WARNING: Ignored parameters for 'MajorityVoting': g, iterator",
+            "WARNING: Ignored parameters for 'Sums': g"
+        }
+        assert set(filter(None, outerr.err.split("\n"))) == expected_warnings
+
     def test_get_algorithm_instance(self, client, csv_dataset):
         args = self.get_parsed_args(
-            "run", "--algorithm", "truthfinder", "-p", "dampening_factor=0.1",
-            "influence_param=0.77", "-f", csv_dataset
+            "run", "--algorithm", "voting", "truthfinder", "-p",
+            "dampening_factor=0.1", "influence_param=0.77", "-f", csv_dataset
         )
-        alg = self.get_algorithm_object(client, args)
-        assert isinstance(alg, TruthFinder)
-        assert alg.dampening_factor == 0.1
-        assert alg.influence_param == 0.77
+        voting = self.get_algorithm_objects(client, args)[0]
+        assert isinstance(voting, MajorityVoting)
+        tf = self.get_algorithm_objects(client, args)[1]
+        assert isinstance(tf, TruthFinder)
+        assert tf.dampening_factor == 0.1
+        assert tf.influence_param == 0.77
 
     def test_set_prior_belief(self, client, csv_dataset, capsys):
         args = self.get_parsed_args(
             "run", "--algorithm", "sums", "-p", "priors=voted", "-f",
             csv_dataset
         )
-        alg = self.get_algorithm_object(client, args)
+        alg = self.get_algorithm_objects(client, args)[0]
         assert isinstance(alg, Sums)
         assert alg.priors == PriorBelief.VOTED
 
@@ -201,12 +268,12 @@ class TestCommandLineClient(ClientTestsBase):
             csv_dataset
         )
         args1 = self.get_parsed_args(*raw_args1)
-        alg1 = self.get_algorithm_object(client, args1)
+        alg1 = self.get_algorithm_objects(client, args1)[0]
         assert isinstance(alg1, Sums)
         assert isinstance(alg1.iterator, FixedIterator)
         assert alg1.iterator.limit == 123
         self.run(*raw_args1)
-        results = yaml.load(capsys.readouterr().out)
+        results = yaml.load(capsys.readouterr().out)["sums"]
         assert results["iterations"] == 123
 
         # Convergence iterator
@@ -214,7 +281,7 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "--algorithm", "sums", "-p",
             "iterator=cosine-convergence-0.01", "-f", csv_dataset
         )
-        alg2 = self.get_algorithm_object(client, args2)
+        alg2 = self.get_algorithm_objects(client, args2)[0]
         assert isinstance(alg2.iterator, ConvergenceIterator)
         assert alg2.iterator.distance_measure == DistanceMeasures.COSINE
         assert alg2.iterator.threshold == 0.01
@@ -224,7 +291,7 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "--algorithm", "sums", "-p",
             "iterator=l2-convergence-0.3-limit-99", "-f", csv_dataset
         )
-        alg3 = self.get_algorithm_object(client, args3)
+        alg3 = self.get_algorithm_objects(client, args3)[0]
         assert isinstance(alg3.iterator, ConvergenceIterator)
         assert alg3.iterator.distance_measure == DistanceMeasures.L2
         assert alg3.iterator.threshold == 0.3
@@ -247,16 +314,6 @@ class TestCommandLineClient(ClientTestsBase):
         assert "invalid iterator specification" in capsys.readouterr().err
 
     def test_invalid_algorithm_parameter(self, csv_dataset, capsys):
-        # Invalid name
-        with pytest.raises(SystemExit):
-            self.run(
-                "run", "--algorithm", "truthfinder", "-p", "myextraparm=0.1",
-                "-f", csv_dataset
-            )
-        err = capsys.readouterr().err
-        assert "invalid parameter" in err
-        assert "TruthFinder" in err
-
         # Invalid format
         with pytest.raises(SystemExit):
             self.run(
@@ -280,7 +337,7 @@ class TestCommandLineClient(ClientTestsBase):
         self.run(
             "run", "-a", "sums", "-f", csv_dataset, "--sources", "0", "3",
         )
-        results1 = yaml.load(capsys.readouterr().out)
+        results1 = yaml.load(capsys.readouterr().out)["sums"]
         assert set(results1["trust"].keys()) == {0, 3}
         assert set(results1["belief"].keys()) == {0, 1, 2, 3}
 
@@ -289,7 +346,7 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "-a", "sums", "-f", csv_dataset, "--sources", "0", "3",
             "--variables", "1", "2"
         )
-        results2 = yaml.load(capsys.readouterr().out)
+        results2 = yaml.load(capsys.readouterr().out)["sums"]
         assert set(results2["trust"].keys()) == {0, 3}
         assert set(results2["belief"].keys()) == {1, 2}
 
@@ -298,7 +355,7 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "-a", "sums", "-f", csv_dataset, "--sources", "1",
             "--variables", "0"
         )
-        results3 = yaml.load(capsys.readouterr().out)
+        results3 = yaml.load(capsys.readouterr().out)["sums"]
         assert set(results3["trust"].keys()) == {1}
         assert set(results3["belief"].keys()) == {0}
 
@@ -307,14 +364,14 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "-a", "sums", "-f", csv_dataset, "--sources", "3", "1000",
             "--variables", "499", "666"
         )
-        results3 = yaml.load(capsys.readouterr().out)
+        results3 = yaml.load(capsys.readouterr().out)["sums"]
         assert set(results3["trust"].keys()) == {3}
         # We didn't give any valid variables: belief should be empty
         assert results3["belief"] == {}
 
     def test_default_output(self, csv_dataset, capsys):
         self.run("run", "-a", "voting", "-f", csv_dataset)
-        results = yaml.load(capsys.readouterr().out)
+        results = yaml.load(capsys.readouterr().out)["voting"]
         assert set(results.keys()) == {
             "time", "iterations", "trust", "belief"
         }
@@ -322,21 +379,21 @@ class TestCommandLineClient(ClientTestsBase):
 
     def test_custom_output(self, csv_fileobj, csv_dataset, capsys):
         self.run("run", "-a", "sums", "-f", csv_dataset, "-o", "time")
-        results = yaml.load(capsys.readouterr().out)
+        results = yaml.load(capsys.readouterr().out)["sums"]
         assert set(results.keys()) == {"time"}
 
         self.run(
             "run", "-a", "sums", "-f", csv_dataset, "-o", "time",
             "iterations"
         )
-        results = yaml.load(capsys.readouterr().out)
+        results = yaml.load(capsys.readouterr().out)["sums"]
         assert set(results.keys()) == {"time", "iterations"}
 
         self.run(
             "run", "-a", "sums", "-f", csv_dataset, "-o", "trust",
             "trust_stats"
         )
-        results = yaml.load(capsys.readouterr().out)
+        results = yaml.load(capsys.readouterr().out)["sums"]
         assert set(results.keys()) == {"trust", "trust_stats"}
         exp_mean, exp_stddev = (Sums().run(MatrixDataset.from_csv(csv_fileobj))
                                 .get_trust_stats())
@@ -349,7 +406,7 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "-a", "voting", "-f", csv_dataset, "--output",
             "most_believed_values"
         )
-        results = yaml.load(capsys.readouterr().out)
+        results = yaml.load(capsys.readouterr().out)["voting"]
         assert results == {
             "most_believed_values": {0: [1, 2, 3], 1: [2], 2: [1, 3], 3: [2]}
         }
@@ -358,7 +415,7 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "-a", "voting", "-f", csv_dataset, "-o",
             "most_believed_values", "--variables", "0", "3"
         )
-        results = yaml.load(capsys.readouterr().out)
+        results = yaml.load(capsys.readouterr().out)["voting"]
         assert "belief" not in results
         assert "most_believed_values" in results
         assert results["most_believed_values"] == {
@@ -368,7 +425,7 @@ class TestCommandLineClient(ClientTestsBase):
 
     def test_belief_stats(self, csv_dataset, csv_fileobj, capsys):
         self.run("run", "-a", "sums", "-f", csv_dataset, "-o", "belief_stats")
-        results = yaml.load(capsys.readouterr().out)
+        results = yaml.load(capsys.readouterr().out)["sums"]
         assert set(results.keys()) == {"belief_stats"}
         exp_belief_stats = (Sums().run(MatrixDataset.from_csv(csv_fileobj))
                             .get_belief_stats())
@@ -423,7 +480,7 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "-a", "voting", "-f", csv_dataset, "--supervised", "-o",
             "trust", "belief", "accuracy"
         )
-        results = yaml.load(capsys.readouterr().out)
+        results = yaml.load(capsys.readouterr().out)["voting"]
         assert results["trust"] == {0: 1, 1: 1, 2: 1}
         assert results["belief"] == {
             0: {2: 1, 3: 1},
@@ -450,7 +507,7 @@ class TestCommandLineClient(ClientTestsBase):
             "1,2,3,4",
         )))
         self.run("run", "-a", "voting", "-f", str(ds), "-s", "-o", "accuracy")
-        results = yaml.load(capsys.readouterr().out)
+        results = yaml.load(capsys.readouterr().out)["voting"]
         assert results["accuracy"] is None
 
     def test_graph_generation(self, client, csv_dataset, capsys, tmpdir):
@@ -553,7 +610,7 @@ class TestWebClient(ClientTestsBase):
         assert resp2.json == {"ok": False, "error": err_msg}
 
         # Invalid algorithm
-        data = {"algorithm": "hmm", "matrix": ""}
+        data = {"algorithm": "hmm", "matrix": "1,2,3"}
         resp3 = test_client.get("/run/", query_string=data)
         assert resp3.status_code == 400
         assert not resp3.json["ok"]
@@ -577,7 +634,6 @@ class TestWebClient(ClientTestsBase):
             ("random-string", "parameters must be in the form 'key=value'"),
             ("priors=blah", "'blah' is not a valid PriorBelief"),
             ("priors=voted\nrandom-string", "in the form 'key=value'"),
-            ("dampening_factor=0.1", "for Sums"),
         )
         for params, exp_err in invalid_params:
             data = {
@@ -601,7 +657,42 @@ class TestWebClient(ClientTestsBase):
         assert resp.status_code == 200
         assert resp.json["ok"]
         output = resp.json["data"]
-        assert output["iterations"] == 13
+        assert set(output.keys()) == {"investment"}
+        assert output["investment"]["iterations"] == 13
+
+    def test_run_multiple_algorithms(self, test_client, dataset):
+        algorithms = ["investment", "sums", "voting"]
+        data = {
+            "algorithm": algorithms,
+            "matrix": dataset.to_csv(),
+            # Check that parameters apply to all algorithms, and are ignored if
+            # not applicable
+            "parameters": "iterator=fixed-11\ng=1.16"
+        }
+        resp = test_client.get("/run/", query_string=data)
+        assert resp.status_code == 200
+        assert resp.json["ok"]
+        output = resp.json["data"]
+        assert set(output.keys()) == set(algorithms)
+        assert output["investment"]["iterations"] == 11
+        assert output["sums"]["iterations"] == 11
+        assert output["voting"]["iterations"] is None
+
+        assert output["voting"]["trust"] == {str(i): 1 for i in range(4)}
+        assert output["sums"]["trust"] == {
+            "0": 1.0, "1": 0.5323216608830517, "2": 0.3472167514190226,
+            "3": 5.9742483641484065e-05
+        }
+        assert output["investment"]["trust"] == {
+            "0": 1.0, "1": 0.8725062856135304, "2": 0.6845094785538429,
+            "3": 0.1211362221507375
+        }
+
+        assert "messages" in resp.json
+        assert set(resp.json["messages"]) == {
+            "Ignored parameters for 'MajorityVoting': g, iterator",
+            "Ignored parameters for 'Sums': g",
+        }
 
     def test_results_diff(self, test_client):
         dataset1 = MatrixDataset(ma.masked_values([
@@ -621,17 +712,26 @@ class TestWebClient(ClientTestsBase):
         assert resp1.status_code == 200
 
         request_data2 = {
-            "algorithm": "voting",
+            # Test diffs with multiple algorithms
+            "algorithm": ["voting", "investment"],
             "matrix": dataset2.to_csv(),
-            "previous_results": json.dumps(resp1.json["data"])
+            "previous_results": json.dumps(resp1.json["data"]["voting"])
         }
         resp2 = test_client.get("/run/", query_string=request_data2)
         assert resp2.status_code == 200
-        output = resp2.json["data"]
-        assert "diff" in output
-        assert output["diff"]["trust"] == {"0": 0, "1": 0}  # no trust changes
-        assert output["diff"]["belief"] == {
+        vot_out = resp2.json["data"]["voting"]
+        assert "diff" in vot_out
+        assert vot_out["diff"]["trust"] == {"0": 0, "1": 0}  # no trust changes
+        assert vot_out["diff"]["belief"] == {
             "0": {"1.0": -0.5}, "1": {"2.0": 0}
+        }
+        inv_out = resp2.json["data"]["investment"]
+        assert "diff" in inv_out
+        assert inv_out["diff"]["trust"] == {
+            "0": -0.7731216864273125, "1": 0.0
+        }
+        assert inv_out["diff"]["belief"] == {
+            "0": {"1.0": -0.9354768146506873}, "1": {"2.0": 0.0}
         }
 
     def test_results_diff_invalid_previous_results(self, test_client):
@@ -669,8 +769,10 @@ class TestWebClient(ClientTestsBase):
         }
         resp1 = test_client.get("/run/", query_string=no_graph)
         assert resp1.status_code == 200
-        assert "data" in resp1.json
-        assert "imagery" not in resp1.json["data"]
+        output1 = resp1.json
+        assert "data" in output1
+        assert "sums" in output1["data"]
+        assert "imagery" not in output1["data"]["sums"]
 
         with_graph = {
             "matrix": dataset.to_csv(),
@@ -679,9 +781,10 @@ class TestWebClient(ClientTestsBase):
         }
         resp2 = test_client.get("/run/", query_string=with_graph)
         assert resp2.status_code == 200
-        assert "imagery" in resp2.json["data"]
-        assert "graph" in resp2.json["data"]["imagery"]
-        json_string = resp2.json["data"]["imagery"]["graph"]
+        output2 = resp2.json
+        assert "imagery" in output2["data"]["sums"]
+        assert "graph" in output2["data"]["sums"]["imagery"]
+        json_string = output2["data"]["sums"]["imagery"]["graph"]
         # Check the image is valid JSON
         obj = json.loads(json_string)
         # Check object is as expected
@@ -697,8 +800,10 @@ class TestWebClient(ClientTestsBase):
         }
         resp1 = test_client.get("/run/", query_string=no_animation)
         assert resp1.status_code == 200
+        output1 = resp1.json
         assert "data" in resp1.json
-        assert "imagery" not in resp1.json["data"]
+        assert "sums" in resp1.json["data"]
+        assert "imagery" not in output1["data"]["sums"]
 
         with_animation = {
             "matrix": dataset.to_csv(),
@@ -708,9 +813,10 @@ class TestWebClient(ClientTestsBase):
         }
         resp2 = test_client.get("/run/", query_string=with_animation)
         assert resp2.status_code == 200
-        assert "imagery" in resp2.json["data"]
-        assert "animation" in resp2.json["data"]["imagery"]
-        json_string = resp2.json["data"]["imagery"]["animation"]
+        output2 = resp2.json
+        assert "imagery" in output2["data"]["sums"]
+        assert "animation" in output2["data"]["sums"]["imagery"]
+        json_string = output2["data"]["sums"]["imagery"]["animation"]
         # Check animation is valid JSON
         obj = json.loads(json_string)
         # Check object is as expected

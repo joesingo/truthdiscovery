@@ -132,80 +132,99 @@ class WebClient(BaseClient):
         or
         ``{"ok": False, "error": ...}``
         """
-        alg_label = request.args.get("algorithm")
+        alg_labels = request.args.getlist("algorithm")
         matrix_csv = request.args.get("matrix")
 
-        if alg_label is None or matrix_csv is None:
+        if not alg_labels or not matrix_csv:
             err_msg = "'algorithm' and 'matrix' parameters are required"
             return jsonify(ok=False, error=err_msg), 400
 
         matrix_csv = matrix_csv.replace("_", "")
         params_str = request.args.get("parameters")
         try:
-            alg_cls = self.algorithm_cls(alg_label)
-            params = self.get_param_dict(params_str)
-            alg = self.get_algorithm_object(alg_cls, params)
+            all_params = self.get_param_dict(params_str)
             dataset = MatrixDataset.from_csv(StringIO(matrix_csv))
         except ValueError as ex:
             return jsonify(ok=False, error=str(ex)), 400
 
-        try:
-            results = alg.run(dataset)
-        except ConvergenceError as ex:
-            return jsonify(ok=False, error=str(ex)), 500
-        except EmptyDatasetError as ex:
-            return jsonify(ok=False, error=str(ex)), 400
-
-        output = self.get_output_obj(results)
-
-        # Construct a graph and/or animation if requested
-        imagery = {}
-        if "get_graph" in request.args:
-            cs = ResultsGradientColourScheme(results)
-            renderer = self.get_graph_renderer(colours=cs)
-            json_buffer = StringIO()
-            renderer.render(dataset, json_buffer)
-            imagery["graph"] = json_buffer.getvalue()
-
-        if "get_animation" in request.args:
-            if not isinstance(alg, BaseIterativeAlgorithm):
-                err_msg = (
-                    "animation not supported for non-iterative algorithm '{}'"
-                    .format(alg_label)
-                )
-                return jsonify(ok=False, error=err_msg), 400
-            animator = JsonAnimator(renderer=self.get_graph_renderer())
-            json_buffer = StringIO()
-            # Note: empty data and convergence error would already have been
-            # caught above, so no need to check here
-            animator.animate(json_buffer, alg, dataset, show_progress=False)
-            imagery["animation"] = json_buffer.getvalue()
-
-        if imagery:
-            output["imagery"] = imagery
-
-        # Include diff between previous results if available
-        prev_results = request.args.get("previous_results")
-        if prev_results is not None:
+        messages = []
+        all_output = {}
+        for alg_label in alg_labels:
             try:
-                obj = self.get_results_object(prev_results)
+                alg_cls = self.algorithm_cls(alg_label)
+                params, ignored = self.get_algorithm_params(
+                    alg_cls, all_params
+                )
+                alg = self.get_algorithm_object(alg_cls, params)
             except ValueError as ex:
-                err_msg = "'previous_results' is invalid: {}".format(ex)
-                return jsonify(ok=False, error=err_msg), 400
+                return jsonify(ok=False, error=str(ex)), 400
 
-            # Previous results have been converted to JSON, which may have
-            # changed numeric keys to strings: to ensure results can be
-            # compared, convert the current results to and from JSON
-            current_results = self.get_results_object(json.dumps(output))
-            diff = ResultDiff(obj, current_results)
-            output["diff"] = {
-                "trust": diff.trust,
-                "belief": diff.belief,
-                "time_taken": diff.time_taken,
-                "iterations": diff.iterations
-            }
+            # Show a message for each of the ignored parameters
+            if ignored:
+                msg = self.get_ignored_parameters_message(alg_cls, ignored)
+                messages.append(msg)
 
-        return jsonify({"ok": True, "data": output})
+            try:
+                results = alg.run(dataset)
+            except ConvergenceError as ex:
+                return jsonify(ok=False, error=str(ex)), 500
+            except EmptyDatasetError as ex:
+                return jsonify(ok=False, error=str(ex)), 400
+
+            output = self.get_output_obj(results)
+
+            # Construct a graph and/or animation if requested
+            imagery = {}
+            if "get_graph" in request.args:
+                cs = ResultsGradientColourScheme(results)
+                renderer = self.get_graph_renderer(colours=cs)
+                json_buffer = StringIO()
+                renderer.render(dataset, json_buffer)
+                imagery["graph"] = json_buffer.getvalue()
+
+            if "get_animation" in request.args:
+                if not isinstance(alg, BaseIterativeAlgorithm):
+                    err_msg = (
+                        "animation not supported for non-iterative algorithm "
+                        "'{}'".format(alg_label)
+                    )
+                    return jsonify(ok=False, error=err_msg), 400
+                animator = JsonAnimator(renderer=self.get_graph_renderer())
+                json_buffer = StringIO()
+                # Note: empty data and convergence error would already have
+                # been caught above, so no need to check here
+                animator.animate(
+                    json_buffer, alg, dataset, show_progress=False
+                )
+                imagery["animation"] = json_buffer.getvalue()
+
+            if imagery:
+                output["imagery"] = imagery
+
+            # Include diff between previous results if available
+            prev_results = request.args.get("previous_results")
+            if prev_results is not None:
+                try:
+                    obj = self.get_results_object(prev_results)
+                except ValueError as ex:
+                    err_msg = "'previous_results' is invalid: {}".format(ex)
+                    return jsonify(ok=False, error=err_msg), 400
+
+                # Previous results have been converted to JSON, which may have
+                # changed numeric keys to strings: to ensure results can be
+                # compared, convert the current results to and from JSON
+                current_results = self.get_results_object(json.dumps(output))
+                diff = ResultDiff(obj, current_results)
+                output["diff"] = {
+                    "trust": diff.trust,
+                    "belief": diff.belief,
+                    "time_taken": diff.time_taken,
+                    "iterations": diff.iterations
+                }
+
+            all_output[alg_label] = output
+
+        return jsonify({"ok": True, "data": all_output, "messages": messages})
 
 
 def get_flask_app():
