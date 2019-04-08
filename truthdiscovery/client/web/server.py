@@ -124,8 +124,6 @@ class WebClient(BaseClient):
         Optional parameters:
         * 'parameters'
         * 'previous_results'
-        * 'get_graph'
-        * 'get_animation'.
 
         Responses are JSON objects of the form
         ``{"ok": True, "data": ...}``
@@ -173,22 +171,15 @@ class WebClient(BaseClient):
 
             output = self.get_output_obj(results)
 
-            # Construct a graph and/or animation if requested
-            imagery = {}
-            if "get_graph" in request.args:
-                cs = ResultsGradientColourScheme(results)
-                renderer = self.get_graph_renderer(colours=cs)
-                json_buffer = StringIO()
-                renderer.render(dataset, json_buffer)
-                imagery["graph"] = json_buffer.getvalue()
-
-            if "get_animation" in request.args:
-                if not isinstance(alg, BaseIterativeAlgorithm):
-                    err_msg = (
-                        "animation not supported for non-iterative algorithm "
-                        "'{}'".format(alg_label)
-                    )
-                    return jsonify(ok=False, error=err_msg), 400
+            # Construct a graph and/or animation
+            output["imagery"] = {}
+            cs = ResultsGradientColourScheme(results)
+            renderer = self.get_graph_renderer(colours=cs)
+            json_buffer = StringIO()
+            renderer.render(dataset, json_buffer)
+            output["imagery"]["graph"] = json_buffer.getvalue()
+            # Note: can only produce animation for iterative algorithms
+            if isinstance(alg, BaseIterativeAlgorithm):
                 animator = JsonAnimator(renderer=self.get_graph_renderer())
                 json_buffer = StringIO()
                 # Note: empty data and convergence error would already have
@@ -196,10 +187,7 @@ class WebClient(BaseClient):
                 animator.animate(
                     json_buffer, alg, dataset, show_progress=False
                 )
-                imagery["animation"] = json_buffer.getvalue()
-
-            if imagery:
-                output["imagery"] = imagery
+                output["imagery"]["animation"] = json_buffer.getvalue()
 
             # Include diff between previous results if available
             prev_results = request.args.get("previous_results")

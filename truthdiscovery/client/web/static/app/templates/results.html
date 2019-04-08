@@ -91,7 +91,7 @@
         </table>
     </div>
 
-    <div ng-show="$ctrl.service.results.imagery" class="imagery-container">
+    <div class="imagery-container">
         <h3 ng-click="$ctrl.output.visual = !$ctrl.output.visual">
             <i class="icon" ng-class="$ctrl.getSectionIcon('visual')"></i>
             Visualisation
@@ -102,7 +102,7 @@
                 respectively.
             </p>
             <!-- Static graph -->
-            <div ng-show="$ctrl.service.results.imagery.graph">
+            <div>
                 <h4>Final results</h4>
                 <canvas id="graph-canvas"></canvas>
             </div>

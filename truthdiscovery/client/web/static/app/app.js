@@ -21,7 +21,7 @@ angular.
          * Make the HTTP request to get results of an algorithm
          */
         this.getResults = function(algorithm, matrix, compare_previous,
-                                   iteration, alg_params, imagery) {
+                                   iteration, alg_params) {
             // Build parameters to send to server
             if (algorithm !== "voting") {
                 if (alg_params !== "") {
@@ -40,13 +40,6 @@ angular.
                 params.previous_results = JSON.stringify(this.previous_results);
 
             }
-            if (imagery.graph) {
-                params.get_graph = "yes-please";
-            }
-            if (imagery.animation && algorithm !== "voting") {
-                params.get_animation = "an-animation-would-be-splendid";
-            }
-
             this.state = "loading";
             var promise = $http({
                 "url": this.url,
@@ -66,19 +59,16 @@ angular.
                 // Save 'previous' results now, so that we may change structure
                 // of self.results without affecting data sent to server
                 self.previous_results = JSON.parse(JSON.stringify(self.results));
+                // Remove imagery from previous results, if present
+                delete self.previous_results.imagery;
 
-                if ("imagery" in self.results) {
-                    if ("graph" in self.results.imagery) {
-                        var obj = JSON.parse(self.results.imagery.graph);
-                        graph_drawer.grab_canvas("graph-canvas");
-                        graph_drawer.draw_graph(obj);
-                    }
-                    if ("animation" in self.results.imagery) {
-                        var obj = JSON.parse(self.results.imagery.animation);
-                        animator.load(obj);
-                    }
-                    // Remove imagery from previous results, if present
-                    delete self.previous_results.imagery;
+                // Draw graph and animation (if applicable)
+                var obj = JSON.parse(self.results.imagery.graph);
+                graph_drawer.grab_canvas("graph-canvas");
+                graph_drawer.draw_graph(obj);
+                if ("animation" in self.results.imagery) {
+                    var obj = JSON.parse(self.results.imagery.animation);
+                    animator.load(obj);
                 }
 
                 // Calculate and store the maximum trust and belief scores, so
@@ -162,11 +152,6 @@ angular.
                 "threshold": 0.001
             };
             this.alg_params = "";
-            this.imagery = {
-                "graph": true,
-                "animation": true
-            };
-
             this.preset_datasets = {
                 "standard": {
                     "name": "Typical truth-discovery dataset",
@@ -267,7 +252,7 @@ angular.
             this.run = function() {
                 var promise = tdService.getResults(
                     self.algorithm, self.matrix.asCSV(), self.compare_results,
-                    self.iteration, self.alg_params, self.imagery
+                    self.iteration, self.alg_params
                 );
                 // Cancel errors while we wait for response
                 self.error = null;

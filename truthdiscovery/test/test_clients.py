@@ -762,29 +762,18 @@ class TestWebClient(ClientTestsBase):
         assert exp_err_msg in resp2.json["error"]
 
     def test_get_json_graph(self, test_client, dataset):
-        # get_graph param not present: graph should NOT be rendered
-        no_graph = {
+        data = {
             "matrix": dataset.to_csv(),
             "algorithm": "sums"
         }
-        resp1 = test_client.get("/run/", query_string=no_graph)
-        assert resp1.status_code == 200
-        output1 = resp1.json
-        assert "data" in output1
-        assert "sums" in output1["data"]
-        assert "imagery" not in output1["data"]["sums"]
-
-        with_graph = {
-            "matrix": dataset.to_csv(),
-            "algorithm": "sums",
-            "get_graph": True
-        }
-        resp2 = test_client.get("/run/", query_string=with_graph)
-        assert resp2.status_code == 200
-        output2 = resp2.json
-        assert "imagery" in output2["data"]["sums"]
-        assert "graph" in output2["data"]["sums"]["imagery"]
-        json_string = output2["data"]["sums"]["imagery"]["graph"]
+        resp = test_client.get("/run/", query_string=data)
+        assert resp.status_code == 200
+        output = resp.json
+        assert "data" in output
+        assert "sums" in output["data"]
+        assert "imagery" in output["data"]["sums"]
+        assert "graph" in output["data"]["sums"]["imagery"]
+        json_string = output["data"]["sums"]["imagery"]["graph"]
         # Check the image is valid JSON
         obj = json.loads(json_string)
         # Check object is as expected
@@ -794,29 +783,19 @@ class TestWebClient(ClientTestsBase):
         assert isinstance(obj["entities"], list)
 
     def test_get_json_animated_gif(self, test_client, dataset):
-        no_animation = {
-            "matrix": dataset.to_csv(),
-            "algorithm": "sums"
-        }
-        resp1 = test_client.get("/run/", query_string=no_animation)
-        assert resp1.status_code == 200
-        output1 = resp1.json
-        assert "data" in resp1.json
-        assert "sums" in resp1.json["data"]
-        assert "imagery" not in output1["data"]["sums"]
-
-        with_animation = {
+        data = {
             "matrix": dataset.to_csv(),
             "algorithm": "sums",
-            "parameters": "iterator=fixed-4",
-            "get_animation": True
+            "parameters": "iterator=fixed-4"
         }
-        resp2 = test_client.get("/run/", query_string=with_animation)
-        assert resp2.status_code == 200
-        output2 = resp2.json
-        assert "imagery" in output2["data"]["sums"]
-        assert "animation" in output2["data"]["sums"]["imagery"]
-        json_string = output2["data"]["sums"]["imagery"]["animation"]
+        resp = test_client.get("/run/", query_string=data)
+        assert resp.status_code == 200
+        output = resp.json
+        assert "data" in output
+        assert "sums" in output["data"]
+        assert "imagery" in output["data"]["sums"]
+        assert "animation" in output["data"]["sums"]["imagery"]
+        json_string = output["data"]["sums"]["imagery"]["animation"]
         # Check animation is valid JSON
         obj = json.loads(json_string)
         # Check object is as expected
@@ -829,19 +808,23 @@ class TestWebClient(ClientTestsBase):
         assert "height" in obj["frames"][0]
         assert "entities" in obj["frames"][0]
 
-    def test_animation_voting(self, test_client, dataset):
+    def test_voting_imagery(self, test_client, dataset):
+        """
+        Only the graph should be present in imagery for MajorityVoting results,
+        since animation is not applicable
+        """
         data = {
             "matrix": dataset.to_csv(),
-            "algorithm": "voting",
-            "get_animation": "you-know-it"
+            "algorithm": "voting"
         }
         resp = test_client.get("/run/", query_string=data)
-        assert resp.status_code == 400
-        assert resp.json == {
-            "ok": False,
-            "error":  ("animation not supported for non-iterative algorithm "
-                       "'voting'")
-        }
+        assert resp.status_code == 200
+        output = resp.json
+        assert "data" in output
+        assert "voting" in output["data"]
+        assert "imagery" in output["data"]["voting"]
+        assert "graph" in output["data"]["voting"]["imagery"]
+        assert "animation" not in output["data"]["voting"]["imagery"]
 
     def test_empty_dataset(self, test_client):
         data = {
