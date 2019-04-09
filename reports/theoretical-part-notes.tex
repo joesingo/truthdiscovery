@@ -875,8 +875,6 @@ For any truth-discovery network $N$, $\src(N, f) = \emptyset$ implies $f
 \fle_N^T f'$ for all $f' \in \F$.
 \end{axiom}
 
-\todo{Think about whether `grounded' is the best name here...}
-
 That is, a fact cannot do better than to be claimed by all sources when $T$
 satisfies unanimity, and cannot do worse than to be claimed by no sources when
 $T$ is grounded.
@@ -1016,23 +1014,21 @@ to fixed values.
 In this section we define the concept of iterative truth-discovery operators to
 represent and reason about such real-world algorithms.
 
-\begin{notation}
-Recall that a numerical truth-discovery operator is defined in definition
-\ref{def:numerical} as a mapping $T: \N \rightarrow \R^\S \times \R^\F$. We
-refer to the individual trust and belief functions by writing $T=(t_\pl,
-b_\pl)$ where $\pl$ is a placeholder the argument in $\N$. \todo{is this
-clear enough?}
-\end{notation}
-
 \begin{definition}
 \label{def:iterative_operator}
 
-An \emph{iterative truth-discovery operator} is a sequence $I=((t_\pl^n,
-b_\pl^n))_{n \in \Nat}$ of numerical truth-discovery operators.
+An \emph{iterative truth-discovery operator} is a sequence $I=(T_n)_{n \in
+\Nat}$ of numerical truth-discovery operators, i.e. a sequence of mappings $T_n
+: \N \rightarrow \R^\S \times \R^\F$.
 
-$I$ is said to \emph{converge} to a numerical operator $T^*=(t_\pl^*, b_\pl^*)$
-if $t_N^n \rightarrow t_N^*$ and $b_N^n \rightarrow b_N^*$ pointwise as $n
-\rightarrow \infty$ for each network $N$.
+For a network $N$ and $n \in \Nat$ we will write $T_n(N) = (t_N^n, b_N^n)$ to
+refer directly to the source trust and claim belief mappings for the $n$-th
+iteration (but note that this notation does not make explicit the dependence of
+$t$ and $b$ on the sequence $I$).
+
+$I$ is said to \emph{converge} to a numerical operator $T^*$ if $t_N^n
+\rightarrow t_N^*$ and $b_N^n \rightarrow b_N^*$ pointwise as $n \rightarrow
+\infty$ for each network $N$.
 
 \end{definition}
 
@@ -1083,9 +1079,9 @@ For convenience we assume that trust and belief scores are in the range $[0,
 
 \begin{lemma}
 \label{lemma:iterative_axiom_suff_conds}
-Let $I=((t_\pl^n, b_\pl^n))_{n \in \Nat}$ be a convergent iterative
-truth-discovery operator with limit $T^*=(t_\pl^*, b_\pl^*)$. Suppose that
-$t_N^n(s) \in [0, 1], b_N^n(f) \in [0, 1]$ for all $N, s, f$ and $n$.
+Let $I$ be a convergent iterative truth-discovery operator with limit
+$T^*$. Suppose that $t_N^n(s) \in [0, 1], b_N^n(f) \in [0, 1]$ for all $N, s,
+f$ and $n$.
 
 \begin{enumerate}
     \item $t_N^*(s) \in [0, 1]$ and $b_N^*(f) \in [0, 1]$
@@ -1145,9 +1141,8 @@ maximum score; this prevents the scores growing without bound to ensure
 convergence.
 
 \begin{definition}[Sums]
-Sums is the iterative truth-discovery operator $I_{sums} = ((t_\pl^n,
-b_\pl^n))_{n \in \Nat}$ defined for any network $N$ as follows, where we write
-$t_n$ for $t_N^n$ for brevity:
+Sums is the iterative truth-discovery operator $I_{sums}$ defined for any
+network $N$ as follows, where we write $t_n$ for $t_N^n$ for brevity:
 \[
     t_1(s) = \frac{1}{2}, \quad b_1(f) = \frac{1}{2}
 \]
