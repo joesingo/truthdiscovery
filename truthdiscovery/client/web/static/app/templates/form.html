@@ -7,16 +7,18 @@
         <!-- Algorithm selection -->
         <div class="form-group">
             <div class="col-3 col-sm-12">
-                <label class="form-label" for="algorithm">Algorithm:</label>
+                <label class="form-label" for="algorithm">Algorithm(s):</label>
             </div>
             <div class="col-9 col-sm-12">
                 <select class="form-select" name="algorithm" id="algorithm"
-                        ng-model="$ctrl.algorithm">
+                        ng-model="$ctrl.algorithm"
+                        data-ng-attr-size="{{ $ctrl.num_algorithms }}" multiple required>
                     <option ng-repeat="(label, display_name) in $ctrl.algorithm_labels"
                             value="{{ label }}">
                         {{ display_name }}
                     </option>
                 </select>
+                <p class="text-gray">Hold Ctrl/Cmd to select multiple algorithms</p>
             </div>
         </div>
 

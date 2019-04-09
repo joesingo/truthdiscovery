@@ -4,8 +4,8 @@ function Animator(onstop) {
     this.current_frame = null;
 };
 
-Animator.prototype.load = function(obj) {
-    this.drawer.grab_canvas("animation-canvas");
+Animator.prototype.load = function(canvas_id, obj) {
+    this.drawer.grab_canvas(canvas_id);
     this.frames = obj.frames;
     // Draw first frame
     this.current_frame = 0;

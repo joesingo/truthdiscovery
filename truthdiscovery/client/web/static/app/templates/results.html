@@ -1,157 +1,184 @@
 <div ng-show="$ctrl.service.state == 'loading'" class="loading loading-lg"></div>
 <div ng-show="$ctrl.service.state == 'has_results'">
     <h2>Results</h2>
-    <p>
-        Got results in <b>{{ $ctrl.service.results.time | number:7 }}</b> seconds
-        (<b>{{ $ctrl.service.results.iterations || "N/A" }}</b> iterations)
-    </p>
 
-    <div>
-        <h3 ng-click="$ctrl.output.trust = !$ctrl.output.trust">
-            <i class="icon" ng-class="$ctrl.getSectionIcon('trust')"></i>
-            Source trust scores
-        </h3>
-        <table class="table table-hover striped" ng-show="$ctrl.output.trust">
-            <thead>
-                <tr>
-                    <th>
-                        <a class="c-hand" ng-click="$ctrl.sort('trust', 'source')">
-                            Source ID
-                            <i class="icon" ng-class="$ctrl.sort_icons.source"></i>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="c-hand" ng-click="$ctrl.sort('trust', 'trust')">
-                            Trust score
-                            <i class="icon" ng-class="$ctrl.sort_icons.trust"></i>
-                        </a>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="x in $ctrl.service.results.trust | orderBy:$ctrl.getSortOrderBy('trust')">
-                    <td>{{ (x.source - 0) + 1 }}</td>
-                    <td>
-                        <span ng-class="{'text-bold': x.trust == $ctrl.service.results.max_trust}">
-                            {{ x.trust | number:7 }}
-                        </span>
-                        <span
-                         ng-class="$ctrl.getDiffClass($ctrl.service.results.diff.trust[x.source])">
-
-    {{ $ctrl.formatDiff($ctrl.service.results.diff.trust[x.source] | number:7) }}
-
-                        </span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <div ng-show="$ctrl.service.messages.length > 0">
+        <b>Warnings:</b>
+        <ul>
+            <li ng-repeat="msg in $ctrl.service.messages" class="text-gray">
+                {{ msg }}
+            </li>
+        </ul>
     </div>
 
-    <div>
-        <h3 ng-click="$ctrl.output.belief = !$ctrl.output.belief">
-            <i class="icon" ng-class="$ctrl.getSectionIcon('belief')"></i>
-            Claim belief scores
-        </h3>
-        <table class="claim-belief table table-hover" ng-show="$ctrl.output.belief">
-            <thead>
-                <tr>
-                    <th>Variable ID</th>
-                    <th>
-                        <a class="c-hand" ng-click="$ctrl.sort('belief', 'val')">
-                            Value
-                            <i class="icon" ng-class="$ctrl.sort_icons.val"></i>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="c-hand" ng-click="$ctrl.sort('belief', 'belief')">
-                            Belief score
-                            <i class="icon" ng-class="$ctrl.sort_icons.belief"></i>
-                        </a>
-                    </th>
-                </tr>
-            </thead>
-            <tbody ng-repeat="(var, beliefs) in $ctrl.service.results.belief">
-                <tr ng-repeat="x in beliefs | orderBy:$ctrl.getSortOrderBy('belief')">
-                    <td><span ng-if="$first">{{ (var - 0) + 1 }}</span></td>
-                    <td>{{ x.val }}</td>
-                    <td>
+    <ul class="tab tab-block">
+        <li ng-repeat="label in $ctrl.getAvailableAlgorithmLabels()"
+            class="tab-item">
 
-            <span ng-class="{'text-bold': x.belief == $ctrl.service.results.max_belief[var]}">
-                {{ x.belief | number:7 }}
-            </span>
+            <a href="" ng-class="{'active' : $ctrl.service.shown_results == label}"
+               ng-click="$ctrl.service.shown_results = label">
+                {{ $ctrl.algorithm_labels[label] }}
+            </a>
+        </li>
+    </ul>
 
-                    <span
-                     ng-class="$ctrl.getDiffClass($ctrl.service.results.diff.belief[var][x.val])">
-    {{ $ctrl.formatDiff($ctrl.service.results.diff.belief[var][x.val] | number:7) }}
-                    </span>
-
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="imagery-container">
-        <h3 ng-click="$ctrl.output.visual = !$ctrl.output.visual">
-            <i class="icon" ng-class="$ctrl.getSectionIcon('visual')"></i>
-            Visualisation
-        </h3>
-        <div ng-show="$ctrl.output.visual">
-            <p class="text-gray">
-                Light and dark colours represent low and high trust/belief scores
-                respectively.
+    <div ng-repeat="(label, _display_name) in $ctrl.algorithm_labels">
+        <div ng-show="$ctrl.service.shown_results == label">
+            <p>
+                Got results in <b>{{ $ctrl.service.results[label].time | number:7 }}</b> seconds
+                (<b>{{ $ctrl.service.results[label].iterations || "N/A" }}</b> iterations)
             </p>
-            <!-- Static graph -->
+
             <div>
-                <h4>Final results</h4>
-                <canvas id="graph-canvas"></canvas>
+                <h3 ng-click="$ctrl.output.trust = !$ctrl.output.trust">
+                    <i class="icon" ng-class="$ctrl.getSectionIcon('trust')"></i>
+                    Source trust scores
+                </h3>
+                <table class="table table-hover striped" ng-show="$ctrl.output.trust">
+                    <thead>
+                        <tr>
+                            <th>
+                                <a class="c-hand" ng-click="$ctrl.sort('trust', 'source')">
+                                    Source ID
+                                    <i class="icon" ng-class="$ctrl.sort_icons.source"></i>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="c-hand" ng-click="$ctrl.sort('trust', 'trust')">
+                                    Trust score
+                                    <i class="icon" ng-class="$ctrl.sort_icons.trust"></i>
+                                </a>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in $ctrl.service.results[label].trust | orderBy:$ctrl.getSortOrderBy('trust')">
+                            <td>{{ (x.source - 0) + 1 }}</td>
+                            <td>
+                                <span ng-class="{'text-bold': x.trust == $ctrl.service.results[label].max_trust}">
+                                    {{ x.trust | number:7 }}
+                                </span>
+                                <span
+                                 ng-class="$ctrl.getDiffClass($ctrl.service.results[label].diff.trust[x.source])">
+
+            {{ $ctrl.formatDiff($ctrl.service.results[label].diff.trust[x.source] | number:7) }}
+
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-            <!-- Animation -->
-            <div ng-show="$ctrl.service.results.imagery.animation">
-                <h4>Results as algorithm iterates</h4>
-                <canvas id="animation-canvas" tabindex="1"
-                        ng-keydown="$ctrl.animationKeyHandler($event)"></canvas>
+            <div>
+                <h3 ng-click="$ctrl.output.belief = !$ctrl.output.belief">
+                    <i class="icon" ng-class="$ctrl.getSectionIcon('belief')"></i>
+                    Claim belief scores
+                </h3>
+                <table class="claim-belief table table-hover" ng-show="$ctrl.output.belief">
+                    <thead>
+                        <tr>
+                            <th>Variable ID</th>
+                            <th>
+                                <a class="c-hand" ng-click="$ctrl.sort('belief', 'val')">
+                                    Value
+                                    <i class="icon" ng-class="$ctrl.sort_icons.val"></i>
+                                </a>
+                            </th>
+                            <th>
+                                <a class="c-hand" ng-click="$ctrl.sort('belief', 'belief')">
+                                    Belief score
+                                    <i class="icon" ng-class="$ctrl.sort_icons.belief"></i>
+                                </a>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody ng-repeat="(var, beliefs) in $ctrl.service.results[label].belief">
+                        <tr ng-repeat="x in beliefs | orderBy:$ctrl.getSortOrderBy('belief')">
+                            <td><span ng-if="$first">{{ (var - 0) + 1 }}</span></td>
+                            <td>{{ x.val }}</td>
+                            <td>
 
-                <p class="text-gray">
-                    Use the slider or buttons to change iteration number, or
-                    click on the graph and use arrow keys.
-                </p>
-
-                <!-- Slider to control which frame is shown -->
-                <input class="slider" type="range"
-                       min="0"
-                       max="{{ $ctrl.animator.frames.length - 1 }}"
-                       value="0"
-                       ng-model="$ctrl.animator.current_frame"
-                       ng-change="$ctrl.animator.redraw()"
-                       oninput="this.setAttribute('value', this.value);" />
-
-                <!-- Next and previous buttons -->
-                <div style="text-align: center;">
-                    <button class="btn btn-primary" type="button"
-                            ng-disabled="$ctrl.animator.current_frame == 0"
-                            ng-click="$ctrl.animator.previousFrame()">
-                        <i class="icon icon-back"></i>
-                    </button>
-
-                    <span style="display: inline-block; margin: 2em;">
-                        Iteration
-                        <b>
-                            {{ $ctrl.animator.current_frame }}
-                            / {{ $ctrl.animator.frames.length - 1 }}
-                        </b>
+                    <span ng-class="{'text-bold': x.belief == $ctrl.service.results[label].max_belief[var]}">
+                        {{ x.belief | number:7 }}
                     </span>
 
-                    <button class="btn btn-primary" type="button"
-                        ng-disabled="$ctrl.animator.current_frame == $ctrl.animator.frames.length - 1"
-                        ng-click="$ctrl.animator.nextFrame()">
+                            <span
+                             ng-class="$ctrl.getDiffClass($ctrl.service.results[label].diff.belief[var][x.val])">
+            {{ $ctrl.formatDiff($ctrl.service.results[label].diff.belief[var][x.val] | number:7) }}
+                            </span>
 
-                        <i class="icon icon-forward"></i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="imagery-container">
+                <h3 ng-click="$ctrl.output.visual = !$ctrl.output.visual">
+                    <i class="icon" ng-class="$ctrl.getSectionIcon('visual')"></i>
+                    Visualisation
+                </h3>
+                <div ng-show="$ctrl.output.visual">
+                    <p class="text-gray">
+                        Light and dark colours represent low and high trust/belief scores
+                        respectively.
+                    </p>
+                    <!-- Static graph -->
+                    <div>
+                        <h4>Final results</h4>
+                        <canvas id="graph-canvas-{{ label }}"></canvas>
+                    </div>
+
+                    <!-- Animation -->
+                    <div ng-show="$ctrl.service.results[label].imagery.animation">
+                        <h4>Results as algorithm iterates</h4>
+                        <canvas id="animation-canvas-{{ label }}" tabindex="1"
+                                ng-keydown="$ctrl.animationKeyHandler(label, $event)">
+                        </canvas>
+
+                        <p class="text-gray">
+                            Use the slider or buttons to change iteration number, or
+                            click on the graph and use arrow keys.
+                        </p>
+
+                        <!-- Slider to control which frame is shown -->
+                        <input class="slider" type="range"
+                               min="0"
+                               max="{{ $ctrl.animators[label].frames.length - 1 }}"
+                               value="0"
+                               ng-model="$ctrl.animators[label].current_frame"
+                               ng-change="$ctrl.animators[label].redraw()"
+                               oninput="this.setAttribute('value', this.value);" />
+
+                        <!-- Next and previous buttons -->
+                        <div style="text-align: center;">
+                            <button class="btn btn-primary" type="button"
+                                    ng-disabled="$ctrl.animators[label].current_frame == 0"
+                                    ng-click="$ctrl.animators[label].previousFrame()">
+                                <i class="icon icon-back"></i>
+                            </button>
+
+                            <span style="display: inline-block; margin: 2em;">
+                                Iteration
+                                <b>
+                                    {{ $ctrl.animators[label].current_frame }}
+                                    / {{ $ctrl.animators[label].frames.length - 1 }}
+                                </b>
+                            </span>
+
+                    <button class="btn btn-primary" type="button"
+                        ng-disabled="$ctrl.animators[label].current_frame == $ctrl.animators[label].frames.length - 1"
+                        ng-click="$ctrl.animators[label].nextFrame()">
+
+                                <i class="icon icon-forward"></i>
                     </button>
+
+                        </div>
+                    </div>
                 </div>
             </div>
+
         </div>
     </div>
-
 </div>

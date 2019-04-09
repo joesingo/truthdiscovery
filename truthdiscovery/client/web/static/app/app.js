@@ -4,8 +4,14 @@ const DATA = (JSON.parse(document.getElementById("data-json").innerHTML
 
 angular.module("tdApp", []);
 
-var graph_drawer = new GraphDrawer();
-var animator = new Animator();
+// Create GraphDrawer and Animator objects for each algorithm in the global
+// scope
+var graph_drawers = {};
+var animators = {};
+for (var alg_label in DATA.algorithm_labels) {
+    graph_drawers[alg_label] = new GraphDrawer();
+    animators[alg_label] = new Animator();
+}
 
 // Service to make HTTP requests and get results
 angular.
@@ -15,6 +21,11 @@ angular.
         this.method = "GET";
         this.state = "empty";
         this.results = null;
+        // Label of the algorithm whose results are currently shown
+        // TODO: this should really be a property of ResultsContainerController
+        // instead...
+        this.shown_results = null;
+        this.messages = [];
         this.previous_results = null;
 
         /*
@@ -50,62 +61,77 @@ angular.
             promise.then(function(response) {
                 // Our server's response is in response.data, and is an object
                 // with keys 'ok' and 'data' (in the success case)
-
-                // TODO: implement showing results for multiple algorithms
-                // TODO: show warning also
-
-                self.results = response.data.data[algorithm];
+                self.results = response.data.data;
+                self.messages = response.data.messages;
                 self.state = "has_results";
-                // Save 'previous' results now, so that we may change structure
-                // of self.results without affecting data sent to server
-                self.previous_results = JSON.parse(JSON.stringify(self.results));
-                // Remove imagery from previous results, if present
-                delete self.previous_results.imagery;
 
-                // Draw graph and animation (if applicable)
-                var obj = JSON.parse(self.results.imagery.graph);
-                graph_drawer.grab_canvas("graph-canvas");
-                graph_drawer.draw_graph(obj);
-                if ("animation" in self.results.imagery) {
-                    var obj = JSON.parse(self.results.imagery.animation);
-                    animator.load(obj);
+                if (self.shown_results === null || !(self.shown_results in self.results)) {
+                    self.shown_results = Object.keys(self.results)[0];
                 }
 
-                // Calculate and store the maximum trust and belief scores, so
-                // that they can be highlighted in the results
-                self.results.max_trust = Math.max.apply(
-                    null,
-                    Object.values(self.results.trust)
-                );
-                self.results.max_belief = {};
-                for (var variable in self.results.belief) {
-                    self.results.max_belief[variable] = Math.max.apply(
+                // Store previous results if only one algorithm was run
+                if (algorithm.length == 1) {
+                    // Save 'previous' results now, so that we may change
+                    // structure of self.results without affecting data sent to
+                    // server
+                    var res = self.results[algorithm[0]];
+                    self.previous_results = JSON.parse(JSON.stringify(res));
+                    // Remove imagery from previous results
+                    delete self.previous_results.imagery;
+                }
+                else {
+                    self.previous_results = null;
+                }
+
+                for (var alg in self.results) {
+                    // Draw graph and animation (if applicable)
+                    var obj = JSON.parse(self.results[alg].imagery.graph);
+                    var graph_canvas_id = "graph-canvas-" + alg;
+                    graph_drawers[alg].grab_canvas(graph_canvas_id);
+                    graph_drawers[alg].draw_graph(obj);
+                    if ("animation" in self.results[alg].imagery) {
+                        var obj = JSON.parse(self.results[alg].imagery.animation);
+                        var animation_canvas_id = "animation-canvas-" + alg
+                        animators[alg].load(animation_canvas_id, obj);
+                    }
+
+                    // Calculate and store the maximum trust and belief scores,
+                    // so that they can be highlighted in the results
+                    self.results[alg].max_trust = Math.max.apply(
                         null,
-                        Object.values(self.results.belief[variable])
+                        Object.values(self.results[alg].trust)
                     );
-                }
+                    self.results[alg].max_belief = {};
+                    for (var variable in self.results[alg].belief) {
+                        self.results[alg].max_belief[variable] = Math.max.apply(
+                            null,
+                            Object.values(self.results[alg].belief[variable])
+                        );
+                    }
 
-                // Reformat trust object from {source: trust, ...} to an array
-                // [{"source": source, "trust": trust}, ...] since this allows
-                // the results to be sorted in template. Similar for beliefs
-                var array_trust = [];
-                for (var source in self.results.trust) {
-                    array_trust.push({
-                        "source": source,
-                        "trust": self.results.trust[source]
-                    });
-                }
-                self.results.trust = array_trust;
-
-                for (var variable in self.results.belief) {
-                    var array_belief = [];
-                    for (var val in self.results.belief[variable]) {
-                        array_belief.push({
-                            "val": val,
-                            "belief": self.results.belief[variable][val]
+                    // Reformat trust object from {source: trust, ...} to an
+                    // array [{"source": source, "trust": trust}, ...] since
+                    // this allows the results to be sorted in template.
+                    // Similar for beliefs
+                    var array_trust = [];
+                    for (var source in self.results[alg].trust) {
+                        array_trust.push({
+                            "source": source,
+                            "trust": self.results[alg].trust[source]
                         });
                     }
-                    self.results.belief[variable] = array_belief;
+                    self.results[alg].trust = array_trust;
+
+                    for (var variable in self.results[alg].belief) {
+                        var array_belief = [];
+                        for (var val in self.results[alg].belief[variable]) {
+                            array_belief.push({
+                                "val": val,
+                                "belief": self.results[alg].belief[variable][val]
+                            });
+                        }
+                        self.results[alg].belief[variable] = array_belief;
+                    }
                 }
 
             }, function(error) {
@@ -208,6 +234,7 @@ angular.
             };
 
             this.algorithm_labels = DATA.algorithm_labels;
+            this.num_algorithms = Object.keys(this.algorithm_labels).length;
             this.distance_measures = DATA.distance_measures;
 
             var self = this;
@@ -280,6 +307,7 @@ angular.
         "templateUrl": "/static/app/templates/results.html",
         "controller": function ResultsController(tdService) {
             this.service = tdService;
+            this.algorithm_labels = DATA.algorithm_labels;
 
             // Flags for which sections to display
             this.output = {
@@ -312,7 +340,7 @@ angular.
                 "belief": icon_names.unsorted
             };
 
-            this.animator = animator;  // global animator
+            this.animators = animators;  // global object of animators
 
             var self = this;
 
@@ -375,18 +403,39 @@ angular.
             /*
              * Handle a keypress on <canvas> for animation
              */
-            this.animationKeyHandler = function(event) {
+            this.animationKeyHandler = function(alg_label, event) {
                 const left = 37;
                 const right = 39;
 
                 switch (event.keyCode) {
                     case left:
-                        self.animator.previousFrame();
+                        self.animators[alg_label].previousFrame();
                         break;
                     case right:
-                        self.animator.nextFrame();
+                        self.animators[alg_label].nextFrame();
                         break;
                 }
+            };
+
+            /*
+             * Return an array of labels for algorithms for which results are
+             * available
+             */
+            this.getAvailableAlgorithmLabels = function() {
+                if (self.service.results) {
+                    // Sort labels by their corresponding display name
+                    var pairs = [];
+                    for (var label in self.service.results) {
+                        pairs.push([self.algorithm_labels[label], label]);
+                    }
+                    pairs.sort();
+                    var labels = [];
+                    for (var i=0; i<pairs.length; i++) {
+                        labels.push(pairs[i][1]);
+                    };
+                    return labels;
+                }
+                return [];
             };
         }
     });
