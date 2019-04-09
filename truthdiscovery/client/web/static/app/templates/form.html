@@ -97,70 +97,7 @@
             </div>
         </div>
 
-        <!-- Algorithm parameters -->
-        <div class="form-group">
-            <!-- Iteration method -->
-            <div class="col-3 col-sm-12">
-                <label class="form-label">Iteration method:</label>
-            </div>
-            <div class="col-9 col-sm-12">
-                <label class="form-radio">
-                    <input type="radio" ng-model="$ctrl.iteration.type" value="fixed" />
-                    <i class="form-icon"></i>
-                    Fixed number of iterations
-                </label>
-                <label class="form-radio">
-                    <input type="radio" ng-model="$ctrl.iteration.type" value="convergence" />
-                    <i class="form-icon"></i>
-                    Until convergence
-                </label>
-
-                <!-- 'fixed' options -->
-                <div ng-show="$ctrl.iteration.type == 'fixed'">
-                    <label class="form-label form-inline">
-                        Number of iterations:
-                        <input type="number" class="form-input" min="0" max="100"
-                               step="1" ng-model="$ctrl.iteration.limit" />
-                    </label>
-                </div>
-
-                <!-- 'convergence' options -->
-                <div ng-show="$ctrl.iteration.type == 'convergence'">
-                    <div class="text-gray">
-                        Iterate until the distance between successive trust
-                        scores becomes less than the given threshold
-                    </div>
-                    <label class="form-label form-inline">
-                        Distance measure:
-                        <select class="form-select" ng-model="$ctrl.iteration.measure">
-                            <option ng-repeat="measure in $ctrl.distance_measures"
-                                    value="{{ measure }}">
-                                {{ measure | formatDistanceMeasure }}
-                            </option>
-                        </select>
-                    </label>
-
-                    <label class="form-label form-inline">
-                        Threshold:
-                        <input type="number" class="form-input" step="0.0000001"
-                               ng-model="$ctrl.iteration.threshold" />
-                    </label>
-                </div>
-            </div>
-
-            <!-- Algorithm-specific parameters -->
-            <div class="col-3 col-sm-12">
-                <label class="form-label">Algorithm parameters:</label>
-            </div>
-            <div class="col-9 col-sm-12">
-                <textarea ng-model="$ctrl.alg_params" class="form-input"></textarea>
-                <div class="text-gray">
-                    Algorithm-specific parameters in the form <code>key=value</code>
-                    (one per line)
-                </div>
-            </div>
-        </div>
-
+        <!-- Compare against previous results -->
         <div class="form-group">
             <label class="form-checkbox">
                 <input type="checkbox" ng-model="$ctrl.compare_results"
@@ -168,6 +105,80 @@
                 <i class="form-icon"></i>
                 Compare against previous results
             </label>
+        </div>
+
+        <div class="form-group">
+            <label class="form-checkbox">
+                <input type="checkbox" ng-model="$ctrl.show_advanced" />
+                <i class="form-icon"></i>
+                Show advanced options
+            </label>
+        </div>
+
+        <div ng-show="$ctrl.show_advanced">
+            <!-- Algorithm parameters -->
+            <div class="form-group">
+                <!-- Iteration method -->
+                <div class="col-3 col-sm-12">
+                    <label class="form-label">Iteration method:</label>
+                </div>
+                <div class="col-9 col-sm-12">
+                    <label class="form-radio">
+                        <input type="radio" ng-model="$ctrl.iteration.type" value="fixed" />
+                        <i class="form-icon"></i>
+                        Fixed number of iterations
+                    </label>
+                    <label class="form-radio">
+                        <input type="radio" ng-model="$ctrl.iteration.type" value="convergence" />
+                        <i class="form-icon"></i>
+                        Until convergence
+                    </label>
+
+                    <!-- 'fixed' options -->
+                    <div ng-show="$ctrl.iteration.type == 'fixed'">
+                        <label class="form-label form-inline">
+                            Number of iterations:
+                            <input type="number" class="form-input" min="0" max="100"
+                                   step="1" ng-model="$ctrl.iteration.limit" />
+                        </label>
+                    </div>
+
+                    <!-- 'convergence' options -->
+                    <div ng-show="$ctrl.iteration.type == 'convergence'">
+                        <div class="text-gray">
+                            Iterate until the distance between successive trust
+                            scores becomes less than the given threshold
+                        </div>
+                        <label class="form-label form-inline">
+                            Distance measure:
+                            <select class="form-select" ng-model="$ctrl.iteration.measure">
+                                <option ng-repeat="measure in $ctrl.distance_measures"
+                                        value="{{ measure }}">
+                                    {{ measure | formatDistanceMeasure }}
+                                </option>
+                            </select>
+                        </label>
+
+                        <label class="form-label form-inline">
+                            Threshold:
+                            <input type="number" class="form-input" step="0.0000001"
+                                   ng-model="$ctrl.iteration.threshold" />
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Algorithm-specific parameters -->
+                <div class="col-3 col-sm-12">
+                    <label class="form-label">Algorithm parameters:</label>
+                </div>
+                <div class="col-9 col-sm-12">
+                    <textarea ng-model="$ctrl.alg_params" class="form-input"></textarea>
+                    <div class="text-gray">
+                        Algorithm-specific parameters in the form <code>key=value</code>
+                        (one per line)
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Errors -->

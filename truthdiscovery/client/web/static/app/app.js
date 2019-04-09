@@ -171,6 +171,7 @@ angular.
             this.error = null;  // error message to show underneath form
             this.algorithm = "sums";
             this.compare_results = true;
+            this.show_advanced = false;
             this.iteration = {
                 "type": "fixed",
                 "limit": 20,
