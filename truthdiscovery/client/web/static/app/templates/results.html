@@ -115,24 +115,27 @@
             </div>
 
             <div class="imagery-container">
-                <h3 ng-click="$ctrl.output.visual = !$ctrl.output.visual">
-                    <i class="icon" ng-class="$ctrl.getSectionIcon('visual')"></i>
-                    Visualisation
+                <!-- Static graph -->
+                <h3 ng-click="$ctrl.output.graph = !$ctrl.output.graph">
+                    <i class="icon" ng-class="$ctrl.getSectionIcon('graph')"></i>
+                    Graph of results
                 </h3>
-                <div ng-show="$ctrl.output.visual">
+                <div ng-show="$ctrl.output.graph">
                     <p class="text-gray">
                         Light and dark colours represent low and high trust/belief scores
                         respectively.
                     </p>
-                    <!-- Static graph -->
-                    <div>
-                        <h4>Final results</h4>
-                        <canvas id="graph-canvas-{{ label }}"></canvas>
-                    </div>
+                    <canvas id="graph-canvas-{{ label }}"></canvas>
+                </div>
 
-                    <!-- Animation -->
-                    <div ng-show="$ctrl.service.results[label].imagery.animation">
-                        <h4>Results as algorithm iterates</h4>
+                <!-- Animation, if applicable -->
+                <div ng-show="$ctrl.service.results[label].imagery.animation">
+                    <h3 ng-click="$ctrl.output.animation = !$ctrl.output.animation">
+                        <i class="icon" ng-class="$ctrl.getSectionIcon('animation')"></i>
+                        Animation of results
+                    </h3>
+                    <div ng-show="$ctrl.output.animation">
+                        <p class="text-gray">Showing results as the algorithm iterates</p>
                         <canvas id="animation-canvas-{{ label }}" tabindex="1"
                                 ng-keydown="$ctrl.animationKeyHandler(label, $event)">
                         </canvas>
@@ -178,7 +181,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

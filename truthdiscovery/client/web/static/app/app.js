@@ -314,7 +314,8 @@ angular.
             this.output = {
                 "trust": true,
                 "belief": true,
-                "visual": true
+                "graph": true,
+                "animation": true,
             };
 
             this.sorting = {

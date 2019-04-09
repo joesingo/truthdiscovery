@@ -66,10 +66,6 @@ td:hover .delete, th:hover .delete {
     visibility: visible;
 }
 
-.imagery-container figure {
-    margin-bottom: 3em;
-}
-
 .imagery-container canvas {
     display: block;
     margin: auto;
