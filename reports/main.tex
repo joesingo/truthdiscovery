@@ -1,0 +1,99 @@
+% TODO: maybe change to 'report' class
+\documentclass{article}
+
+\date{February 2019}
+\author{Joe Singleton}
+\title{
+    Work in progress report
+}
+
+% Packages:
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{caption}
+\usepackage{cite}
+% \usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{multicol}
+\usepackage{charter}  % For cool font
+\usepackage{xcolor}
+\usepackage{subfiles}
+
+\graphicspath{
+    {./images/}
+    {../images/}  % For importing images from files in ./sections/ dir
+}
+
+% Settings
+\hypersetup{
+	colorlinks,
+	citecolor={blue!80!black},
+	urlcolor={blue!80!black},
+	linkcolor={blue!80!black}
+}
+
+% Maths environments
+\theoremstyle{definition} \newtheorem{definition}{Definition}
+\theoremstyle{definition} \newtheorem{example}{Example}
+\theoremstyle{plain} \newtheorem{axiom}{Axiom}
+\theoremstyle{plain} \newtheorem*{remark}{Remark}
+\theoremstyle{remark} \newtheorem*{notation}{Notation}
+\theoremstyle{plain} \newtheorem{lemma}{Lemma}
+\theoremstyle{plain} \newtheorem{theorem}{Theorem}
+\theoremstyle{plain} \newtheorem{proposition}{Proposition}
+
+% Commands
+\newcommand{\todo}[1] {
+    \textcolor{red}{
+        \textbf{TODO:} #1
+    }
+}
+\newcommand{\rough}[1] {
+    \textcolor{blue}{
+        #1
+    }
+}
+% Sets
+\renewcommand{\S}{\mathcal{S}}  % Note: overrides existing command
+\renewcommand{\O}{\mathcal{O}}  % Note: overrides existing command
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\N}{\mathcal{N}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Nat}{\mathbb{N}}
+% Source and fact orderings: less-equal, less-than, greater-equal, equal
+\newcommand{\sle}{\sqsubseteq}
+\newcommand{\slt}{\sqsubset}
+\newcommand{\sge}{\ge}
+\newcommand{\seq}{\simeq}
+\newcommand{\fle}{\preceq}
+\newcommand{\flt}{\prec}
+\newcommand{\fge}{\succeq}
+\newcommand{\feq}{\approx}
+
+\newcommand{\src}{\texttt{src}}
+\newcommand{\fact}{\texttt{facts}}
+\newcommand{\obj}{\texttt{obj}}
+\newcommand{\orderings}{\mathcal{L}}
+
+\begin{document}
+\maketitle
+% \begin{multicols}{2}
+
+\tableofcontents
+
+\subfile{sections/background-notes}
+
+\section{Theory of truth-discovery}
+\subfile{sections/theory}
+
+% References
+\bibliography{references}{}
+\bibliographystyle{plain}
+
+\appendix
+\subfile{sections/proofs-appendix}
+
+% \end{multicols}
+\end{document}

@@ -1,0 +1,590 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+\section{Proofs}
+
+\subsection{Proof of proposition \ref{prop:symm_iff_fact_source_object_symm}}
+\begin{proof}
+
+The `only if' direction is clear. For the converse, suppose $T$ is source, fact
+and object symmetric, and let $N$, $N'=\pi(N)$ be equivalent networks. Define
+\begin{equation*}
+\pi_\S(x) = \begin{cases}
+    \pi(x) & \text{ if } x \in \S \\
+    x      & \text{ if } x \in \F \cup \O
+\end{cases}
+\end{equation*}
+Define $\pi_\F$, $\pi_\O$ similarly, and set $\sigma = \pi_\S \circ \pi_\F
+\circ \pi_\O$. Then for $s \in \S$,
+\begin{align*}
+\sigma(s) &= \pi_\S(\pi_\F(\pi_\O(s))) \\
+          &= \pi_\S(\pi_\F(s)) \\
+          &= \pi_\S(s) \\
+          &= \pi(s)
+\end{align*}
+Similarly $\sigma(f)=\pi(f)$ and $\sigma(o)=\pi(o)$ for $f \in \F$ and $o \in
+\O$. Hence $\sigma=\pi$.
+
+Let $s_1, s_2 \in \S$. Since $\pi_\O$ only permutes objects, we may apply
+object-symmetry to get
+$$ s_1 \sle_N^T s_2 \iff \pi_\O(s_1) \sle_{\pi_\O(N)}^T \pi_\O(s_2) $$
+Then since $\pi_\F$ only permutes facts and $\pi_\S$ only permutes sources, we
+may successively apply fact and object symmetry to the right hand side to get
+\begin{align*}
+s_1 \sle_N^T s_2 & \iff \sigma(s_1) \sle_{\sigma(N)}^T \sigma(s_2) \\
+                 & \iff \pi(s_1) \sle_{\pi(N)}^T \pi(s_2) \\
+                 & \iff \pi(s_1) \sle_{N'}^T \pi(s_2)
+\end{align*}
+An identical argument for fact ranking gives $f_1 \fle_N^T f_2 \iff \pi(f_1)
+\fle_{N'}^T f_2$. Hence $T$ is symmetric.
+
+\end{proof}
+
+\subsection{Proof of proposition \ref{prop:same_facts_ranked_equally}}
+\begin{proof}
+
+For the first claim, consider the permutation $\pi = (s_1, s_2)$. We claim that
+$\pi(N) = N$. Let $E$ be the edges in $N$ and $\pi(E)$ be the edges in
+$\pi(N)$. For any $(s, f) \in \S \times \F$ we have three cases:
+\begin{enumerate}
+\item $s \notin \{s_1, s_2\}$: in this case $(\pi(s), \pi(f)) = (s, f)$ and
+$(s, f) \in E$ iff $(\pi(s), \pi(f)) \in \pi(E)$ by definition, so
+$(s, f) \in E$ iff $(s, f) \in \pi(E)$.
+
+\item $s=s_1$: Here we have $(s_1, f) \in E$ iff $(s_2, f) \in E$ by
+hypothesis. This is equivalent to $(\pi(s_2), \pi(f)) \in \pi(E)$ by definition
+of $\pi(E)$, which by definition of $\pi$ is equivalent to $(s_1, f) \in
+\pi(E)$.
+
+\item $s=s_2$: As above, $(s_2, f) \in E$ iff $(s_2, f) \in \pi(E)$
+\end{enumerate}
+Also, it is clear that $(f, o) \in E$ iff $(f, o) \in \pi(E)$ for $f \in \F$,
+$o \in \O$. We have shown that $(x, y) \in E$ iff $(x, y) \in \pi(E)$, i.e.
+$\pi(E) = E$ and thus $\pi(N) = N$. Applying source-symmetry, this gives
+\begin{align*}
+    s_1 \sle_N^T s_2 & \iff \pi(s_1) \sle_{\pi(N)}^T \pi(s_2) \\
+                     & \iff s_2 \sle_N^T s_1
+\end{align*}
+i.e. $s_1 \seq_N^T s_2$.
+
+For the second claim, consider $\sigma = (f_1, f_2)$ and apply a similar
+argument to the above. Note that we require $f_1$ and $f_2$ to be associated
+with the same object here so that both facts have the same incoming and
+outgoing edges in $N$.
+
+\end{proof}
+
+\subsection{Proof of proposition \ref{prop:symm_and_dict}}
+\begin{proof}
+
+Suppose $T$ is source-symmetric and a dictatorship with dictator $s^*$. Let
+$N=(V,E)$ be a truth-discovery network.
+\begin{enumerate}
+\item
+    Let $s_1, s_2 \in \S$. Without loss of generality $s_1 \sle_N^T s_2$, since
+    $\sle_N^T$ is complete. Consider the permutation $\pi=(s_1, s^*)$.  We have
+    $s_2 \sle_{\pi(N)}^T s^*$ by dictatorship in $\pi(N)$, which by symmetry
+    means $\pi^{-1}(s_2) \sle_N^T \pi^{-1}(s^*)$, i.e. $s_2 \sle_N^T s_1$.
+    Hence $s_1 \seq_N^T s_2$ as required.
+
+\item
+    Let $f_1, f_2 \in \F$ such that there is a source $s$ with $(s, f_1) \in E$.
+    Set $\sigma=(s, s^*)$. Then $\sigma(E)$ contains $(\sigma(s), \sigma(f_1))
+    = (s^*, f_1)$, so we have $\sigma(f_2) \fle_{\sigma(N)}^T f_1 =
+    \sigma(f_1)$ since the facts claimed by $s^*$ rank above all others.
+    Applying symmetry gives $f_2 \fle_N^T f_1$ as required.
+\end{enumerate}
+
+This implies there is no source-symmetric strict dictatorship. If $T$ were such
+an operator then $T$ is also a non-strict dictatorship, so symmetry implies
+all sources are ranked equally, but this contradicts $s \slt_N^T s^*$ for all
+$s \ne s^*$.
+
+\end{proof}
+
+\subsection{Proof of proposition \ref{prop:non_dict_and_non_bin_gen_dict_indep}}
+\begin{proof}
+
+The operator $T$ defined in example \ref{example:symm_and_gen_dict} is not a
+dictatorship but is a binary generalised dictatorship. Indeed, it is clearly a
+binary generalised dictatorship from the definition. To show it is not a
+dictatorship, it is sufficient by symmetry and proposition
+\ref{prop:symm_and_dict} to find a network in which $T$ does not rank all
+sources equally. A suitable example is a network $N$ where a source $s$ claims
+two facts and all other sources claim only one fact. Then $Q_N = \{s\}$, so $s$
+is ranked strictly above all other sources.
+
+For an operator that is a dictatorship but not a binary generalised
+dictatorship, fix two distinct sources $s^*, s^{**} \in \S$ and consider the
+numerical operator $T'$ defined by
+\begin{align*}
+    t_N(s) & = \begin{cases}
+        2 & \text{ if } s = s^* \\
+        1 & \text{ if } s = s^{**} \\
+        0 & \text{ otherwise}
+    \end{cases} \\
+    b_N(f) & = \begin{cases}
+        1 & \text{ if } s^* \in \src(N, f) \\
+        0 & \text{ otherwise}
+    \end{cases} \\
+\end{align*}
+Clearly this is a dictatorship with dictator source $s^*$. Also, for any
+network $N$ we have $s \slt_N^{T'} s^{**} \slt_N^{T'} s^*$; such a chain of
+strict inequalities cannot occur for a binary generalised dictatorship, so we
+are done.
+
+\end{proof}
+
+\subsection{Proof of proposition \ref{prop:unam_ground_indep}}
+\begin{proof}
+
+An operator that satisfies unanimity but not groundedness is $T$ that ranks
+facts according to the function
+$$
+    r_N(f) = \begin{cases}
+        1 & \text{ if } \src(N, f) \in \{\S, \emptyset\} \\
+        0 & \text{ otherwise}
+    \end{cases}
+    \quad (f \in \F)
+$$
+i.e. $f_1 \fle_N^T f_2$ iff $r_N(f_1) \le r_N(f_2)$ (note that $T$'s ranking of
+sources is irrelevant). Clearly $T$ satisfies unanimity but not groundedness:
+consider any network $N$ in which there is a fact $f_1$ with no corresponding
+sources, and a fact $f_2$ with at least one source, but whose sources are not
+the whole of $\S$. Then $f_1 \not\fle_N^T f_2$ contrary to the requirements of
+groundedness.
+
+Reversing the fact ordering of $T$ gives an operator satisfying groundedness
+but not unanimity.
+
+\end{proof}
+
+\subsection{Proof of lemma \ref{lemma:iterative_axiom_suff_conds}}
+
+The following lemma will be used to prove the claim regarding weak
+independence.
+
+\begin{lemma}
+\label{lemma:sequence_lemma}
+
+Let $(a_n)_{n \in \Nat}$, $(b_n)_{n \in \Nat}$ be convergent sequences of real
+numbers, and let $L = \lim_{n \rightarrow \infty}a_n$, $M = \lim_{n \rightarrow
+\infty}b_n$.
+\begin{enumerate}
+    \item If $L < M$, then $a_n < b_n$ for sufficiently large $n$.
+    \item If $a_n \le b_n$ for sufficiently large $n$, then $L \le M$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+
+For the first claim, suppose $L < M$. Set $\epsilon = \frac{1}{2}(M - L) > 0$.
+By definition of the limit $a_n \rightarrow L$, there is $N_1 \in \Nat$ such
+that $|a_n - L| < \epsilon$ for all $n > N_1$. In particular, $a_n - L <
+\epsilon = \frac{1}{2}M - \frac{1}{2}L$ and so $a_n < \frac{1}{2}(M + L)$.
+
+On the other hand, by definition of $b_n \rightarrow M$ there is $N_2 \in \Nat$
+such that $|b_n - M| < \epsilon$ for $n > N_2$, and in particular $b_n - M >
+-\epsilon = \frac{1}{2}L - \frac{1}{2}M$ and so $b_n > \frac{1}{2}(M + L)$.
+Thus, for $n > N:=\max\{N_1, N_2\}$ we have $a_n < \frac{1}{2}(M + L) < b_n$.
+
+The second claim is now immediate; if $a_n \le b_n$ for sufficiently large $n$
+and $L \le M$ were false, then by the first claim we would have $b_n < a_n$ for
+sufficiently large $n$, which is a contradiction.
+
+\end{proof}
+
+\begin{proof}[Proof of lemma \ref{lemma:iterative_axiom_suff_conds}]
+Let $I$ be as in the statement of the lemma.
+
+\begin{enumerate}
+
+\item This is immediate since $t_N^*(s)$ is a limit of numbers in $[0, 1]$
+which is a closed set, so $t_N^*(s) \in [0, 1]$ (and similar for $b_N^*(f)$).
+
+\item Let $N$ and $N' = \pi(N)$ be equivalent networks.  For any $s_1, s_2 \in
+\S$ we have
+\begin{align*}
+    s_1 \sle_N^I s_2
+        & \iff \lim_{n \rightarrow \infty}{t_N^n(s_1)} \le
+            \lim_{n \rightarrow \infty}{t_N^n(s_2)} \\
+        & \iff \lim_{n \rightarrow \infty}{t_{\pi(N)}^n(\pi(s_1))} \le
+            \lim_{n \rightarrow \infty}{t_{\pi(N)}^n(\pi(s_2))} \\
+        & \iff \pi(s_1) \sle_{\pi(N)}^I \pi(s_2) \\
+        & \iff \pi(s_1) \sle_{N'}^I \pi(s_2)
+\end{align*}
+and for $f_1, f_2 \in \F$,
+\begin{align*}
+    f_1 \fle_N^I f_2
+        & \iff \lim_{n \rightarrow \infty}{b_N^n(f_1)} \le
+            \lim_{n \rightarrow \infty}{b_N^n(f_2)} \\
+        & \iff \lim_{n \rightarrow \infty}{b_{\pi(n)}^n(\pi(f_1))} \le
+            \lim_{n \rightarrow \infty}{b_{\pi(n)}^n(\pi(f_2))} \\
+        & \iff \pi(f_1) \fle_{\pi(N)}^I \pi(f_2) \\
+        & \iff \pi(f_1) \fle_{N'}^I \pi(f_2)
+\end{align*}
+Hence $I$ is symmetric.
+
+\item Let $N$ be a truth-discovery network and $f \in \F$ with $\src(N, f) =
+\S$. By hypothesis there is $M \in \Nat$ such that $b_N^n(f) = 1$ for $n > M$,
+so $b_N^*(f)=\lim_{n \rightarrow \infty}{1} = 1 \ge b_N^*(f')$ for any $f'$.
+This means $f' \fle_N^I f$, i.e. $I$ satisfies unanimity.
+
+\item Similarly, if $\src(N, f) = \emptyset$ then by hypothesis $b_N^n(f) = 0$
+for $n$ sufficiently large, so $b_N^*(f)=0 \le b_N^*(f')$ for any $f'$, and $f
+\fle_N^I f'$ as required for groundedness.
+
+\item Let $G$, $N_1$, $N_2$ be as in the statement of the claim. For $s_1, s_2
+\in G \cap \S$ we have
+\begin{align*}
+    s_1 \sle_{N_1}^I s_2
+    & \iff \lim_{n \rightarrow \infty}{t_{N_1}^n(s_1)} \le \lim_{n \rightarrow
+        \infty}{t_{N_1}^n(s_2)} \\
+    & \iff \lim_{n \rightarrow \infty}{t_{N_2}^n(s_1)} \le \lim_{n \rightarrow
+        \infty}{t_{N_2}^n(s_2)} \\
+    & \iff s_1 \sle_{N_2}^I s_2
+\end{align*}
+and an identical argument proves the same for facts. Hence $I$ satisfies
+independence of irrelevant stuff.
+
+\item Let $G$, $N_1$, $N_2$ be as in the statement of the claim. Let $s_1, s_2
+\in G \cap \S$ and suppose $s_1 \slt_{N_1}^I s_2$, i.e. $\lim_{n \rightarrow
+\infty}{t_{N_1}^n(s_1)} < \lim_{n \rightarrow \infty}{t_{N_1}^n(s_2)}$. By
+lemma \ref{lemma:sequence_lemma} part 1, there is $K \in \Nat$ such that
+$t_{N_1}^n(s_1) < t_{N_1}^n(s_2)$ for $n > K$. For any such $n$, $\alpha_n \ge
+0$ means $t_{N_2}^n(s_1) = \alpha_n \cdot t_{N_1}^n(s_1) \le \alpha_n \cdot
+t_{N_1}^n(s_2) = t_{N_2}^n(s_2)$. Lemma \ref{lemma:sequence_lemma} part 2 then
+gives $\lim_{n \rightarrow \infty}t_{N_2}^n(s_1) \le \lim_{n \rightarrow
+\infty}t_{N_2}^n(s_2)$, i.e. $s_1 \sle_{N_2}^I s_2$.
+
+An identical argument proves the result for fact ranking. Hence $I$ satisfies
+weak independence.
+\end{enumerate}
+
+\end{proof}
+
+\subsection{Proof of theorem \ref{theorem:sums_axioms}}
+
+\begin{proof}
+Assume Sums is convergent. Since trust and belief scores for Sums are always in
+the range $[0, 1]$, lemma \ref{lemma:iterative_axiom_suff_conds} can be
+applied.
+
+\begin{enumerate}
+
+\item\textbf{Symmetry:} We will use lemma
+\ref{lemma:iterative_axiom_suff_conds} part 1. Let $N$ and $N'=\pi(N)$ be
+equivalent networks. We show that $t_N^n(s) = t_{\pi(N)}^n(\pi(s))$ and
+$b_N^n(f) = b_{\pi(N)}^n(\pi(f))$ for all $n \in \Nat$ by induction.
+
+The base case $n=1$ is clear since $t_N^1$, $t_{\pi(N)}^1$, $b_N^1$ and
+$b_{\pi(N)}^1$ are constant with value $\frac{1}{2}$. Suppose $n \in \Nat$ is
+such that $t_N^n(s) = t_{\pi(N)}^n(\pi(s))$ and $b_N^n(f) =
+b_{\pi(N)}^n(\pi(f))$ for all $s \in \S$ and $f \in \F$.
+
+Let $s \in \S$. Note that $f \in \fact(N, s)$ iff $\pi(f) \in \fact(\pi(N),
+\pi(s))$ by definition of $\pi(N)$. In particular, $\pi$ restricted to
+$\fact(N, s)$ is a bijection into $\fact(\pi(N), \pi(s))$, so we may consider a
+`substitution' $y = \pi(f)$ in the sum for $\hat{t}_N^{n+1}(s)$:
+
+\begin{align*}
+    \hat{t}_N^{n+1}(s) & = \sum_{f \in \fact(N, s)}{b_N^n(f)} \\
+                       & = \sum_{y \in \fact(\pi(N), \pi(s))}{b_N^n(\pi^{-1}(y))} \\
+                       & = \sum_{y \in \fact(\pi(N), \pi(s))}{b_{\pi(N)}^n(\pi(\pi^{-1}(y)))} \\
+                       & = \sum_{y \in \fact(\pi(N), \pi(s))}{b_{\pi(N)}^n(y)} \\
+                       & = \hat{t}_{\pi(N)}^{n+1}(\pi(s))
+\end{align*}
+Similarly, for $f\ \in \F$ note that $\pi$ restricted to $\src(N, f)$ is a
+bijection into $\src(\pi(N), \pi(F))$: using the above and an identical
+argument we get $\hat{b}_N^{n+1}(f) = \hat{b}_{\pi(N)}^{n+1}(\pi(f))$.
+
+Now we have
+\begin{align*}
+    t_N^{n+1}(s)
+    & = \frac{\hat{t}_N^{n + 1}(s)}{\max\limits_{x \in \S}{\hat{t}_N^{n + 1}(x)}} \\
+    & = \frac{\hat{t}_{\pi(N)}^{n + 1}(\pi(s))}{\max\limits_{x \in
+    \S}{\hat{t}_{\pi(N)}^{n + 1}(\pi(x))}} \\
+\end{align*}
+
+Note that $\pi$ restricted to $\S$ is a bijection into $\S$ itself, since
+by definition of equivalent networks each of $\S$, $\F$ and $\O$ are closed
+under $\pi$. Hence we may replace $\pi(x)$ in the maximum in the denominator
+with simply $x$ by surjectivity of $\pi$, and so
+$t_N^{n+1}(s)=t_{\pi(N)}^{n+1}(\pi(s))$. Similarly,
+$b_N^{n+1}(f)=b_{\pi(N)}^{n+1}(\pi(f))$. Hence, by lemma
+\ref{lemma:iterative_axiom_suff_conds}, Sums satisfies symmetry.
+
+\item\textbf{Non-dictatorship:} We have shown that Sums satisfies symmetry. In
+particular Sums satisfies source-symmetry, so given proposition
+\ref{prop:symm_and_dict} it suffices to show that there is at least one
+truth-discovery network $N$ for which Sums does not rank all sources equally.
+The network shown in figure \ref{img:sums_not_all_equal_trust} is a suitable
+example. In this network there are three sources $A$, $B$ and $C$, and two
+facts $D$ and $E$, each relating to a different object\footnotemark.
+
+\footnotetext{
+    If $\S$ contains more than three sources we consider all other sources to
+    have no outgoing edges (and similarly for if $\F$ contains more than two
+    facts). Note that the objects to not play any role in Sums.
+}
+
+We will show that Sums converges on this network, and that $B$ ranks strictly
+beneath $A$.
+
+For brevity write $a_n$ for $t_N^n(A)$, $\hat{a}_n$ for $\hat{t}_N^n(A)$
+and similar for $B, C, D, E$. We claim that for all $n > 1$, $a_n = 1$, $b_n =
+c_n = \frac{1}{2}$ and $d_n = e_n = 1$. By definition, for all $n > 1$:
+\[
+    \hat{a}_n  = d_{n-1} + e_{n-1}, \quad
+    \hat{b}_n  = d_{n-1}, \quad
+    \hat{c}_n  = e_{n-1}
+\]
+\[
+    \hat{d}_n  = \hat{a}_n + \hat{b}_n, \quad
+    \hat{e}_n  = \hat{a}_n + \hat{c}_n
+\]
+Recalling that $d_1 = e_1 = \frac{1}{2}$, taking $n=2$ we get
+\[
+    \hat{a}_2  = 1, \quad
+    \hat{b}_2  = \frac{1}{2}, \quad
+    \hat{c}_2  = \frac{1}{2}
+\]
+\[
+    \hat{d}_2  = \frac{3}{2}, \quad
+    \hat{e}_2  = \frac{3}{2}
+\]
+and so $a_2 = 1$, $b_2 = c_2 = \frac{1}{2}$ and $d_2 = e_2 = 1$. For $n = 3$ we
+get
+\[
+    \hat{a}_3  = d_2 + e_2 = 2, \quad
+    \hat{b}_3  = d_2 = 1, \quad
+    \hat{c}_3  = e_2 = 1
+\]
+\[
+    \hat{d}_3  = \hat{a}_3 + \hat{b}_3 = 3, \quad
+    \hat{e}_3  = \hat{a}_3 + \hat{c}_3 = 3
+\]
+and so $a_3 = 1$, $b_3 = c_3 = \frac{1}{2}$ and $d_3 = e_3 = 1$, i.e. the
+trust/belief scores are unchanged. Repeating in this way we see that $a_n = 1$
+and $b_n = \frac{1}{2}$ for all $n > 1$. Hence $t_N^*(A) = 1 > \frac{1}{2} =
+t_N^*(B)$: this means $B$ ranks strictly below $A$, which completes the proof.
+
+\item\textbf{Unanimity}: Let $N$ be a truth-discovery network and suppose $f \in \F$
+is such that $\src(N, f) = \S$. Then, for $n > 1$ and any $f' \in \F$,
+\[
+    \hat{b}_n(f') = \sum_{s \in \src(N, f')}{\hat{t}_n(s)}
+                  \le \sum_{s \in \S}{\hat{t}_n(s)}
+                  = \hat{b}_n(f)
+\]
+using the fact that $\hat{t}_n(s) \ge 0$. Therefore $\max_{y \in
+\F}{\hat{b}_n(y)} = \hat{b}_n(f)$, so $b_n(f) = 1$. By lemma
+\ref{lemma:iterative_axiom_suff_conds} part 3, Sums satisfies unanimity.
+
+\item\textbf{Groundedness}: Let $N$ be a truth-discovery network and suppose $f
+\in \F$ has $\src(N, f) = \emptyset$. By definition $b_n(f) = 0$ for all $n >
+1$, so by lemma \ref{lemma:iterative_axiom_suff_conds}, Sums satisfies
+groundedness.
+
+\item\textbf{Weak independence}: To show weak independence we will use lemma
+\ref{lemma:iterative_axiom_suff_conds} part 6. Let $N_1$, $N_2$ be
+truth-discovery networks with a common connected component $G$. Suitable
+sequences $(\alpha_n)_{n \in \Nat}$, $(\beta_n)_{n \in \Nat}$ will be defined
+recursively. For $n = 1$, set $\alpha_1 = \beta_1 = 1$. We have, by definition
+of Sums,
+\[
+    t_{N_2}^1(s) = \frac{1}{2}
+                 = \alpha_1 \cdot \frac{1}{2}
+                 = \alpha_1 \cdot t_{N_1}^1(s)
+\]
+\[
+    b_{N_2}^1(f) = \frac{1}{2}
+                 = \beta_1 \cdot \frac{1}{2}
+                 = \beta_1 \cdot b_{N_1}^1(f)
+\]
+for any $s \in G \cap \S$ and $f \in G \cap \F$. Now suppose $n \in \Nat$ is
+such that there are $\alpha_{n - 1}, \beta_{n - 1}
+\ge 0$ with
+\[
+    t_{N_2}^{n - 1}(s) = \alpha_{n - 1} \cdot t_{N_1}^{n - 1}(s)
+\]
+\[
+    b_{N_2}^{n - 1}(f) = \beta_{n - 1} \cdot b_{N_1}^{n - 1}(f)
+\]
+for all $s \in G \cap \S$ and $f \in G \cap \F$. Fix a source $s \in G \cap
+\S$. Let $E_1$, $E_2$ and $E_G$ denote the set of edges in $N_1$,$N_2$ and $G$
+respectively. Note that for any fact $f \in \F$,
+\begin{align*}
+    f \in \fact(N_1, s) & \iff (s, f) \in E_1 \\
+                        & \iff (s, f) \in E_G \\
+                        & \iff (s, f) \in E_2 \\
+                        & \iff f \in \fact(N_2, s)
+\end{align*}
+so $\fact(N_1, s) = \fact(N_2, s)$. Hence
+\begin{align*}
+    \hat{t}_{N_2}^n(s) & = \sum_{f \in \fact(N_2, s)}{b_{N_2}^{n - 1}(f)} \\
+                       & = \sum_{f \in \fact(N_1, s)}{\beta_{n - 1} \cdot b_{N_1}^{n - 1}(f)} \\
+                       & = \beta_{n - 1}\sum_{f \in \fact(N_1, s)}{b_{N_1}^{n - 1}(f)} \\
+                       & = \beta_{n - 1}\hat{t}_{N_1}^n(s)
+\end{align*}
+Write
+\[
+    \gamma_1 = \frac{1}{\max\limits_{x \in \S}{\hat{t}_{N_1}^n(x)}},
+    \quad
+    \gamma_2 = \frac{1}{\max\limits_{x \in \S}{\hat{t}_{N_2}^n(x)}}
+\]
+so that
+\begin{align*}
+    t_{N_1}^n(s) & = \gamma_1 \cdot \hat{t}_{N_1}^n(s) \\
+    t_{N_2}^n(s) & = \gamma_2 \cdot \hat{t}_{N_2}^n(s) \\
+     & = \gamma_2 \cdot \beta_{n - 1} \cdot \hat{t}_{N_1}^n(s) \\
+     & = \frac{\gamma_2 \cdot \beta_{n - 1}}{\gamma_1} \cdot \gamma_1 \cdot \hat{t}_{N_1}^n(s) \\
+     & = \frac{\gamma_2 \cdot \beta_{n - 1}}{\gamma_1} \cdot t_{N_1}^n(s)
+\end{align*}
+Taking $\alpha_n = \frac{\gamma_2\beta_{n-1}}{\gamma_1}$ we have the desired
+equality for trust scores. Note that $\gamma_1, \gamma_2 > 0$, so $\alpha_n \ge
+0$.
+
+The argument for belief scores is similar. Fix $f \in G \cap \F$. We have
+$\src(N_1, f) = \src(N_2, f)$, so
+\begin{align*}
+    \hat{b}_{N_2}^n(f) & = \sum_{s \in \src(N_2, f)}{\hat{t}_{N_2}^n(s)} \\
+       & = \sum_{s \in \src(N_1, f)}{\beta_{n-1} \cdot \hat{t}_{N_1}^n(s)} \\
+       & = \beta_{n-1} \cdot \hat{b}_{N_1}^n(f)
+\end{align*}
+Write
+\[
+    \delta_1 = \frac{1}{\max\limits_{y \in \F}{\hat{b}_{N_1}^n(y)}},
+    \quad
+    \delta_2 = \frac{1}{\max\limits_{y \in \F}{\hat{b}_{N_2}^n(y)}}
+\]
+Then
+\begin{align*}
+    b_{N_1}^n(f) & = \delta_1 \cdot \hat{b}_{N_1}^n(f) \\
+    b_{N_2}^n(f) & = \delta_2 \cdot \hat{b}_{N_2}^n(f) \\
+     & = \delta_2 \cdot \beta_{n - 1} \cdot \hat{b}_{N_1}^n(f) \\
+     & = \frac{\delta_2 \cdot \beta_{n - 1}}{\delta_1} \cdot \delta_1 \cdot \hat{b}_{N_1}^n(f) \\
+     & = \frac{\delta_2 \cdot \beta_{n - 1}}{\delta_1} \cdot b_{N_1}^n(f)
+\end{align*}
+so we may take $\beta_n = \frac{\delta_2\beta_{n-1}}{\delta_1}$.
+
+By induction, there exist sequences $(\alpha_n)_{n \in \Nat}$, $(\beta_n)_{n
+\in \Nat}$, satisfying the hypothesis of lemma
+\ref{lemma:iterative_axiom_suff_conds} part 6, so Sums satisfies weak
+independece.
+
+\end{enumerate}
+
+\end{proof}
+
+\subsection{Proof of theorem \ref{theorem:sums_non_indep}}
+
+\begin{proof}
+Let $N_1$ be the network shown in figure \ref{img:sums_not_all_equal_trust},
+and $N_2$ be the network shown in figure \ref{img:sums_non_indep}. With
+$G=N_1$, $G$ is a connected component of both networks. We have already shown
+in the proof of theorem \ref{theorem:sums_axioms} that $t_{N_1}^*(A) = 1$ and
+$t_{N_1}^*(B) = t_{N_1}^*(C) = \frac{1}{2}$, so in particular $A$ is ranked
+strictly above $B$ in $N_1$. To prove Sums does not satisfy independence, we
+will show that $A$ and $B$ are in fact ranked \emph{equally} in $N_2$; in
+particular, we shall have $A \sle_{N_2}^{I_{sums}} B$ but $A
+\not\sle_{N_1}^{I_{sums}} B$.
+
+As before, write $a_n$ for $t_{N_2}^n(A)$ and similar for the other nodes. We
+claim that, for $n > 1$:
+\[
+    a_n = \frac{2}{3^{n - 1}}, \quad
+    b_n = c_n = \frac{1}{3^{n - 1}}, \quad
+    s_n = t_n = u_n = 1
+\]
+\[
+    d_n = e_n = \frac{1}{3^{n - 1}}, \quad
+    v_n = w_n = x_n = 1
+\]
+The base case for induction is $n = 2$. We have
+\[
+    \hat{a}_2 = d_1 + e_1 = 1, \quad
+    \hat{b}_2 = d_1 = \frac{1}{2}, \quad
+    \hat{c}_2 = e_1 = \frac{1}{2}, \quad
+\]
+\[
+    \hat{s}_2 = \hat{t}_2 = \hat{u}_2 = v_1 + w_1 + x_1
+    = \frac{3}{2}
+\]
+\[
+    \hat{d}_2 = \hat{a}_2 + \hat{b}_2 = \frac{3}{2}, \quad
+    \hat{e}_2 = \hat{a}_2 + \hat{c}_2 = \frac{3}{2}
+\]
+\[
+    \hat{v}_2 = \hat{w}_2 = \hat{x}_2 = \hat{s}_2 + \hat{t}_2 + \hat{u}_2
+    = \frac{9}{2}
+\]
+The maximum trust score is $\frac{3}{2}$ and the maximum belief score is
+$\frac{9}{2}$, so
+\[
+    a_2 = \frac{2}{3}, \quad
+    b_2 = \frac{1}{3}, \quad
+    c_2 = \frac{1}{3}, \quad
+    s_2 = 1, \quad
+    t_2 = 1, \quad
+    u_2 = 1
+\]
+\[
+    d_2 = \frac{1}{3}, \quad
+    e_2 = \frac{1}{3}, \quad
+    v_2 = w_2 = x_2 = 1
+\]
+Thus the claim holds for $n = 2$. Now suppose that the claim holds for the $(n
+- 1)$-th iteration. We have
+\[
+    \hat{a}_n = d_{n-1} + e_{n-1}
+              = \frac{2}{3^{n-2}}, \quad
+    \hat{b}_n = d_{n-1}
+              = \frac{1}{3^{n-2}}, \quad
+    \hat{c}_n = e_{n-1}
+              = \frac{1}{3^{n-2}}
+\]
+\[
+    \hat{s}_n = \hat{t}_n = \hat{u}_n
+    = v_{n-1} + w_{n-1} + x_{n-1}
+    = 3
+\]
+\[
+    \hat{d}_n = \hat{a}_n + \hat{b}_n
+              = \frac{3}{3^{n - 2}}, \quad
+    \hat{e}_n = \hat{a}_n + \hat{c}_n
+              = \frac{3}{3^{n - 2}}
+\]
+\[
+    \hat{v}_n = \hat{w}_n = \hat{x}_n = 9
+\]
+The maximum trust and belief scores are 3 and 9 respectively, so we get
+\[
+    a_n = \frac{2}{3^{n-2}}\cdot\frac{1}{3}
+        = \frac{2}{3^{n-1}}, \quad
+    b_n = \frac{1}{3^{n-2}}\cdot\frac{1}{3}
+        = \frac{1}{3^{n-1}}, \quad
+    c_n = \frac{1}{3^{n-2}}\cdot\frac{1}{3}
+        = \frac{1}{3^{n-1}}, \quad
+\]
+\[
+    s_n = t_n = u_n = 1
+\]
+\[
+    d_n = \frac{3}{3^{n-2}}\cdot\frac{1}{9}
+        = \frac{1}{3^{n-1}}, \quad
+    e_n = \frac{3}{3^{n-2}}\cdot\frac{1}{9}
+        = \frac{1}{3^{n-1}}, \quad
+\]
+\[
+    v_n = w_n = x_n = 1
+\]
+as required.
+
+Finally, this means
+\[ t_{N_2}^*(A) = \lim_{n \rightarrow \infty}\frac{2}{3^{N-1}} = 0 \]
+\[ t_{N_2}^*(B) = \lim_{n \rightarrow \infty}\frac{1}{3^{N-1}} = 0 \]
+and $A \seq_{N_2}^{I_{sums}} B$, which completes the proof.
+
+\end{proof}
+
+\end{document}
