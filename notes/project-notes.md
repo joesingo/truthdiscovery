@@ -1,29 +1,9 @@
-## Implementation ideas:
-Could have multiple interfaces:
-  * Command line
-  * Python API
-  * Website
-  * ~~HTTP API?~~
-
-Should have core Python API, from which command line and web clients are built
-from. If necessary, a HTTP API can mimic the Python API.
-
-Basic usage will be:
-  * Choose algorithm
-  * Choose algorithm parameters/initial conditions (algorithm-specific)
-  * Upload/select dataset and any other inputs
-    * Add option to specify number of sources/variables, and fill in matrix
-      incrementally
-  * Choose form of results
-    * Table listing *all* belief and trust values
-    * Values for sources/facts/objects matching a query
-
 # Existing software
 
 * This python library implements some fact-finding algorithms:
   https://github.com/totucuong/spectrum
 
-## Fact-finding background
+## Truth-discovery background
 
 * Gupta survey has good background information, and lists many algorithms
 
@@ -77,46 +57,6 @@ Basic usage will be:
 * Semi-supervised
   * Uses a number of ground truths
   * E.g. [3]
-
-## Ideas for truth-discovery properties and axioms
-
-* Source makes an extra claim, not contradictory with other claims: scores
-  remain the same
-  * As it stands this is probably not sensible, since making an additional
-    *bad* claim (e.g.  one whose other sources are not trustworthy) should
-    decrease the trust score.
-
-  * However could probably would make sense to say that making an additional
-    claim *not made by anybody* else should never decrease trust score
-
-  * Possibly even: new claim by a more trustworthy source than s: s's trust
-    increases; by a less trustworthy source: s's trust decreases
-
-* Changes outside a set of sources/claims: scores remain the same for the
-  unchanged sources/claims
-
-* Relabelling/reordering the sources/claims should have no affect on the scores
-
-* Sources make identical claims: same trust scores
-
-* Stability measure: upper bound on amount of change when k changes in input
-  graph (matrix norm of difference between old and new trust matrices?)
-
-* Main axiom: replacing one of a claim's sources with one with lower trust
-  score results in lower confidence. Dually, replacing one of a source's claims
-  with a less believable one results in lower trust score
-  * Precisely: let c_1, c_2 be claims not made by a source s, and
-    belief(c_1) <= belief(c_2). Consider new graphs G_1 where s claims c_1, and
-    G_2 where s claims c_2. Then trust(G_1, s) <= trust(G_2, s)
-  * Similar in the other direction, where we add two sources to a claim
-
-* PageRank axioms could apply to homogeneous networks
-
-* If claims state that a variable X takes a given value: trust/belief scores
-  should not depend on the specific values that sources claim X takes; i.e.
-  replacing all claims X=k with X=k' leaves scores unchanged.
-
-* If all sources make the same claim, that claim should be the most believed.
 
 ## Future work
 
