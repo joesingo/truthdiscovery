@@ -34,8 +34,8 @@ are:
 Note that there are no header rows.
 
 Dates were added to each file so that the files can be concatenated to perform
-truth-discovery on *all* of the data (warning: it took almost *10 minutes* to
-load all the data on my laptop...). In a Unix environment one can simply do
+truth-discovery on *all* of the data (warning: may take several minutes). In a
+Unix environment one can simply do
 ```bash
 cat data/data-*.tsv > all_data.tsv
 ```
