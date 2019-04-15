@@ -9,11 +9,15 @@ from truthdiscovery import Dataset, GraphRenderer, PlainColourScheme
 
 
 class ReportRenderer(GraphRenderer):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, var_labels=False, **kwargs):
         super().__init__(*args, **kwargs)
+        self.var_labels = var_labels
         self.colours = PlainColourScheme()
+        self.font_size = 30
 
-    def get_var_label(self, _var_id):
+    def get_var_label(self, var_id):
+        if self.var_labels:
+            return super().get_var_label(var_id)
         return ""
 
     def get_claim_label(self, _var_id, val_hash):
@@ -47,7 +51,7 @@ class ExampleFigureCreator:
             ("B", "obj1", "D"),
             ("C", "obj2", "E")
         ))
-        renderer = ReportRenderer(node_size=0.5, font_size=30)
+        renderer = ReportRenderer(node_size=0.5)
         renderer.render(dataset, outfile)
 
     @example
@@ -70,9 +74,40 @@ class ExampleFigureCreator:
             ("U", "obj4", "W"),
             ("U", "obj5", "X"),
         ))
-        renderer = ReportRenderer(node_size=0.8, font_size=30)
+        renderer = ReportRenderer(node_size=0.8)
         renderer.render(dataset, outfile)
 
+    @example
+    def independence_illustration_1(self, outfile):
+        dataset = Dataset((
+            ("S", "O", "A"),
+            ("T", "O", "B"),
+            ("T", "P", "C"),
+            ("T", "Q", "D"),
+
+            ("U", "P", "C"),
+            ("U", "Q", "D"),
+
+            ("V", "P", "C"),
+            ("V", "Q", "D")
+        ))
+        renderer = ReportRenderer(var_labels=True)
+        renderer.render(dataset, outfile)
+
+    @example
+    def independence_illustration_2(self, outfile):
+        dataset = Dataset((
+            ("S", "O", "A"),
+            ("T", "O", "B"),
+
+            ("U", "P", "C"),
+            ("U", "Q", "D"),
+
+            ("V", "P", "C"),
+            ("V", "Q", "D")
+        ))
+        renderer = ReportRenderer(var_labels=True)
+        renderer.render(dataset, outfile)
 
 if __name__ == "__main__":
     outdir = None
