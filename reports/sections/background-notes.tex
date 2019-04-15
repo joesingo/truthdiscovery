@@ -141,6 +141,19 @@ is given by $s(f)$ (\ref{sec:galland} sense, when this is defined).
 This is a special case since the only claimed values are \texttt{True} and
 \texttt{False}, whereas in \ref{sec:li} the values can be anything.
 
+\subsection{Summary}
+The input seems to be essentially equivalent in all approaches listed in
+section \ref{sec:existing_frameworks}, with the exception of \ref{sec:galland}
+which has the concept of negative claims.
+
+Output differs: in \ref{sec:li} a single true fact is selected for each object,
+and in the others all facts are given a belief score in $[0, 1]$. Both
+approaches ultimately \emph{rank} the facts of each object.
+
+The framework I choose should be general enough that all (or at least most)
+algorithms in the literature can fit into it. The framework will then
+facilitate comparison between the algorithms.
+
 \section{Extensions to basic truth-discovery}
 \begin{itemize}
 
