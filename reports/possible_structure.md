@@ -64,17 +64,17 @@
     * Prior to TD, there has been work on *trust analysis*, such as in P2P
       networks, sensor networks, e-commerce (eBay reputation etc), but these
       problems consider relations between a single type of entity
-      (*homogeneous* in the terminology of Guptar and Han survey). For example,
+      (*homogeneous* in the terminology of Gupta and Han survey). For example,
       an agent in a multi-agent system may trust another agent.
 
     * However in truth-discovery sources are not related to each other, and
       only interact indirectly through the claims they make
 
 * Practical side:
+
     * Many truth discovery approaches and algorithms have been proposed in the
       literature. Different algorithms often use vastly different models,
       designed to address different (sometimes domain-specific) issues, such as
-
         * implications between claims (TruthFinder)
         * hetrogeneous (multi-typed) data (conflicts to harmony)
         * object correlations (see 'A Probabilistic model for truth discovery
@@ -90,6 +90,7 @@
           Media Sensing)
         * semi-supervised (Semi-Supervised Truth Discovery)
         * copying between sources (Truth Discovery and Copying Detection...)
+        * time-varying truth (Truth Discovery and Copying Detection...)
         * streaming data (Truth Discovery in Data Streams...)
 
     * Due to the wide range of domains and variety in the approaches in the
@@ -104,7 +105,7 @@
       accuracy)
 
     * For this reason there is a need for an extendible, well-documented,
-      publicly-accessibly software framework for evalution and comparison of
+      publicly-accessibly software framework for evaluation and comparison of
       truth discovery algorithms.
 
     * This will allow users to immediately try different algorithms on their
@@ -115,7 +116,7 @@
         * spectrum: https://github.com/totucuong/spectrum
             * This library implements some algorithms
             * It lacks proper documentation
-            * Lacks features such as control of iteration, uniform interaface
+            * Lacks features such as control of iteration, uniform interface
               for getting results, evaluation of algorithm accuracy on known
               datasets
         * DAFNA-EA: https://github.com/daqcri/DAFNA-EA
