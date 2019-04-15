@@ -1,10 +1,19 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document}
 
-First we state some standard definitions, and then give a graph-theoretic
-formulation of truth discovery.
+% Tidying up:
+% * Produce example graphs after definitions and axioms
+% * Replace hand-drawn network with digitally produced one
 
-In this section we define a graph-theoretic framework for truth discovery
+In this section we present a formal graph-theoretic framework for truth
+discovery, and set out the central problem of truth discovery via the
+definition of a \emph{truth discovery operator}. We then develop axioms
+(desirable properties) for such operators, and prove some basic properties
+regarding them. Finally, we consider how to represent real-world truth
+discovery algorithms in the developed framework, focussing specifically on
+\emph{Sums} \cite{pasternack}.
+
+First we state some standard definitions and notation.
 
 \subsection{Standard definitions and notation}
 
@@ -36,17 +45,6 @@ A \emph{permutation} of a set $X$ is a bijective mapping $X \rightarrow X$. We
 use cyclic notation for permutations: $\pi=(a, b, c)$ is the mapping $\pi(a) =
 b$, $\pi(b) = c$, $\pi(c) = a$, and $\pi(x) = x$ for $x \notin \{a, b, c\}$.
 \end{definition}
-
-\begin{definition}
-For any set $X$, relation $R \subseteq X \times X$, and permutation $\pi: X
-\rightarrow X$, we denote by $\pi(R)$ the relation
-$$ \pi(R) = \{(\pi(x), \pi(y)) : x \mathbin{R} y\} $$
-That is, $(u, v) \in \pi(R)$ if and only if $(\pi^{-1}(u), \pi^{-1}(v)) \in R$.
-\end{definition}
-
-Note that if $R$ is an total preorder then so too is $\pi(R)$. If we view $\pi$
-as relabelling the elements of $X$, then $\pi(R)$ is the same ordering as $R$,
-but given in terms of the new labels.
 
 \begin{definition}
 
@@ -103,7 +101,7 @@ facts or sources.
 In the special case where each object has exactly two associated facts, the
 objects can be seen as \emph{binary variables} taking one of two values, e.g.
 true or false. The truth discovery network is then similar to a set of
-judgements in \emph{judgement aggregation}\cite{handbook_ja} for an agenda
+judgements in \emph{judgement aggregation} \cite{handbook_ja} for an agenda
 consisting only of propositional variables.
 \end{remark}
 
@@ -128,10 +126,14 @@ $\S$ and $\F$ respectively.
 
 $s_1 \sle_N^T s_2$ means $s_2$ is ranked as \emph{more trustworthy} than $s_1$
 in the network $N$ according to $T$; $f_1 \fle_N^T f_2$ means $f_2$ is ranked
-as \emph{more believable} than $f_1$. Sub- and super-scripts can be omitted
-when clear from context.
+as \emph{more believable} than $f_1$.
 
 \end{definition}
+
+In practise, real-world truth discovery algorithms do not usually output a
+ranking of sources and facts directly, but instead assign each source a numeric
+\emph{trust score}, and each fact a \emph{belief score}. This is captured in
+the following definition.
 
 \begin{definition}
 \label{def:numerical}
@@ -156,40 +158,25 @@ mapping).
 \end{remark}
 
 In this work we deal primarily with truth discovery operators as defined in
-definition \ref{def:truth_discovery_operator}, instead of working directly
-with numeric trust and belief scores. This is because we are interested in the
-qualitative ranking of sources and facts, rather than quantitative values. This
-approach is common in axiomatic treatment of ranking
-systems{\cite{altman,altman_personalised}}. \todo{find more references for this
-(e.g. Arrow, 1951, p17)}
+definition \ref{def:truth_discovery_operator}, instead of working directly with
+numeric trust and belief scores as in definition \ref{def:numerical}. This is
+because, from a theoretical point of view, we are interested in the qualitative
+ranking of sources and facts, rather than quantitative values. This approach is
+common in axiomatic treatment of social choice and ranking systems
+\cite{arrow,altman,altman_personalised}.
 
 Dispensing with numeric values is further justified by the fact that
-trust/belief scores produced by numericl operators often do not have any
-semantic meaning\cite{pasternack}, and so only the \emph{ranking} of
+trust/belief scores produced by numerical operators often do not have any
+semantic meaning \cite{pasternack}, and so only the \emph{ranking} of
 sources/facts is important.
 
-One downside to this approach is that whilst we can tell whether or not $s_1$
-is more trustworthy than $s_2$, we cannot tell by \emph{how much}.  For
+One disadvantage to this approach is that whilst we can tell whether or not
+$s_1$ is more trustworthy than $s_2$, we cannot tell by \emph{how much}. For
 example, consider two numerical operators $T$ and $T'$ and $\S=\{s_1, s_2\}$
-such that $t_N(s_1)=0.5, t_N(s_2)=0.51$, and $t_N'(s_1)=0.01,
-t_N'(s_2)=0.99$. Both operators induce the same ranking on $\S$, yet $T$
-considers the two sources to have similar trust values while $T'$ considers
-$s_2$ to be much more trustworthy than $s_1$.
-
-\textbf{Notes:}
-\begin{itemize}
-
-\item Some operators only give most believed values as output (neither a
-ranking nor belief score for each fact) (e.g. \cite{li_conflicts}). However we
-can view such an operator in the above framework by considering it to rank the
-discovered true facts above all others, and ranking false facts equally.
-
-\item Some operators may give most-believed values for facts that are not
-claimed by any sources, e.g. if values are continuous could perform a weighted
-average of claimed facts (I believe this is done in \cite{li_conflicts} for
-continuous data types). Neither of the definitions above support this.
-
-\end{itemize}
+such that $t_N(s_1)=0.5, t_N(s_2)=0.51$, and $t_N'(s_1)=0.01, t_N'(s_2)=0.99$.
+Both operators induce the same ranking on $\S$, yet $T$ considers the two
+sources to have similar trust values while $T'$ considers $s_2$ to be much more
+trustworthy than $s_1$.
 
 \subsection{Axioms}
 \label{sec:axioms}
@@ -198,21 +185,14 @@ The fact-believability component of truth discovery can be seen as a special
 case of voting in the theory of social choice \cite{handbook_voting}, where
 agents are sources and alternatives are facts. Each source then ranks the facts
 it claims above all other facts, and ranks its claimed facts
-equally.\footnotemark
+equally\footnotemark. Several axioms for voting rules from this theory can be
+adapted to truth discovery, and we do so presently.
 
-\todo{
-    Maybe have a section for background, and briefly outline each related area
-    (e.g. social choice, JA, recommendation, ranking, annotation,
-    argumentation). Can outline how truth discovery fits in with each.
-}
 
 \footnotetext{
     Note that the formulation of social choice must allow for agents to have
     \emph{weak} preferences for alternatives, where ties are allowed.
 }
-
-Several axioms applicable to social welfare and social choice functions from
-classical social choice can be directly adapted to truth discovery.
 
 \subsubsection{Symmetry and dictatorship}
 
@@ -247,27 +227,21 @@ where $\pi$ only permutes sources, i.e. $\pi(f)=f$ and $\pi(o)=o$ for all $f
 defined similarly.
 \end{definition}
 
-\begin{axiom}(Symmetry)
+\begin{axiom}[Symmetry]
 \label{axiom:symm}
 An operator $T$ should satisfy symmetry.
 \end{axiom}
 
-\begin{remark}
 Source-symmetry is analogous to \emph{anonymity} in classical social choice,
-where all voters are treated identically. Fact and object symmetry are
-analogous to \emph{neutrality} in social choice, where the alternatives being
-voted on are treated identically (Handbook, definitions 2.4, 2.5).
+where all voters are treated identically, and fact and object symmetry are
+analogous to \emph{neutrality}, where the alternatives being
+voted on are treated identically \cite{handbook_voting}.
 
 Note that source-symmetry does not mean that sources are treated \emph{equally}
 per se, since some sources are presumed to be more trustworthy than others
 (this is more or less the central premise of truth discovery). Instead it means
 that sources are judged solely by the facts that they claim, not their
 identities.
-
-\todo{Think about whether the three weaker symmetries are independent (I think
-they are). If so provide an example of an operator satisfying one but not the
-others.}
-\end{remark}
 
 \begin{figure}
     \centering
@@ -289,6 +263,10 @@ network $N$, then $s_1 \seq_N^T s_2$.
 
 Similarly, if $T$ satisfies fact-symmetry and $\src(N, f_1) = \src(N, f_2)$,
 $\obj(N, f_1) = \obj(N, f_2)$, then $f_1 \feq_N^T f_2$.
+
+That is, any two sources making identical claims are ranked equally, and any
+two facts for the same object with identical support from sources are ranked
+equally.
 \end{proposition}
 
 All missing proofs are presented in the appendix.
@@ -374,7 +352,8 @@ symmetry, is where the authoritative source may depend on $N$.
 \label{def:gen_dict}
 A truth discovery operator $T$ is a \emph{generalised dictatorship} if for
 every network $N$ there exists a source $s_N \in \S$ that is authoritative for
-$N$ with $T$. A \emph{generalised strict dictatorship} is defined similarly.
+$N$ with respect to $T$. A \emph{generalised strict dictatorship} is defined
+similarly.
 \end{definition}
 
 Clearly a dictatorship is also a generalised dictatorship.
@@ -399,7 +378,7 @@ be the set of sources making the maximal number of claims, and set
 \]
 Clearly any source in $Q_N$ is authoritative.
 
-For symmetry, let $N$ and $\pi(N)$ be equivalent networks. Let $s \in \S$.
+To show symmetry, let $N$ and $\pi(N)$ be equivalent networks. Let $s \in \S$.
 First note that $f \in \fact(N, s)$ iff $\pi(f) \in \fact(\pi(N), \pi(s))$ by
 definition of equivalent networks, and in particular the restriction of $\pi$
 to $\fact(N, s)$ is a bijection into $\fact(\pi(N), \pi(s))$; hence $|\fact(N,
@@ -473,7 +452,7 @@ identified with a mapping $\N \rightarrow 2^\S$ that selects the authoritative
 sources for each truth discovery network.
 \end{remark}
 
-\begin{axiom}
+\begin{axiom}[Non- binary generalised dictatorship]
 \label{axiom:non_bin_gen_dict}
 An operator $T$ should not be a binary generalised dictatorship.
 \end{axiom}
@@ -512,17 +491,16 @@ restrictive. For unanimity in particular, requiring $f$ to rank strictly above
 all other facts would require $T$ to choose a highest-ranking fact arbitrarily
 in the case where there are multiple facts claimed by all sources.
 
-\begin{remark}
-Unanimity is similar to the \emph{weak Paretian} property\cite{handbook_intro}
+Unanimity is similar to the \emph{weak Paretian} property \cite{handbook_intro}
 in social choice, which states that whenever each individual prefers an
 alternative $a$ over $b$, the social preference order prefers $a$ over $b$
 also. It can also be compared to unanimity in judgement
-aggregation\cite{handbook_ja}.
+aggregation \cite{handbook_ja}.
 
 Axioms similar to groundedness have been proposed for collective annotation
-(e.g. see \emph{groundedness} in \cite{kruger}) \todo{check social choice and
-JA incarnations of these principles}.
-\end{remark}
+(e.g. see \emph{groundedness} in \cite{kruger})
+
+\todo{check social choice and JA incarnations of these principles}.
 
 \begin{example}
 The \emph{majority voting} operator, which ranks a fact by the number of
@@ -546,22 +524,63 @@ Unanimity and groundedness are independent.
 
 \subsubsection{Independence}
 
-\rough{
-    In social choice, `Independence of Irrelevant Alternatives' requires that
-    the relative ranking of two alternatives $a$ and $b$ depends only on the
-    individual rankings of $a$ and $b$, and not on any irrelevant alternative
-    $c$. That is, if the individual voter preferences are changed such that the
-    individual ranking of $a$ and $b$ remains the same in each case, the
-    ranking of $a$ and $b$ in the social ranking remains unchanged.
-    This is not suitable in its present form as an axiom for truth discovery,
-    since we want to consider all claims from sources to determine trust and
-    belief. However the ranking of $f_1$ and $f_2$ should only depend on the
-    other nodes that are relevant to those facts, not on say a source who makes
-    no claims about the same objects as $f_1$ and $f_2$.
-}
+In social choice, the `Independence of Irrelevant Alternatives' (IIA) axiom
+\cite{arrow} requires that the relative ranking of two alternatives $A$ and $B$
+depends only on the individual rankings of $A$ and $B$, and not on any
+`irrelevant' alternative $C$. That is, if the individual voter preferences are
+changed such that the ranking of $A$ versus $B$ remains the same for each
+voter, the ranking of $A$ and $B$ in the social ranking remains unchanged.
 
-In what follows we consider a connected component of a truth discovery network
-$N$ to be a connected component of the undirected version of $N$.
+\begin{figure}
+    \centering
+    \includegraphics[width=25em]{independence_illustration_1}
+    \caption{
+        A network demonstrating a case where we do not wish for an IIA-type
+        axiom to hold.
+    }
+    \label{img:independence_illustration_1}
+\end{figure}
+
+To consider whether a similar axiom should be adopted for truth discovery,
+consider facts $A$ and $B$ in the network shown in figure
+\ref{img:independence_illustration_1}. $A$ has support from source $S$ only,
+who is not in agreement with any other sources, whilst $B$ has support from
+$T$, who agrees with both $U$ and $V$ on facts $C$ and $D$. For this reason, it
+may be reasonable to expect that $T$ is more trustworthy than $S$, and
+therefore $B$ is more believable than $A$.
+
+Directly translating IIA to this situation, we would require that the ranking
+of $A$ and $B$ is unchanged if, say, we removed $T$'s claims for $C$ and $D$
+(which are `irrelevant'), and instead had $S$ make these claims. However the
+intuition above suggests that the ranking of $A$ and $B$ should actually be
+\emph{reversed} in this case, despite the individual judgements on $A$ and $B$
+remaining unchanged. For this reason, we argue that a more subtle notion of
+independence is required.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=25em]{independence_illustration_2}
+    \caption{
+        A network where some notion of independence may be applied
+    }
+    \label{img:independence_illustration_2}
+\end{figure}
+
+The issue in figure \ref{img:independence_illustration_1} is that $C$ and $D$
+are not entirely irrelevant to $A$ and $B$, since they are connected indirectly
+via sources that make claims for both objects $O$ and $P$ (namely, source $T$).
+Consider removing these indirect links, as show in figure
+\ref{img:independence_illustration_2}. In this case it can be argued that $C$
+and $D$ truly are irrelevant to $A$ and $B$, and so changes to the network
+outside of $S$, $T$, $A$, $B$ and $O$ should not affect the ranking of $A$ and
+$B$.
+
+This idea can be generalised by noting that two nodes are `relevant' to each
+other (perhaps indirectly) if they lie in the same \emph{connected component}
+of the network (where we consider the connected components of the undirected
+version of the graph). A suitable independence axiom is therefore to require
+that changes outside a connected component do not affect the ranking of sources
+and facts within that component. A precise statement is given below.
 
 \begin{axiom}[Independence Of Irrelevant Stuff]
 \label{axiom:indep}
@@ -591,12 +610,50 @@ $G$ and for any $s_1, s_2 \in G \cap S$ and $f_1, f_2 \in G \cap \F$:
 
 Clearly axiom \ref{axiom:indep} implies axiom \ref{axiom:weak_indep}.
 
-\todo{Give an example of $N_1$, $N_2$ and $G$ and independence}
+\subsubsection{Coherence}
+
+A guiding principle of many truth discovery approaches is that facts claimed by
+trustworthy sources should receive high belief, and sources claiming high
+belief facts should be seen as trustworthy -- the trust and belief rankings
+should cohere with one another in this sense. The following axiom aims to
+formalise this in a specific case where it is possible to compare facts for two
+sources in a straightforward way (and similarly for facts).
+
+\begin{axiom}[Coherence]
+Suppose $N$ is a truth discovery network and $s_1, s_2 \in \S$ are such that
+there is a bijective mapping $\phi: \fact(N, s_1) \rightarrow \fact(N, s_2)$
+with $f \fle_N^T \phi(f)$ for all $f \in \fact(N, s_1)$. Then $s_1 \sle_N^T
+s_2$.
+
+That is, if the facts claimed by two sources can be paired up such that the
+fact claimed by $s_1$ always ranks beneath the fact claimed by $s_2$, then
+$s_1$ ranks beneath $s_2$.
+
+Similarly, if there are facts $f_1, f_2 \in \F$ and a bijection $\phi: \src(N,
+f_1) \rightarrow \src(N, f_2)$ such that $s \sle_N^T \phi(s)$ for all $s \in
+\src(N, f_1)$, then $f_1 \fle_N^T f_2$.
+
+\end{axiom}
+
+\todo{Come up with an example of a coherent operator}
 
 \subsubsection{Monotonicity}
 
-\todo{introductory note: compare to monotonicity in social choice, JA,
-annotation, trust recommendation}
+The axioms considered so far have largely dealt with the output of a truth
+discovery operator for one input network at a time, or for two networks which
+are structurally similar. Another dimension to the axiomatic approach is to
+consider how the output of an operator is effected by a \emph{change} in the
+input to modify it in a particular way.
+
+The following axiom considers what should happen if a network is changed by
+adding additional support for a particular fact. Intuitively, this should be
+seen as additional evidence that the fact is true, and an operator should rate
+it no worse than it did before.
+
+\todo{
+    expand introductory note: compare to monotonicity in social choice, JA,
+    annotation, trust recommendation
+}
 
 \begin{axiom}[Monotonicity]
 Let $N = (V, E)$ be a truth discovery network, and $f \in \F$, $s \in \S$ such
@@ -611,25 +668,9 @@ That is, if $f$ receives additional support from a new source $s$, its ranking
 should not get worse.
 \end{axiom}
 
-\subsubsection{Coherence}
+\todo{Come up with an example of a monotonic operator }
 
-\rough{
-    A source is trustworthy if it claims believable facts, and a fact is
-    believable if it is claimed by trustworthy sources.
-}
-
-\begin{axiom}[Coherence]
-Suppose $N$ is a truth discovery network and $s_1, s_2 \in \S$ are such that
-there is a bijective mapping $\phi: \fact(N, s_1) \rightarrow \fact(N, s_2)$
-with $f \fle_N^T \phi(f)$ for all $f \in \fact(N, s_1)$. Then $s_1 \sle_N^T
-s_2$.
-
-\todo{dual statement for facts}
-
-That is, if the facts claimed by two sources can be paired up such that the
-fact claimed by $s_1$ always ranks beneath the fact claimed by $s_2$, then
-$s_1$ ranks beneath $s_2$.
-\end{axiom}
+\todo{Summary of all the axioms and any implications between them}
 
 \subsection{Iterative truth discovery operators}
 
@@ -665,9 +706,7 @@ Recall that a numerical operator $T^*$ naturally induces a (non-numerical)
 operator by rankings sources according to $t_N^*$ and facts according to
 $b_N^*$. We may therefore identify a convergent iterative operator $I$ with the
 operator induced by its limit $T^*$, and write $\sle_N^I$ and $\fle_N^I$ for
-the source and fact rankings.
-
-To be explicit:
+the source and fact rankings. To be explicit:
 
 $$ s_1 \sle_N^I s_2 \iff \lim_{n \rightarrow \infty}{t_N^n(s_1)} \le \lim_{n
 \rightarrow \infty}{t_N^n(s_2)} $$
@@ -687,20 +726,23 @@ to determine whether a sequence converges by considering only finitely many
 terms. Moreover even if the difference between subsequent trust/belief scores
 were to become \emph{arbitrarily} small (i.e. smaller than \emph{any}
 threshold), one still cannot guarantee convergence\footnotemark. This means
-that it may not be trivial to define a real-world algorithm as a
-truth discovery operator, since it may not be clear whether the trust and
-belief scores converge in all cases.
+that it may not be trivial to define a real-world algorithm as a truth
+discovery operator, since it may not be clear whether the trust and belief
+scores converge in all cases. Nevertheless, in this work we will assume that
+the iteration \emph{does} converge in all cases and consider which axioms of
+section \ref{sec:axioms} are satisfied given this assumption.
 
 \footnotetext{
-    As an example a sequence exhibiting such behaviour, consider the partial
-    sums of the (divergent) series $\sum_{n=1}^{\infty}\frac{1}{n}$. The
-    difference between the $(N+1)$-th and $N$th terms is $\frac{1}{N+1}
-    \rightarrow 0$, yet the series does not converge.
+    For an example of a sequence exhibiting such behaviour, consider the
+    partial sums of the \emph{Harmonic series}
+    $\sum_{j=1}^{\infty}\frac{1}{j}$, which is divergent. The difference
+    between the $(n+1)$-th and $n$th terms is $\frac{1}{n+1}$ which converges
+    to 0 as $n \rightarrow \infty$, yet the series does not converge.
 }
 
-To check whether a convergent iterative operator satisfies the axioms of section
-\ref{sec:axioms}, it will be convenient to have sufficient conditions for some
-of the axioms that refer to the numeric trust and belief scores directly.
+To check whether a convergent operator satisfies the axioms, it will be
+convenient to have sufficient conditions for some of the axioms that refer to
+the numeric trust and belief scores directly.
 
 For convenience we assume that trust and belief scores are in the range $[0,
 1]$, as this is generally the case in practise.
@@ -757,7 +799,7 @@ f$ and $n$.
 
 \subsubsection{Sums}
 
-Sums\cite{pasternack} is an iterative algorithm for truth discovery based on
+Sums \cite{pasternack} is an iterative algorithm for truth discovery based on
 the Hubs and Authorities \cite{kleinberg} algorithm for the ranking of web
 pages based on the hyperlink structure of the web. The trust score for a source
 at a given iteration is computed as the sum of the current belief scores of its
