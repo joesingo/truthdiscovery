@@ -202,3 +202,43 @@
       explore axioms
     * Approach: study existing formalisations of similar subject areas in the
       literature
+
+# Implementation
+# Results and Evaluation
+
+# Future work
+
+* Theoretical work:
+  * Framework limitations:
+    * Some real-world algorithms only give most believed values as output
+      (neither a ranking nor belief score for each fact) (e.g.  'Conflicts to
+      Harmony'). However we *can* view such an operator in the framework by
+      considering it to rank the discovered true facts above all others, and
+      ranking false facts equally.
+
+    * Some algorithms give most-believed values for facts that are *not claimed
+    by any sources*, e.g. if values are continuous could perform a weighted
+    average of claimed facts (I believe this is done in 'Conflicts to
+    Harmony' for continuous data types). Neither of the operator definitions
+    in the theory support this.
+
+    * Objects do not really play a role for most of the work. Maybe they could
+    be removed from the framework if they do not play a significant role, or
+    more work could be done to actually use the concept of objects.
+
+  * Potential framework extensions:
+    * Support the numerous extensions to basic TD
+
+    * There is a lot of redundancy in the axioms where we state a property that
+      the source ranking should have, and an almost identical version for fact
+      ranking. Similarly in the proofs, it is often the case that the argument
+      for facts is identical to the one for sources.
+
+    * Perhaps there is a more general problem or framework, where we have k
+    groups of nodes instead of just 2 (sources and facts). The interpretation
+    of such a network would need considering.
+
+    * Maybe the stuff in Pasternack's thesis on 'groups' is relevant to this
+
+\end{itemize}
+
