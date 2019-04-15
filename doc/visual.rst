@@ -6,7 +6,7 @@ Visual dataset and results representation
 Datasets
 --------
 
-A truth-discovery dataset can be represented visually as directed graph, where
+A truth discovery dataset can be represented visually as directed graph, where
 the nodes are the sources, claims and objects, and there is an edge from each
 source to each claim it makes, and an edge between each claim and the variable
 it relates to.
@@ -40,7 +40,7 @@ size, node size, line widths etc...).
 Results
 -------
 
-The results of a truth-discovery algorithm can be visualised in the graph
+The results of a truth discovery algorithm can be visualised in the graph
 representation by colouring the sources/claims according to their trust and
 belief scores. This is done with the :any:`ResultsGradientColourScheme` colour
 scheme: ::

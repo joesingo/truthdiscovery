@@ -3,7 +3,7 @@
 Output
 ======
 
-The output of a truth-discovery algorithm in this library is a :any:`Result`
+The output of a truth discovery algorithm in this library is a :any:`Result`
 object. The most important attributes of :any:`Result` objects are ``trust``
 and ``belief``, which are dictionaries containing the trust and belief scores
 for each source and claim. See the example below for their format.

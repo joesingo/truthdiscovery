@@ -596,7 +596,7 @@ class TestWebClient(ClientTestsBase):
         resp = test_client.get("/")
         html = resp.data.decode()
         assert "<body>" in html
-        assert "truth-discovery tool" in html.lower()
+        assert "truth discovery tool" in html.lower()
         assert '&#34;average_log&#34;: &#34;AverageLog&#34;' in html
 
     def test_run_fail(self, test_client):

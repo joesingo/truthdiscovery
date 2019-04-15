@@ -23,7 +23,7 @@ class IDMapping(bidict):
 
 class Dataset:
     """
-    An object to represent a dataset upon which truth-discovery will be
+    An object to represent a dataset upon which truth discovery will be
     performed. A dataset consists *variables* and the values they take
     according to different *sources*.
 

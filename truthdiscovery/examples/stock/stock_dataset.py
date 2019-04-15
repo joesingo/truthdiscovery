@@ -1,6 +1,6 @@
 """
 Script to load a real-world dataset of stock market data, and perform
-truth-discovery.
+truth discovery.
 """
 import csv
 import sys

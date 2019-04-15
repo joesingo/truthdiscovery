@@ -1,11 +1,5 @@
 # TODO list
 
-## Reading
-* Look into semi-supervised approaches (start with [18] in 2018 paper)
-* Look at {2,3}-Estimates
-* This may tackle problem of data coming in over time:
-  a-probabilistic-model-for-truth-discovery-with-object-correlations.pdf
-
 * Found on Scopus:
 
 RTPT: A framework for real-time privacy-preserving truth discovery on

@@ -35,7 +35,7 @@ def csv_to_masked_array(fileobj):
 
 class MatrixDataset(Dataset):
     """
-    A truth-discovery dataset given as a matrix, where columns correspond to
+    A truth discovery dataset given as a matrix, where columns correspond to
     variables, and rows correspond to sources.
 
     Let ``X_1, ..., X_n`` be the variables, and ``s_1, ... s_m`` be the

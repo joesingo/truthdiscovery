@@ -50,7 +50,7 @@ class CommandLineClient(BaseClient):
         # Run sub-command
         run_parser = subparsers.add_parser(
             "run",
-            help="Run truth-discovery algorithms on a CSV dataset",
+            help="Run truth discovery algorithms on a CSV dataset",
             description="""
                 Run algorithms on a dataset loaded from a CSV file, and
                 return results in YAML format
@@ -242,7 +242,7 @@ class CommandLineClient(BaseClient):
                   "library"),
             description="""
                 Start the debug Flask server for the HTTP API and web-interface
-                to the truth-discovery library
+                to the truthdiscovery library
             """,
         )
         return parser

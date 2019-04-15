@@ -3,7 +3,7 @@
 * This python library implements some fact-finding algorithms:
   https://github.com/totucuong/spectrum
 
-## Truth-discovery background
+## Truth discovery background
 
 * Gupta survey has good background information, and lists many algorithms
 
@@ -65,7 +65,7 @@
   formulas that determine whether a possible world (assignment of true/false to
   each claim) is *feasible*
   * Would be interesting to handle cases whether most believable world (as
-  given by a truth-discovery algorithm) is not feasible
+  given by a truth discovery algorithm) is not feasible
   * Pasternack and Roth paper deals with this as part of iterative algorithms
   * TruthFinder (in a sense) has this in a fuzz way by modelling implications
   between facts, but I think this encodes that certain worlds are *unlikely*,

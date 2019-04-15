@@ -69,9 +69,9 @@
 
 [21-25]-02-2019:
 ----------------
-* Background reading on truth-discovery approaches, to find common framework
+* Background reading on truth discovery approaches, to find common framework
   for developing axioms
-* Sketch possible formalisms of truth-discovery
+* Sketch possible formalisms of truth discovery
 * Research existing work on axioms of ranking systems
 * Come up with a few basic ideas for axioms, which are not fully detailed yet
 
@@ -93,7 +93,7 @@
 * Try algorithms on real-world stock data
 * Investigate using sparse matrices
 * Read about judgement aggregation, collective annotation, social choice
-* Try to formulate symmetry axiom for my truth-discovery framework
+* Try to formulate symmetry axiom for my truth discovery framework
 
 [01-03]-03-2019:
 ----------------
@@ -103,7 +103,7 @@
 
 04-03-2019:
 -----------
-* Adapt classical social choice axioms to truth-discovery
+* Adapt classical social choice axioms to truth discovery
 
 05-03-2019:
 -----------

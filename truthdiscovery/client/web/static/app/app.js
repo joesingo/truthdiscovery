@@ -181,7 +181,7 @@ angular.
             this.alg_params = "";
             this.preset_datasets = {
                 "standard": {
-                    "name": "Typical truth-discovery dataset",
+                    "name": "Typical truth discovery dataset",
                     "entries": [
                         [1, null, 3, 4],
                         [2, 2, null, null],

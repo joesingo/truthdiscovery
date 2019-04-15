@@ -1,20 +1,20 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document}
 
-\section{Frameworks for truth-discovery used in existing literature}
+\section{Frameworks for truth discovery used in existing literature}
 \label{sec:existing_frameworks}
 
 \subsection{Li et. al. survey}
 \label{sec:li}
 
-A 2015 survey by Li et. al. {\cite{li_survey}} defines truth-discovery as
+A 2015 survey by Li et. al. {\cite{li_survey}} defines truth discovery as
 follows.
 
 \begin{itemize}
 \item We have a set of sources $\S$, and a set of objects $\O$
 \item Each source $s$ claims a value $v_{o}^{s}$ for some objects $o$ (not
 necessarily \emph{all} objects)
-\item Truth-discovery: compute a \emph{source weight} $w_s$ for each source,
+\item Truth discovery: compute a \emph{source weight} $w_s$ for each source,
 and compute `truth values' $v_{o}^{*}$ for each object $o$
 \item \emph{Single truth assumption}: there is exactly one true value for each
 object. This may not always hold (e.g. consider which actors star in a film)
@@ -34,12 +34,12 @@ $\F = \bigcup_{o \in \O}F_o$
 multiple objects, but only one fact per object
 \item Could be formalised similar to \ref{sec:li} as follows: $f_o^s \in F_o$
 is the fact provided by source $s$ for object $o$, defined for a subset of $\O$
-\item Truth-discovery: compute \emph{source trusts} $t_s$ for each source $s$,
+\item Truth discovery: compute \emph{source trusts} $t_s$ for each source $s$,
 and \emph{fact confidence} $c_f$ for each fact $f$
 \end{itemize}
 
 Note that general set up is more or less equivalent to in \ref{sec:li}: facts
-replace values. However the definition of a truth-discovery algorithm is
+replace values. However the definition of a truth discovery algorithm is
 different: here each fact is given a confidence score, whereas in \ref{sec:li}
 we only find the most believable fact for each object.
 
@@ -58,7 +58,7 @@ The method proposed in \cite{zhang_qi_tang} is similar to both above approaches:
 symbol to indicate no claim is made
 \item Each source has a \emph{trustworthy component} and \emph{untrustworthy
 component}
-\item Truth-discovery:
+\item Truth discovery:
     \begin{itemize}
     \item Compute probability that each fact $f$ is the true fact for its
     associated object (i.e. confidence in each fact?)
@@ -78,7 +78,7 @@ In \cite{pasternack}:
 $\mathcal{C} = \bigcup_{s \in \S}{C_s}$
 \item Each claim $c$ has \emph{mutual exclusion} set $M_c \subseteq
 \mathcal{C}$: only one claim in each $M_c$ is true. Note that $c \in M_c$
-\item Truth-discovery: compute source trusts $t_s$ and claim beliefs $b_c$
+\item Truth discovery: compute source trusts $t_s$ and claim beliefs $b_c$
 \end{itemize}
 
 This is essentially the same as \ref{sec:gupta}, if we let each mutual
@@ -114,7 +114,7 @@ query} $ref(f) \in \mathcal{Q}$ (imagine that $q\in\mathcal{Q}$ is a question,
 and $f$ answers the question in some way). Any query has exactly one true fact.
 Formally, for each query $q$, let $F_q = \{f \in \F : ref(f) = q\}$.
 For each $q$ there is exactly one $f \in F_q$ with $W(f) = \texttt{True}$ \item
-Truth-discovery: compute source error factors $\epsilon(s)$, and an estimate
+Truth discovery: compute source error factors $\epsilon(s)$, and an estimate
 for the real world $W$ given as a mapping $\F \rightarrow [0, 1]$ where 1
 represents true and 0 represents false.
 \end{itemize}
@@ -154,7 +154,7 @@ The framework I choose should be general enough that all (or at least most)
 algorithms in the literature can fit into it. The framework will then
 facilitate comparison between the algorithms.
 
-\section{Extensions to basic truth-discovery}
+\section{Extensions to basic truth discovery}
 \begin{itemize}
 
 \item Implications between facts about the same object{\cite{yin_han_yu}}
@@ -165,11 +165,11 @@ categorical, and can be different types){\cite{li_conflicts}}
 \item Correlations between objects{\cite{yang}}
 \item Considering that for some questions there is no true answer (objects have
 no true facts){\cite{zhi}}
-\item Supervised truth-discovery (some ground truths are
+\item Supervised truth discovery (some ground truths are
 known){\cite{yin_supervised}}
 \item Truth changing over time, and sources copying from other
 sources{\cite{dong}}
-\item Truth-discovery in data streams, where source claims arrive continuously
+\item Truth discovery in data streams, where source claims arrive continuously
 over time{\cite{zhao}}
 
 \end{itemize}
@@ -188,11 +188,11 @@ either $+$ or $-$. The goal is to assign recommendations $+$, $-$ or $0$ to the
 \emph{non-voters} using the trust relationships between agents.
 
 The network here is \emph{homogeneous} as all nodes in the graph are agents,
-and agents trust each other. This is in contrast with truth-discovery where
+and agents trust each other. This is in contrast with truth discovery where
 edges are between entities of different types.
 
 The recommendations are also \emph{personalised} which is not applicable to
-truth-discovery, since we want to find the global truths.
+truth discovery, since we want to find the global truths.
 
 Nevertheless the paper gives some axioms that seem like they could be
 applicable.
@@ -205,7 +205,7 @@ directed edges in a graph. A personalised ranking system gives a ranking of the
 agents \emph{for each agent}. Each ranking depends on which agents are trusted.
 
 Has interesting transitivity-type axioms that sound highly applicable to
-truth-discovery: if a fact $f_1$ has sources that are `more trusted' than the
+truth discovery: if a fact $f_1$ has sources that are `more trusted' than the
 sources of $f_2$ (where $f_1, f_2$ relate to the same object), then $f_1$
 should be more believed than $f_2$.
 
@@ -214,7 +214,7 @@ between sources for $f_1$ and $f_2$ such that $s$ is more trusted than $p(s)$
 for all sources $s$ of $f_1$, then $f_1$ is believed more than $f_2$.
 
 The paper allows this for $p$ injective but not necessarily surjective. I don't
-think would work for truth-discovery sine the addition of a very bad source
+think would work for truth discovery sine the addition of a very bad source
 could (rightly) bring a fact's belief down, even if its other sources were
 better.
 
@@ -225,7 +225,7 @@ Walks}{\cite{lev}}. Set up is similar to trust-based, but recommendations are
 given to \emph{sets} of agents.
 
 \item General social choice (e.g. see Handbook chapter 1 for overview). It
-sounds like the fact ordering part of truth-discovery could be a special case
+sounds like the fact ordering part of truth discovery could be a special case
 of a social welfare function, where sources rank their claims strictly above
 all others (but they would have to rank their own facts equally\ldots).
 
@@ -233,9 +233,9 @@ all others (but they would have to rank their own facts equally\ldots).
 
 It seems like there is a lot of existing work on things like ranking systems,
 aggregating preferences of a group (social choice) which have similarities with
-truth-discovery.
+truth discovery.
 
-\subsection{Ideas for truth-discovery}
+\subsection{Ideas for truth discovery}
 \begin{itemize}
 
 \item Independence of irrelevant claims: if a subset of sources, objects, facts

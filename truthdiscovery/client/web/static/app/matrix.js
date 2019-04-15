@@ -1,5 +1,5 @@
 /*
- * Object to represent a truth-discovery matrix.
+ * Object to represent a truth discovery matrix.
  * Hold entries as a 2D array, and a 2D boolean array of the same size to
  * record whether each cell is currently being edited
  */

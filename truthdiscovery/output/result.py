@@ -7,7 +7,7 @@ from truthdiscovery.utils import filter_dict
 
 class Result:
     """
-    Object to hold the results of truth-discovery.
+    Object to hold the results of truth discovery.
     """
     def __init__(self, trust, belief, time_taken, iterations=None):
         """

@@ -7,7 +7,7 @@ class Sums(BaseIterativeAlgorithm):
     """
     Sums, or Hubs and Authorities, algorithm.
 
-    Described by Kleinberg for web pages, and adapted to truth-discovery by
+    Described by Kleinberg for web pages, and adapted to truth discovery by
     Pasternack and Roth
     """
     def _run(self, data):

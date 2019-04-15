@@ -1,7 +1,7 @@
 # Introduction
 * General
-    * What truth-discovery is
-    * Applications of truth-discovery
+    * What truth discovery is
+    * Applications of truth discovery
 * Split rest into parts for practical and theoretical sides of the project
 
 # Background
@@ -51,7 +51,7 @@
       (correctly) discard the false information.
 
 * TD background:
-    * *Truth-discovery* has emerged as a topic aiming to tackle the problem of
+    * *Truth discovery* has emerged as a topic aiming to tackle the problem of
       determining *what to believe* and *who to trust* given an input of
       conflicting claims from multiple sources.
 
@@ -67,7 +67,7 @@
       (*homogeneous* in the terminology of Gupta and Han survey). For example,
       an agent in a multi-agent system may trust another agent.
 
-    * However in truth-discovery sources are not related to each other, and
+    * However in truth discovery sources are not related to each other, and
       only interact indirectly through the claims they make
 
 * Practical side:
@@ -128,20 +128,40 @@
               other than when some ground truths are already known: i.e. it is
               purely for evaluation purposes rather than for actual
               applications of truth discovery
-
         * Other code is available on GitHub, but not suitable as a general
           purpose library
             * https://github.com/lvlingyu11/Truth-Discovery-for-Crowdsourcing-Data
             * https://github.com/MengtingWan/KDEm
 
-* General overview of truth-discovery literature and related fields
-    * Data fusion, trust analysis, others... (see survey papers?)
-    * Numerous extensions to basic TD (implications, temporal, copying,
-      supervised, multi-typed, truth-existence, weighted etc)
+    * Research questions:
+      * Identify a common basic model for TD: in particular define format of
+        input and output
+      * Implement a basic selection well-known of TD algorithms
+      * Find and implement standard metrics for evaluation of TD algorithms
+      * Allow comparison between different algorithms
+      * Produce well documented, tested, extendable software framework
+
+* Theoretical:
+  * Various TD approaches adopt statistical models to capture the
+    trustworthiness of sources. This is treated as  random variable from a
+    particular distribution ( *latent variables* ). TD then becomes a case of
+    finding the most probable values for this variable, given the available
+    evidence (i.e. the claims made by sources)
+
+  * A common approach to this is *expectation maximisation* (see 'Latent
+    Dirichlet Truth Discovery', 'A Truth Discovery Approach with Theoretical
+    Guarantee', doubtless there are others too...)
+
+  * This approach yields theoretical guarantees when if the underlying
+    assumptions regarding the distribution of source trust/claimed values are
+    satisfied. These assumptions may well hold in practise and give rise to
+    useful algorithms
+
+  *
+
+  * TD is similar to many other areas in the literature…
 
 * Break into practical and theoretical parts:;
-    * Practical: Numerous algorithms to talk about. Also mention any existing
-      TD libraries or interfaces for public users to use
     * Theoretical: Talk about related fields from a theoretical point of view
       (social choice, ranking etc). Give brief statement of the central
       problems in each related area, and explain how it relates to TD. Explain

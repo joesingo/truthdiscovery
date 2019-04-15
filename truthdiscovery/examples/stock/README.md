@@ -1,6 +1,6 @@
 # Stock dataset example
 
-This directory contains an example of using truth-discovery on a real-world
+This directory contains an example of using truth discovery on a real-world
 dataset. The data is the 'stock' dataset from ["Data Sets for Data Fusion
 Experiments"](http://lunadong.com/fusionDataSets.htm), which contains
 information about 1,000 stock symbols from 55 sources on each week day in July
@@ -34,7 +34,7 @@ are:
 Note that there are no header rows.
 
 Dates were added to each file so that the files can be concatenated to perform
-truth-discovery on *all* of the data (warning: may take several minutes). In a
+truth discovery on *all* of the data (warning: may take several minutes). In a
 Unix environment one can simply do
 ```bash
 cat data/data-*.tsv > all_data.tsv

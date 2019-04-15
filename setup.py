@@ -16,7 +16,7 @@ with open(path.join(HERE, "requirements.txt"), encoding="utf-8") as f:
 setup(
     name="truthdiscovery",
     version="0.0.1",
-    description=("Python3 library implementing a selection of truth-discovery"
+    description=("Python3 library implementing a selection of truth discovery"
                  "algorithms"),
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",

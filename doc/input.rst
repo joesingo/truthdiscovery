@@ -144,7 +144,7 @@ implication.  ::
 Datasets with known true values
 -------------------------------
 
-An easy way to evaluate the performance of a truth-discovery algorithm is to
+An easy way to evaluate the performance of a truth discovery algorithm is to
 run it on a dataset for which the true values of some of the variables is
 already known. A measure of the *accuracy* of the algorithm can then be
 computed by considering how many variables the algorithm predicted the correct
@@ -207,10 +207,10 @@ supervised data) with the
 Custom dataset formats
 ----------------------
 
-In a real-world application of truth-discovery, data will most likely be loaded
+In a real-world application of truth discovery, data will most likely be loaded
 from a file in a bespoke format. The most suitable format for storing datasets
 in files may be domain-specific, or the format may be already fixed if applying
-truth-discovery to existing datasets.
+truth discovery to existing datasets.
 
 For these reasons, this library does not attempt to provide a standard format
 for loading files from disk (except for the CSV format for matrix datasets

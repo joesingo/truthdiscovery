@@ -13,10 +13,10 @@ Welcome to truthdiscovery's documentation!
 Overview
 --------
 
-``truthdiscovery`` is a Python3 library that implements various truth-discovery
+``truthdiscovery`` is a Python3 library that implements various truth discovery
 algorithms.
 
-A truth-discovery problem consists of
+A truth discovery problem consists of
 
 - a number of *sources*
 - a number of *objects*
@@ -27,7 +27,7 @@ An object may be associated with multiple (conflicting) claims from different
 sources, in which case it is not clear up front which is the true claim. It is
 typically assumed that there is only one true claim for each object.
 
-Truth-discovery addresses this by using the network of sources, claims and
+Truth discovery addresses this by using the network of sources, claims and
 objects to determine the *trustworthiness* of sources, the *belief* in each
 claim, and the true claim for each object.
 
@@ -40,7 +40,7 @@ for the trustworthiness of sources etc.
 .. figure:: images/example_graph_dataset.png
    :figclass: align-center
 
-   Graph representation of an example truth-discovery problem
+   Graph representation of an example truth discovery problem
 
 The library can be used via its Python API, command-line client, or web
 interface.

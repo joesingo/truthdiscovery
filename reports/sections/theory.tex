@@ -2,7 +2,9 @@
 \begin{document}
 
 First we state some standard definitions, and then give a graph-theoretic
-formulation of truth-discovery.
+formulation of truth discovery.
+
+In this section we define a graph-theoretic framework for truth discovery
 
 \subsection{Standard definitions and notation}
 
@@ -66,7 +68,7 @@ subgraph of an equivalence class of $\sim$.
 For sets $X$ and $Y$, $Y^X$ denotes the set of all functions $X \rightarrow Y$.
 \end{notation}
 
-\subsection{Truth-discovery definitions}
+\subsection{Truth discovery definitions}
 
 We consider fixed finite and mutually disjoint sets $\S$, $\F$ and $\O$, called
 the \emph{sources}, \emph{facts} and \emph{objects} respectively. All
@@ -75,7 +77,7 @@ definitions and axioms will be stated with respect to these sets.
 % Input network definition
 \begin{definition}
 
-A \emph{truth-discovery network} is a directed graph $N = (V, E)$ where $V = \S
+A \emph{truth discovery network} is a directed graph $N = (V, E)$ where $V = \S
 \cup \F \cup \O$, and $E \subseteq (\S \times \F) \cup (\F \times \O)$
 satisfies the following properties:
 
@@ -90,7 +92,7 @@ $s$ to $o$ (i.e. sources can only claim one fact per object).
 
 \end{enumerate}
 We will say that $s$ \emph{claims} a fact $f$ when $(s, f) \in E$. Let $\N$
-denote the set of all truth-discovery networks.
+denote the set of all truth discovery networks.
 \end{definition}
 
 \begin{remark}
@@ -100,7 +102,7 @@ facts or sources.
 
 In the special case where each object has exactly two associated facts, the
 objects can be seen as \emph{binary variables} taking one of two values, e.g.
-true or false. The truth-discovery network is then similar to a set of
+true or false. The truth discovery network is then similar to a set of
 judgements in \emph{judgement aggregation}\cite{handbook_ja} for an agenda
 consisting only of propositional variables.
 \end{remark}
@@ -119,8 +121,8 @@ For convenience, for a network $N=(V, E)$, define:
 \begin{definition}
 \label{def:truth_discovery_operator}
 
-A \emph{truth-discovery operator} $T$ is a mapping $T: \N \rightarrow
-\orderings(\S) \times \orderings(\F)$, i.e. $T$ assigns to each truth-discovery
+A \emph{truth discovery operator} $T$ is a mapping $T: \N \rightarrow
+\orderings(\S) \times \orderings(\F)$, i.e. $T$ assigns to each truth discovery
 network $N$ a pair of total preorders $T(N) = (\sle_N^T, \fle_N^T)$ on the sets
 $\S$ and $\F$ respectively.
 
@@ -134,8 +136,8 @@ when clear from context.
 \begin{definition}
 \label{def:numerical}
 
-A \emph{numerical truth-discovery operator} $T$ is a mapping $T: \N \rightarrow
-\R^\S \times \R^\F$, i.e. $T$ assigns to each truth-discovery network $N$
+A \emph{numerical truth discovery operator} $T$ is a mapping $T: \N \rightarrow
+\R^\S \times \R^\F$, i.e. $T$ assigns to each truth discovery network $N$
 functions $t_N: \S \rightarrow \R$ (referred to as the \emph{source trust}
 mapping) and $b_N: \F \rightarrow \R$ (referred to as the \emph{fact belief}
 mapping).
@@ -143,8 +145,8 @@ mapping).
 \end{definition}
 
 \begin{remark}
-    Any numerical truth-discovery operator $T$ naturally induces a
-    truth-discovery operator $T'$, where for any truth-discovery network $N$
+    Any numerical truth discovery operator $T$ naturally induces a
+    truth discovery operator $T'$, where for any truth discovery network $N$
     we define
     \begin{align*}
     s_1 \sle_N^{T'} s_2 & \iff t_N(s_1) \le t_N(s_2) \\
@@ -153,7 +155,7 @@ mapping).
     for $s_1, s_2 \in \S$ and $f_1, f_2 \in \F$.
 \end{remark}
 
-In this work we deal primarily with truth-discovery operators as defined in
+In this work we deal primarily with truth discovery operators as defined in
 definition \ref{def:truth_discovery_operator}, instead of working directly
 with numeric trust and belief scores. This is because we are interested in the
 qualitative ranking of sources and facts, rather than quantitative values. This
@@ -192,7 +194,7 @@ continuous data types). Neither of the definitions above support this.
 \subsection{Axioms}
 \label{sec:axioms}
 
-The fact-believability component of truth-discovery can be seen as a special
+The fact-believability component of truth discovery can be seen as a special
 case of voting in the theory of social choice \cite{handbook_voting}, where
 agents are sources and alternatives are facts. Each source then ranks the facts
 it claims above all other facts, and ranks its claimed facts
@@ -201,7 +203,7 @@ equally.\footnotemark
 \todo{
     Maybe have a section for background, and briefly outline each related area
     (e.g. social choice, JA, recommendation, ranking, annotation,
-    argumentation). Can outline how truth-discovery fits in with each.
+    argumentation). Can outline how truth discovery fits in with each.
 }
 
 \footnotetext{
@@ -210,12 +212,12 @@ equally.\footnotemark
 }
 
 Several axioms applicable to social welfare and social choice functions from
-classical social choice can be directly adapted to truth-discovery.
+classical social choice can be directly adapted to truth discovery.
 
 \subsubsection{Symmetry and dictatorship}
 
 \begin{definition}
-Two truth-discovery networks $N$ and $N'$ are \emph{equivalent} if there is a
+Two truth discovery networks $N$ and $N'$ are \emph{equivalent} if there is a
 graph isomorphism $\pi$ between them that preserves sources, facts and objects:
 \begin{enumerate}
 \item $\pi(s) \in \S$ for all $s \in \S$
@@ -227,14 +229,14 @@ In such case we write $\pi(N)$ for $N'$.
 \end{definition}
 
 Figure \ref{img:permutation_of_a_tdn} shows an example of a permutation of a
-truth-discovery network.
+truth discovery network.
 
 The first axiom states that the ordering of sources and facts should not depend
 on the `names' of the sources, facts and objects in the input.
 
 \begin{definition}
-Let $T$ be a truth-discovery operator. $T$ satisfies \emph{symmetry} if for
-any equivalent truth-discovery networks $N$ and $N' = \pi(N)$, we have
+Let $T$ be a truth discovery operator. $T$ satisfies \emph{symmetry} if for
+any equivalent truth discovery networks $N$ and $N' = \pi(N)$, we have
 $$ s_1 \sle_N^T s_2 \iff \pi(s_1) \sle_{N'}^T \pi(s_2) $$
 and
 $$ f_1 \fle_N^T f_2 \iff \pi(f_1) \fle_{N'}^T \pi(f_2) $$
@@ -258,7 +260,7 @@ voted on are treated identically (Handbook, definitions 2.4, 2.5).
 
 Note that source-symmetry does not mean that sources are treated \emph{equally}
 per se, since some sources are presumed to be more trustworthy than others
-(this is more or less the central premise of truth-discovery). Instead it means
+(this is more or less the central premise of truth discovery). Instead it means
 that sources are judged solely by the facts that they claim, not their
 identities.
 
@@ -270,7 +272,7 @@ others.}
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{symmetry_example}
-    \caption{Example of a permutation of a truth-discovery network}
+    \caption{Example of a permutation of a truth discovery network}
     \label{img:permutation_of_a_tdn}
 \end{figure}
 
@@ -292,7 +294,7 @@ $\obj(N, f_1) = \obj(N, f_2)$, then $f_1 \feq_N^T f_2$.
 All missing proofs are presented in the appendix.
 
 In some sense the opposite of source-symmetry, where the identities of the
-sources are irrelevant and only the structure of the truth-discovery network is
+sources are irrelevant and only the structure of the truth discovery network is
 important, is a situation where \emph{only} the identities of the sources are
 considered.
 
@@ -370,7 +372,7 @@ symmetry, is where the authoritative source may depend on $N$.
 
 \begin{definition}
 \label{def:gen_dict}
-A truth-discovery operator $T$ is a \emph{generalised dictatorship} if for
+A truth discovery operator $T$ is a \emph{generalised dictatorship} if for
 every network $N$ there exists a source $s_N \in \S$ that is authoritative for
 $N$ with $T$. A \emph{generalised strict dictatorship} is defined similarly.
 \end{definition}
@@ -380,7 +382,7 @@ Clearly a dictatorship is also a generalised dictatorship.
 \begin{example}
 \label{example:symm_and_gen_dict}
 An operator that is both symmetric and a generalised dictatorship is the
-numerical operator $T$ defined as follows. For any truth-discovery network $N$,
+numerical operator $T$ defined as follows. For any truth discovery network $N$,
 let $Q_N = \{s \in \S \colon |\fact(N, s)| = \max_{x \in \S}{|\fact(N, x)|}\}$
 be the set of sources making the maximal number of claims, and set
 \[
@@ -442,7 +444,7 @@ other and strictly below the authoritative ones. This behaviour is captured in
 the following definition.
 
 \begin{definition}
-A truth-discovery operator $T$ is a \emph{binary generalised dictatorship} if
+A truth discovery operator $T$ is a \emph{binary generalised dictatorship} if
 for every network $N$ there is a set of sources $Q_N \subseteq \S$ such that,
 with
 \begin{align*}
@@ -468,7 +470,7 @@ $N$, each source in $Q_N$ is authoritative.
 In such case the orderings $\sle_N^T$ and $\fle_N^T$ are fully determined by
 the choice of $Q_N$. Therefore a binary generalised dictatorship can be
 identified with a mapping $\N \rightarrow 2^\S$ that selects the authoritative
-sources for each truth-discovery network.
+sources for each truth discovery network.
 \end{remark}
 
 \begin{axiom}
@@ -484,20 +486,20 @@ Non-dictatorship and non- binary generalised dictatorship are independent.
 \subsubsection{Unanimity}
 
 The next axioms formalise the idea that if all sources are in agreement about
-the status of a fact, then a truth-discovery operator should respect this in
+the status of a fact, then a truth discovery operator should respect this in
 its verdict. Two obvious ways in which sources can be in agreement are when
 \emph{all} sources believe a fact is true, and when \emph{no} sources believe a
 fact is true.
 
 \begin{axiom}[Unanimity]
 \label{axiom:unanimity}
-For any truth-discovery network $N$, $\src(N, f) = \S$ implies $f' \fle_N^T f$
+For any truth discovery network $N$, $\src(N, f) = \S$ implies $f' \fle_N^T f$
 for all $f' \in \F$.
 \end{axiom}
 
 \begin{axiom}[Groundedness]
 \label{axiom:groundedness}
-For any truth-discovery network $N$, $\src(N, f) = \emptyset$ implies $f
+For any truth discovery network $N$, $\src(N, f) = \emptyset$ implies $f
 \fle_N^T f'$ for all $f' \in \F$.
 \end{axiom}
 
@@ -551,19 +553,19 @@ Unanimity and groundedness are independent.
     $c$. That is, if the individual voter preferences are changed such that the
     individual ranking of $a$ and $b$ remains the same in each case, the
     ranking of $a$ and $b$ in the social ranking remains unchanged.
-    This is not suitable in its present form as an axiom for truth-discovery,
+    This is not suitable in its present form as an axiom for truth discovery,
     since we want to consider all claims from sources to determine trust and
     belief. However the ranking of $f_1$ and $f_2$ should only depend on the
     other nodes that are relevant to those facts, not on say a source who makes
     no claims about the same objects as $f_1$ and $f_2$.
 }
 
-In what follows we consider a connected component of a truth-discovery network
+In what follows we consider a connected component of a truth discovery network
 $N$ to be a connected component of the undirected version of $N$.
 
 \begin{axiom}[Independence Of Irrelevant Stuff]
 \label{axiom:indep}
-For any truth-discovery networks $N_1$, $N_2$ with a common connected component
+For any truth discovery networks $N_1$, $N_2$ with a common connected component
 $G$, the restrictions of $\sle_{N_1}^T$ and $\sle_{N_2}^T$ to $G \cap \S$ are
 equal, and the restrictions of $\fle_{N_1}^T$ and $\fle_{N_2}^T$ to $G \cap \F$
 are equal.
@@ -577,7 +579,7 @@ $N_1$ may become weak in $N_2$).
 
 \begin{axiom}[Weak Independence Of Irrelevant Stuff]
 \label{axiom:weak_indep}
-For any truth-discovery networks $N_1$, $N_2$ with a common connected component
+For any truth discovery networks $N_1$, $N_2$ with a common connected component
 $G$ and for any $s_1, s_2 \in G \cap S$ and $f_1, f_2 \in G \cap \F$:
 \[
     s_1 \slt_{N_1}^T s_2 \implies s_1 \sle_{N_2}^T s_2
@@ -597,7 +599,7 @@ Clearly axiom \ref{axiom:indep} implies axiom \ref{axiom:weak_indep}.
 annotation, trust recommendation}
 
 \begin{axiom}[Monotonicity]
-Let $N = (V, E)$ be a truth-discovery network, and $f \in \F$, $s \in \S$ such
+Let $N = (V, E)$ be a truth discovery network, and $f \in \F$, $s \in \S$ such
 that $(s, f) \notin E$. Write $o = \obj(N, f)$. Consider the network $N'=(V,
 E')$ where $s$ claims $f$, i.e.
 $$
@@ -617,7 +619,7 @@ should not get worse.
 }
 
 \begin{axiom}[Coherence]
-Suppose $N$ is a truth-discovery network and $s_1, s_2 \in \S$ are such that
+Suppose $N$ is a truth discovery network and $s_1, s_2 \in \S$ are such that
 there is a bijective mapping $\phi: \fact(N, s_1) \rightarrow \fact(N, s_2)$
 with $f \fle_N^T \phi(f)$ for all $f \in \fact(N, s_1)$. Then $s_1 \sle_N^T
 s_2$.
@@ -629,22 +631,22 @@ fact claimed by $s_1$ always ranks beneath the fact claimed by $s_2$, then
 $s_1$ ranks beneath $s_2$.
 \end{axiom}
 
-\subsection{Iterative truth-discovery operators}
+\subsection{Iterative truth discovery operators}
 
-Real-world algorithms for truth-discovery generally compute numerical trust and
+Real-world algorithms for truth discovery generally compute numerical trust and
 belief scores, as per definition \ref{def:numerical}. Additionally, most
 operate in an \emph{iterative} manner, computing trust and belief scores
 recursively from one another until the respective scores (hopefully) converge
 to fixed values.
 
-In this section we define the concept of iterative truth-discovery operators to
+In this section we define the concept of iterative truth discovery operators to
 represent and reason about such real-world algorithms.
 
 \begin{definition}
 \label{def:iterative_operator}
 
-An \emph{iterative truth-discovery operator} is a sequence $I=(T_n)_{n \in
-\Nat}$ of numerical truth-discovery operators, i.e. a sequence of mappings $T_n
+An \emph{iterative truth discovery operator} is a sequence $I=(T_n)_{n \in
+\Nat}$ of numerical truth discovery operators, i.e. a sequence of mappings $T_n
 : \N \rightarrow \R^\S \times \R^\F$.
 
 For a network $N$ and $n \in \Nat$ we will write $T_n(N) = (t_N^n, b_N^n)$ to
@@ -686,7 +688,7 @@ terms. Moreover even if the difference between subsequent trust/belief scores
 were to become \emph{arbitrarily} small (i.e. smaller than \emph{any}
 threshold), one still cannot guarantee convergence\footnotemark. This means
 that it may not be trivial to define a real-world algorithm as a
-truth-discovery operator, since it may not be clear whether the trust and
+truth discovery operator, since it may not be clear whether the trust and
 belief scores converge in all cases.
 
 \footnotetext{
@@ -705,7 +707,7 @@ For convenience we assume that trust and belief scores are in the range $[0,
 
 \begin{lemma}
 \label{lemma:iterative_axiom_suff_conds}
-Let $I$ be a convergent iterative truth-discovery operator with limit
+Let $I$ be a convergent iterative truth discovery operator with limit
 $T^*$. Suppose that $t_N^n(s) \in [0, 1], b_N^n(f) \in [0, 1]$ for all $N, s,
 f$ and $n$.
 
@@ -755,7 +757,7 @@ f$ and $n$.
 
 \subsubsection{Sums}
 
-Sums\cite{pasternack} is an iterative algorithm for truth-discovery based on
+Sums\cite{pasternack} is an iterative algorithm for truth discovery based on
 the Hubs and Authorities \cite{kleinberg} algorithm for the ranking of web
 pages based on the hyperlink structure of the web. The trust score for a source
 at a given iteration is computed as the sum of the current belief scores of its
@@ -767,7 +769,7 @@ maximum score; this prevents the scores growing without bound to ensure
 convergence.
 
 \begin{definition}[Sums]
-Sums is the iterative truth-discovery operator $I_{sums}$ defined for any
+Sums is the iterative truth discovery operator $I_{sums}$ defined for any
 network $N$ as follows, where we write $t_n$ for $t_N^n$ for brevity:
 \[
     t_1(s) = \frac{1}{2}, \quad b_1(f) = \frac{1}{2}
@@ -814,7 +816,7 @@ weak independence of irrelevant stuff (axiom \ref{axiom:weak_indep}).
 The proof of theorem \ref{theorem:sums_axioms} uses lemma
 \ref{lemma:iterative_axiom_suff_conds}, and can be found in the appendix. For
 non-dictatorship, it is sufficient by proposition \ref{prop:symm_and_dict} and
-symmetry to find a single truth-discovery network in which Sums does not rank
+symmetry to find a single truth discovery network in which Sums does not rank
 all sources equally. Figure \ref{img:sums_not_all_equal_trust} shows such a
 network: in this network $A$ ranks strictly above $B$ and $C$, which are ranked
 equally.

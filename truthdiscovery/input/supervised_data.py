@@ -24,7 +24,7 @@ class SupervisedData:
 
     def get_accuracy(self, results):
         """
-        Calculate the accuracy of truth-discovery results, computed as the
+        Calculate the accuracy of truth discovery results, computed as the
         frequency of cases where the most believed value for a variable is the
         correct one, ignoring cases where only one value for a variable is
         claimed across all sources (in this case all algorithms will predict

@@ -135,7 +135,7 @@ something))
 
 ## Conflict Resolution on Heterogeneous Data
 
-* Aims to perform truth-discovery and calculate source reliability when *data
+* Aims to perform truth discovery and calculate source reliability when *data
   is heterogeneous*
   * claims are multi-valued (city has a population, area, mayor...)
   * different data types should be treated differently: categorical values are
@@ -189,7 +189,7 @@ something))
 
 # Overview
 
-Modelling truth-discovery problem as finding the values of variables X1...Xn
+Modelling truth discovery problem as finding the values of variables X1...Xn
 given claimed values v1...vn for each sources will henceforth be referred to as
 *variables idea*.
 

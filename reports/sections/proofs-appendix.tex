@@ -78,7 +78,7 @@ outgoing edges in $N$.
 \begin{proof}
 
 Suppose $T$ is source-symmetric and a dictatorship with dictator $s^*$. Let
-$N=(V,E)$ be a truth-discovery network.
+$N=(V,E)$ be a truth discovery network.
 \begin{enumerate}
 \item
     Let $s_1, s_2 \in \S$. Without loss of generality $s_1 \sle_N^T s_2$, since
@@ -225,7 +225,7 @@ and for $f_1, f_2 \in \F$,
 \end{align*}
 Hence $I$ is symmetric.
 
-\item Let $N$ be a truth-discovery network and $f \in \F$ with $\src(N, f) =
+\item Let $N$ be a truth discovery network and $f \in \F$ with $\src(N, f) =
 \S$. By hypothesis there is $M \in \Nat$ such that $b_N^n(f) = 1$ for $n > M$,
 so $b_N^*(f)=\lim_{n \rightarrow \infty}{1} = 1 \ge b_N^*(f')$ for any $f'$.
 This means $f' \fle_N^I f$, i.e. $I$ satisfies unanimity.
@@ -317,7 +317,7 @@ $b_N^{n+1}(f)=b_{\pi(N)}^{n+1}(\pi(f))$. Hence, by lemma
 \item\textbf{Non-dictatorship:} We have shown that Sums satisfies symmetry. In
 particular Sums satisfies source-symmetry, so given proposition
 \ref{prop:symm_and_dict} it suffices to show that there is at least one
-truth-discovery network $N$ for which Sums does not rank all sources equally.
+truth discovery network $N$ for which Sums does not rank all sources equally.
 The network shown in figure \ref{img:sums_not_all_equal_trust} is a suitable
 example. In this network there are three sources $A$, $B$ and $C$, and two
 facts $D$ and $E$, each relating to a different object\footnotemark.
@@ -369,7 +369,7 @@ trust/belief scores are unchanged. Repeating in this way we see that $a_n = 1$
 and $b_n = \frac{1}{2}$ for all $n > 1$. Hence $t_N^*(A) = 1 > \frac{1}{2} =
 t_N^*(B)$: this means $B$ ranks strictly below $A$, which completes the proof.
 
-\item\textbf{Unanimity}: Let $N$ be a truth-discovery network and suppose $f \in \F$
+\item\textbf{Unanimity}: Let $N$ be a truth discovery network and suppose $f \in \F$
 is such that $\src(N, f) = \S$. Then, for $n > 1$ and any $f' \in \F$,
 \[
     \hat{b}_n(f') = \sum_{s \in \src(N, f')}{\hat{t}_n(s)}
@@ -380,14 +380,14 @@ using the fact that $\hat{t}_n(s) \ge 0$. Therefore $\max_{y \in
 \F}{\hat{b}_n(y)} = \hat{b}_n(f)$, so $b_n(f) = 1$. By lemma
 \ref{lemma:iterative_axiom_suff_conds} part 3, Sums satisfies unanimity.
 
-\item\textbf{Groundedness}: Let $N$ be a truth-discovery network and suppose $f
+\item\textbf{Groundedness}: Let $N$ be a truth discovery network and suppose $f
 \in \F$ has $\src(N, f) = \emptyset$. By definition $b_n(f) = 0$ for all $n >
 1$, so by lemma \ref{lemma:iterative_axiom_suff_conds}, Sums satisfies
 groundedness.
 
 \item\textbf{Weak independence}: To show weak independence we will use lemma
 \ref{lemma:iterative_axiom_suff_conds} part 6. Let $N_1$, $N_2$ be
-truth-discovery networks with a common connected component $G$. Suitable
+truth discovery networks with a common connected component $G$. Suitable
 sequences $(\alpha_n)_{n \in \Nat}$, $(\beta_n)_{n \in \Nat}$ will be defined
 recursively. For $n = 1$, set $\alpha_1 = \beta_1 = 1$. We have, by definition
 of Sums,

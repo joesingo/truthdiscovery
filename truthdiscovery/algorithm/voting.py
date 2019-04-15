@@ -8,7 +8,7 @@ from truthdiscovery.output import Result
 
 class MajorityVoting(BaseAlgorithm):
     """
-    Baseline truth-discovery method, where the belief that X takes value v is
+    Baseline truth discovery method, where the belief that X takes value v is
     simply the number of sources who makes that assertion. Sources are
     considered to be equally trustworthy.
     """

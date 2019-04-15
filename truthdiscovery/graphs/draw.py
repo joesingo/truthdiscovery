@@ -15,7 +15,7 @@ def _sort_keys_by_value(dct):
 
 class GraphRenderer:
     """
-    Create an image that shows a graph representation of a truth-discovery
+    Create an image that shows a graph representation of a truth discovery
     dataset
     """
     def __init__(self, width=800, height=600, node_size=0.8, line_width=3,
