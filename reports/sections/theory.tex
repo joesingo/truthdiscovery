@@ -1,10 +1,6 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document}
 
-% Tidying up:
-% * Produce example graphs after definitions and axioms
-% * Replace hand-drawn network with digitally produced one
-
 In this section we present a formal graph-theoretic framework for truth
 discovery, and set out the central problem of truth discovery via the
 definition of a \emph{truth discovery operator}. We then develop axioms
@@ -44,6 +40,7 @@ an equivalence relation on $X$.
 A \emph{permutation} of a set $X$ is a bijective mapping $X \rightarrow X$. We
 use cyclic notation for permutations: $\pi=(a, b, c)$ is the mapping $\pi(a) =
 b$, $\pi(b) = c$, $\pi(c) = a$, and $\pi(x) = x$ for $x \notin \{a, b, c\}$.
+Juxtaposition of cycles denotes function composition.
 \end{definition}
 
 \begin{definition}
@@ -208,8 +205,8 @@ graph isomorphism $\pi$ between them that preserves sources, facts and objects:
 In such case we write $\pi(N)$ for $N'$.
 \end{definition}
 
-Figure \ref{img:permutation_of_a_tdn} shows an example of a permutation of a
-truth discovery network.
+Figure \ref{img:equivalent_networks} shows an example of two equivalent
+networks.
 
 The first axiom states that the ordering of sources and facts should not depend
 on the `names' of the sources, facts and objects in the input.
@@ -246,8 +243,13 @@ identities.
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{symmetry_example}
-    \caption{Example of a permutation of a truth discovery network}
-    \label{img:permutation_of_a_tdn}
+    \caption{
+        Example of two equivalent truth discovery networks. Here the
+        isomorphism between the left and right networks is $\pi = (S, T, U)(A,
+        B)$. The colours show that the structure of the right network is the
+        same as the left, just with different `names' for the nodes.
+    }
+    \label{img:equivalent_networks}
 \end{figure}
 
 \begin{proposition}

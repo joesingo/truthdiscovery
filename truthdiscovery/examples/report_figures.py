@@ -2,8 +2,11 @@
 Script to generate graphs included in the project report.
 """
 import inspect
+from io import BytesIO
 import os
 import sys
+
+import cairo
 
 from truthdiscovery import Dataset, GraphRenderer, PlainColourScheme
 
@@ -22,6 +25,32 @@ class ReportRenderer(GraphRenderer):
 
     def get_claim_label(self, _var_id, val_hash):
         return self.dataset.val_hashes.inverse[val_hash]
+
+
+class ColouredNodesColourScheme(PlainColourScheme):
+    """
+    Colour scheme that allows choosing the colours of specific nodes
+    """
+    def __init__(self, colour_mapping):
+        """
+        :param colour_mapping: a dict mapping source name/variable name/claim
+                               value to RGB tuple for nodes that should have
+                               specific colours
+        """
+        self.colour_mapping = colour_mapping
+
+    def get_node_colour(self, node_type, hints):
+        if isinstance(hints, tuple):
+            _, name = hints
+        else:
+            name = hints
+
+        defaults = super().get_node_colour(node_type, hints)
+        if name not in self.colour_mapping:
+            return defaults
+
+        node, label, _ = defaults
+        return node, label, self.colour_mapping[name]
 
 
 def example(func):
@@ -108,6 +137,80 @@ class ExampleFigureCreator:
         ))
         renderer = ReportRenderer(var_labels=True)
         renderer.render(dataset, outfile)
+
+    @example
+    def symmetry_example(self, outfile):
+        dataset1 = Dataset((
+            ("S", "O", "A"),
+            ("S", "P", "C"),
+            ("T", "O", "A"),
+            ("U", "O", "B")
+        ))
+        dataset2 = Dataset((
+            ("S", "O", "A"),
+            ("T", "O", "B"),
+            ("T", "P", "C"),
+            ("U", "O", "B")
+        ))
+        # Colours for nodes
+        red = (0.8235294117647058, 0.0, 0.12941176470588237)
+        green = (0.0, 0.5647058823529412, 0.4235294117647059)
+        blue = (0.043137254901960784, 0.27450980392156865, 0.5725490196078431)
+        yellow = (0.8705882352941177, 0.5372549019607843, 0.0)
+        purple = (0.5647058823529412, 0, 0.5647058823529412)
+        colours1 = {
+            "S": blue,
+            "T": green,
+            "U": red,
+            "A": yellow,
+            "B": purple
+        }
+        colours2 = {
+            "S": red,
+            "T": blue,
+            "U": green,
+            "A": purple,
+            "B": yellow
+        }
+
+        # Draw networks to in-memory buffers
+        buf1 = BytesIO()
+        buf2 = BytesIO()
+        renderer = ReportRenderer(
+            var_labels=True, node_size=0.6, node_border_width=6
+        )
+        renderer.colours = ColouredNodesColourScheme(colours1)
+        renderer.render(dataset1, buf1)
+        renderer.colours = ColouredNodesColourScheme(colours2)
+        renderer.render(dataset2, buf2)
+        buf1.seek(0)
+        buf2.seek(0)
+
+        # Create image of both networks side-by-side
+        margin = 100
+        w = margin + 2 * renderer.width
+        h = renderer.height
+        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
+        ctx = cairo.Context(surface)
+        # Fill surface with background colour
+        ctx.set_source_rgb(*renderer.colours.get_background_colour())
+        ctx.rectangle(0, 0, w, h)
+        ctx.fill()
+
+        # Draw vertical line separating the networks
+        ctx.set_source_rgb(0.5, 0.5, 0.5)
+        ctx.set_line_width(3)
+        ctx.move_to(w / 2, 0)
+        ctx.line_to(w / 2, h)
+        ctx.stroke()
+
+        img1 = cairo.ImageSurface.create_from_png(buf1)
+        img2 = cairo.ImageSurface.create_from_png(buf2)
+        ctx.set_source_surface(img1, 0, 0)
+        ctx.paint()
+        ctx.set_source_surface(img2, w - renderer.width, 0)
+        ctx.paint()
+        surface.write_to_png(outfile)
 
 if __name__ == "__main__":
     outdir = None
