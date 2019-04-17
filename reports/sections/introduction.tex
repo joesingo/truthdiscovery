@@ -1,0 +1,53 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+There is an increasing amount of data available in today's world, particularly
+from the vast number of pages on the web, user-submitted content on social
+media platforms and blogs, and sensor data from scientific instruments and the
+ever-growing Internet of Things. Data can be found in many different formats,
+from structured datasets to natural language articles, and from many disparate
+sources, e.g. news outlets, businesses, scientific institutions, and members of
+the public.
+
+With this abundance of data, it is common to find information about a single
+object from multiple sources. An inherent problem faced when using such data is
+that different sources may provide \emph{conflicting information} for the same
+object.
+
+Conflicts have a variety of causes, including out of date information, poor
+quality data sources, errors in information extraction (when parsing natural
+language text, for example), and deliberate spread of misinformation. When it
+comes to finding information about an object with conflicting reports, the
+question is this: \emph{which} information should we accept as correct?
+
+Truth discovery has emerged as a topic aiming to tackle this problem of
+determining what to believe by considering also the \emph{trustworthiness} of
+sources. A main principle in many approaches to truth discovery is that
+believable claims are those that are made by trustworthy sources, and that
+trustworthy sources generally make believable claims.
+
+This project has both practical and theoretical components. On the practical
+side, we develop a robust software framework in Python for truth discovery,
+which supports running truth discovery algorithms on real-world datasets and
+evaluating their performance. A few popular algorithms from the literature are
+implemented, although the framework aims to be easily extendible,
+well-documented and well-tested so as to allow more algorithms and features to
+be implemented in the future. The framework will provide a uniform interface
+for users and researchers in truth discovery to run different algorithms on
+datasets, and compare behaviour between algorithms. Additionally, it could be
+used to aid development of new algorithms by evaluating performance against a
+number of existing algorithms.
+
+For the theoretical component, we define a formal mathematical framework for
+truth discovery, highlighting parallels with other areas in the literature,
+especially the theory of voting in social choice \cite{handbook_voting}.
+Following the axiomatic approach used in social choice, we look for axioms
+(desirable properties) of truth discovery algorithms expressed in the formal
+framework, and consider which axioms are satisfied by a particular algorithm,
+namely \emph{Sums} \cite{pasternack}. As well as providing some immediate
+results, this provides foundations for further theoretical work on truth
+discovery.
+
+\todo{Explain organisation of the report}
+
+\end{document}

@@ -6,7 +6,6 @@
 Template structure is as follows, but is not fixed.
 
 * Title Page
-* Title Page
 * Abstract
 * Acknowledgements
 * Table of Contents
@@ -30,9 +29,15 @@ for full descriptions of each section.
 
 ## Introduction
 * For non-experts
-* Brief motivation for the problem (aims, goals, scope), description of
-  solution (approach), and results
 * As general as possible: no technical details
+* Anticipate the main points of the report
+* Enthuse read about the project!
+* The aim(s) or goal(s) of the project,
+* The intended audience or “beneficiaries” of the work done,
+* The scope of the project,
+* The approach used in carrying out the project,
+* Assumptions on which the work is based and
+* A broad summary of important outcomes.
 
 ## Background
 * Explain why the project is addressing the problem described in the report

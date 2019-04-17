@@ -1,0 +1,59 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+The fundamental problem of truth discovery is to resolve conflicts in a set of
+claims from different sources. A na\"ive approach is to apply a \emph{majority
+vote}, where the claim made by the largest number of sources is accepted.
+Unfortunately, this is prone to yield poor results when the sources are not all
+equally trustworthy. For example, the study in \cite{vosoughi} found that false
+information on Twitter is shared more quickly and more widely than true
+information. Applying a majority vote in the Twittersphere would therefore, in
+many cases, select the \emph{false} information as correct.
+
+The problem with the majority vote is that all sources are treated identically:
+a claim from one source carries as much weight as a claim from any other. This
+is contrary to how we judge the veracity of statements in everyday life, where
+claims from trusted colleagues have considerably more weight that claims from
+unknown persons (and especially people known to be \emph{untrustworthy}). Trust
+can therefore be a valuable tool in resolving conflicting information, since
+one expects that trustworthy sources are more likely to make accurate claims
+than untrustworthy sources are.
+
+Truth discovery therefore has two components: determining \emph{trust} and
+\emph{belief} in sources and claims, and resolving conflicts in data. These are
+tightly linked, since the trust evaluation is based on the claims in the input
+data, and the claims to accept are based on the trust evaluation. Presently we
+briefly review existing work in both resolving conflicts in data and trust
+analysis, before reviewing existing work on truth discovery itself.
+
+\subsection{Resolving conflicts in data}
+
+There are numerous areas in the existing literature that deal with resolving
+conflicts in data. In data mining, \emph{data fusion} considers aggregating
+data from different sources into a single representation. Various approaches
+have been suggested (see \cite{bleiholder} for a review): for example, taking a
+majority vote (as discussed above), taking the most recent value as correct, or
+ignoring objects entirely when a conflict exists.
+
+Belief revision \cite{gardenfors} is set out in a logical framework, and
+considers how to update a knowledge base upon receiving new information that
+could cause the knowledge base to be inconsistent.
+
+Argumentation theory takes an abstract view and considers a set of 'arguments'
+which conflict with each other (known as 'attacking'). The structure of the
+arguments is abstracted away, and only the network of which arguments attack
+each other is considered. The aim is then to find sets of arguments that are
+acceptable and consistent.
+
+\todo{AA overview citation}
+
+In a more general sense, social choice also deals with conflicts in data. Here
+voters express preferences for a number of `alternatives' (e.g. candidates for
+an election), and a social ordering of the alternatives is sought that reflects
+the will of the voters. Difficulties may arise when there is no consensus among
+the voters -- e.g. one voter's favourite outcome could be another's least
+favourite. Although the notion of fairness present here is not applicable
+to truth discovery, the issue of conflicts in the preferences of voters is
+relevant.
+
+\end{document}

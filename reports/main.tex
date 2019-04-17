@@ -1,11 +1,9 @@
 % TODO: maybe change to 'report' class
 \documentclass{article}
 
-\date{February 2019}
+\date{2019}
 \author{Joe Singleton}
-\title{
-    Work in progress report
-}
+\title{Implementation and Analysis of Truth-Discovery Algorithms}
 
 % Packages:
 \usepackage{amsmath}
@@ -51,11 +49,6 @@
         \textbf{TODO:} #1
     }
 }
-\newcommand{\rough}[1] {
-    \textcolor{blue}{
-        #1
-    }
-}
 % Sets
 \renewcommand{\S}{\mathcal{S}}  % Note: overrides existing command
 \renewcommand{\O}{\mathcal{O}}  % Note: overrides existing command
@@ -82,9 +75,17 @@
 \maketitle
 % \begin{multicols}{2}
 
+\subfile{sections/abstract}
+
 \tableofcontents
 
-\subfile{sections/background-notes}
+\section{Introduction}
+\subfile{sections/introduction}
+
+\section{Background}
+\subfile{sections/background}
+
+% \subfile{sections/background-theory-notes}
 
 \section{Theory of truth discovery}
 \subfile{sections/theory}
