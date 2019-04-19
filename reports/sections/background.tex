@@ -22,11 +22,15 @@ than untrustworthy sources are.
 Truth discovery therefore has two components: determining \emph{trust} and
 \emph{belief} in sources and claims, and resolving conflicts in data. These are
 tightly linked, since the trust evaluation is based on the claims in the input
-data, and the claims to accept are based on the trust evaluation. Presently we
-briefly review existing work in both resolving conflicts in data and trust
-analysis, before reviewing existing work on truth discovery itself.
+data, and the claims to accept are based on the trust evaluation.
 
-\subsection{Resolving conflicts in data}
+Presently we outline related areas in the literature that deal with resolving
+conflicts and trust analysis, before providing some background on truth
+discovery itself. Then we review existing work relevant to the practical and
+theoretical components of the project.
+
+\subsection{Related areas}
+\subsubsection{Resolving conflicts in data}
 
 There are numerous areas in the existing literature that deal with resolving
 conflicts in data. In data mining, \emph{data fusion} considers aggregating
@@ -39,8 +43,8 @@ Belief revision \cite{gardenfors} is set out in a logical framework, and
 considers how to update a knowledge base upon receiving new information that
 could cause the knowledge base to be inconsistent.
 
-Argumentation theory takes an abstract view and considers a set of 'arguments'
-which conflict with each other (known as 'attacking'). The structure of the
+Argumentation theory takes an abstract view and considers a set of `arguments'
+which conflict with each other (known as `attacking'). The structure of the
 arguments is abstracted away, and only the network of which arguments attack
 each other is considered. The aim is then to find sets of arguments that are
 acceptable and consistent.
@@ -55,5 +59,51 @@ the voters -- e.g. one voter's favourite outcome could be another's least
 favourite. Although the notion of fairness present here is not applicable
 to truth discovery, the issue of conflicts in the preferences of voters is
 relevant.
+
+\subsubsection{Trust analysis}
+
+Trust has been studied in many different domains for different applications
+(see \cite{momani_challa} for a survey). In the social sciences and economics,
+trust between humans has been considered for the effects on economic
+transactions. E-commerce sites such as eBay use the concept of trust and
+reputation of sellers to inform buyers.
+
+In wireless sensor networks, nodes communicate to relay sensor data and to help
+route packets through the wireless network. Nodes are required to report
+accurate data and behave cooperatively: this may fail due to system failure
+(e.g. hardware problems) or malicious interference from an adversary. Various
+approaches have been suggested for analysing the trust of nodes in such
+networks (e.g. see section 4.4 in \cite{momani_challa}) to mitigate effects of
+misbehaviour. Trust analysis is applied in a similar way in P2P and ad-hoc
+mobile networks.
+
+It should be noted that some of these approaches to evaluating trust compute
+`local' measures of trust from the perspective of a particular node. For
+example, a sensor in a network may evaluate the trust of its neighbours based
+on its interactions with them. The trust assigned to a given node may therefore
+vary as it is evaluated from different perspectives. This is not the case with
+truth discovery, where we seek an objective `global' notion of trust in sources
+based only on the claims made.
+
+Other works do not aim to \emph{compute} trust, but instead use trust
+relationships between `agents' in a multi-agent system for some purpose. One
+example is trust-based recommendation systems \cite{andersen}, where an agent
+is given a recommendation for an item of interest based on the recommendations
+of the agents it trusts. Other examples include personalised ranking systems
+\cite{altman_personalised}, trust-based argumentation \cite{tang} and
+trust-based belief revision \cite{booth}.
+
+The trust considered here is again from the perspective of a given agent.
+Nevertheless ideas from these areas still may be relevant to truth discovery.
+
+From a theoretical point of view, Marsh \cite{marsh} provides a formal model
+for trust in multi-agent systems.
+
+\subsection{Truth discovery background}
+\subsection{Existing work}
+\subsubsection{Software implementations}
+Software\ldots
+\subsubsection{Theoretical work}
+Theory\ldots
 
 \end{document}

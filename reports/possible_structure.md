@@ -149,6 +149,8 @@
     page as being an important page. Ranking systems use this structure to
     find the most 'important' pages.
 
+  * From a theoretical view, see 'Formalising Trust as a Computational Concept'
+
   * The notion of trust in many of these approaches is *local*: it is the
     trust of one node in another, from that node's perspective.
 
