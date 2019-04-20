@@ -100,6 +100,121 @@ From a theoretical point of view, Marsh \cite{marsh} provides a formal model
 for trust in multi-agent systems.
 
 \subsection{Truth discovery background}
+
+In the preceding sections truth discovery has been discussed only informally.
+Here we outline more precisely the main concepts in the basic form of truth
+discovery, and discuss the various extensions to this basic form that have been
+addressed in the literature. More information can be found in survey papers on
+truth discovery methods \cite{li_survey, gupta_han_survey}.
+
+A \emph{source} is an entity that provides information, called \emph{facts},
+about \emph{objects}. A source may provide only one fact for a single object.
+Different sources may provide different facts for the same object; a fact need
+not be `true'. It is often assumed that for each object there is a unique true
+fact. In the basic form of truth discovery, the nature of the facts is
+irrelevant, and they are treated as categorical values\footnotemark.
+
+\footnotetext{
+    Some approaches instead make use of the specific data types of the facts in
+    their calculations (e.g. \cite{li_conflicts}).
+}
+
+A truth discovery algorithm takes the input of sources, facts, objects and the
+facts claimed by each source, and computes a \emph{trust score} for each source
+and a \emph{belief score} for each fact. Higher scores represent more
+trustworthy sources and more believable facts\footnotemark. For each object,
+the fact with the highest belief score is then taken as the true fact.
+
+\footnotetext{
+    Some algorithms do not output belief scores for facts, and instead output
+    a single `identified truth' for each object \cite{zhang_qi_tang,
+    li_conflicts, yang, zhi}. However we can regard this as assigning a belief
+    score of 1 to the identified truth for each object, and 0 for all other
+    facts.
+}
+
+In practise, most algorithms compute trust and belief scores \emph{iteratively}
+until convergence. First, facts are assigned initial belief scores. At each
+iteration, the trust scores for sources are updated based on the current belief
+scores for the facts they claim; then the belief scores are updated based on the
+current trust scores for the sources. This mutual dependence of trust and
+belief scores is hoped to encode the idea that trustworthy sources are ones
+that claim believable facts, and believable facts are those claimed by
+trustworthy sources.
+
+This basic formulation is a simple representation of the real-world, and a
+number of extensions have been addressed to deal with more complex situations.
+Some approaches extend the basic model by requiring more information in the
+input (e.g. a set of `ground truths' for semi-supervised truth discovery),
+whereas others keep the same basic input but consider more nuanced issues in
+their computation of trust and belief scores (e.g considering copying amongst
+sources). Extensions include:
+\begin{itemize}
+\item implications between facts: distinct but similar facts may support each
+other \cite{yin_han_yu}
+
+\item heterogeneous data: facts may have different data types (e.g.
+categorical or continuous values) \cite{li_conflicts}
+
+\item correlations between objects: the true facts for similar objects may be
+similar \cite{yang}
+
+\item hardness of facts: some questions are easier to answer than others, and
+it should not be possible for a source to raise its trust score by simply
+answering many `easy' questions \cite{galland}
+
+\item incorporating prior domain knowledge: prior knowledge about the domain
+can inform belief scores \cite{pasternack}
+
+\item sparsity: each source may contribute only a small number of claims
+\cite{zhang_sparse}
+
+\item semi-supervised truth discovery: a selection of `ground truths' are known
+in advance \cite{yin_supervised}
+
+\item copying between sources: source may \emph{copy} from each other, and
+doing so should not increase the trustworthiness of an otherwise untrustworthy
+source \cite{dong}
+
+\item time-varying truth: the true fact for an object may vary over time
+\cite{dong}
+
+\item streaming data: data is often received gradually over time \cite{zhao}
+
+\end{itemize}
+
+% Many different approaches to truth discovery have been suggested in the
+% literature. Whilst they all tackle the same basic problem, there is variety in
+% the precise representation of the problem, the input and output to truth
+% discovery algorithms, and the methods they employ. For example, some algorithms
+% output numeric \emph{belief} or \emph{confidence} scores for each claim
+% \cite{pasternack, yin_han_yu, galland, yin_supervised}, whereas others consider
+% each claim to be related to a single \emph{object}, and output only the most
+% likely true claim for each object \cite{zhang_qi_tang, li_conflicts, yang,
+% zhi}. The different models in use will be discussed in detail in section
+% \ref{sec:approach}. \todo{check future reference}
+
+% Most algorithms operate on the principle that trustworthy sources are ones that
+% make believable claims, and believable claims are ones made by trustworthy
+% sources. This idea is implemented in various ways, using methods including
+% \begin{itemize}
+% \item heuristics for trust and belief scores
+% \cite{pasternack}
+
+% \item probabilistic methods, where trust/belief scores represent the
+% \emph{probability} that a source claims true facts or that a claim is true
+
+% \item optimisation based methods
+
+% \item statistical methods, e.g. where the trustworthiness of sources and the
+% true claims are treated as latent random variables, and statistical methods are
+% used to determine the most probable values of these variables given the
+% available evidence.
+
+% \end{itemize}
+
+% \todo{Citations for the above}
+
 \subsection{Existing work}
 \subsubsection{Software implementations}
 Software\ldots
