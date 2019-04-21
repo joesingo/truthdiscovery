@@ -51,14 +51,25 @@ for full descriptions of each section.
 * Give references, summarise references, and explain how they are relevant
 * Don't give too much specific detail: leave to the references
 
-## Approach
+## Approach/Specification and design
 
-* Communicate the idea behind the solution
-* Don't focus on the actual code (but may describe the important parts of code
-  that are essential to make it work)
-* For theoretical work: problem statement, what is required in a solution,
-  approach to the work
-* Justify methods used
+* Give picture of the 'system' in terms of what it is required to do
+* High-level details on how work is designed to meet these requirements
+* Constraints on the solution
+* Describe system from several perspectives:
+  * use cases
+  * static architecture: how partitioned into modules etc
+  * for each module:
+    * user interface
+    * how data flows
+    * what algorithms are implemented
+* diagrams (UML etc)
+* justify decisions
+
+* for theoretical work:
+  * thorough description of problem
+  * what is required in a solution
+  * approach to finding solution
 
 ## Implementation
 
