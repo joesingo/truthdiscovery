@@ -133,6 +133,10 @@ the fact with the highest belief score is then taken as the true fact.
     facts.
 }
 
+The input may be represented mathematically in various ways; this will be
+discussed in more detail in section \ref{sec:approach}. \todo{check forward
+reference}
+
 In practise, most algorithms compute trust and belief scores \emph{iteratively}
 until convergence. First, facts are assigned initial belief scores. At each
 iteration, the trust scores for sources are updated based on the current belief
@@ -217,8 +221,124 @@ source \cite{dong}
 
 \subsection{Existing work}
 \subsubsection{Software implementations}
-Software\ldots
+
+Due to the wide range of domains in which truth discovery may be applied and
+the variety of approaches and additional considerations beyond the basic model
+(some of which are domain specific), there is not likely to be a single
+algorithm that is best suited for all applications.
+
+Instead, for a given problem it is necessary to try several algorithms, or even
+tailor a bespoke one, to achieve the best results. Note that even evaluation
+may be domain specific: run time and memory efficiency may be critical in some
+cases (e.g. when dealing with large volumes of data in a scenario where
+real-time results are desired), whereas some applications may be insensitive to
+long run times but require precise accuracy.
+
+For this reason, there is a need for an openly available and extendible
+software framework for truth discovery, which allows different algorithms to be
+evaluated and compared in a uniform environment. When faced with a particular
+truth discovery problem, users may then run many algorithms on their data
+without additional effort for each algorithm. An easily extendible framework
+will allow them to define their own metrics for evaluation that are suitable
+for the dataset in question, and even modify algorithms to suit the type of
+data if required.
+
+Despite the wide interest in truth discovery in research papers, there are few
+open source software implementations. One such implementation is
+\emph{spectrum}\footnotemark, available on GitHub. This library implements some
+algorithms from the literature, but lacks proper documentation, does not
+provide a uniform interface for getting results across algorithms, and does not
+support evaluating results for datasets for which some true values are already
+known. It also does not provide fine-tuned control for the running of
+algorithms, such as the threshold for determining when trust and belief scores
+have converged.
+
+\footnotetext{\url{https://github.com/totucuong/spectrum}}
+
+Another open source library is DAFNA-EA\footnotemark, which is the
+implementation behind the comparative study in \cite{waguih}. Whilst extensive
+in the number of algorithms implemented, its capability for evaluating
+performance and generation of \emph{synthetic data}, it lacks documentation to
+allow its code to be extended (i.e. for users to define their own evaluation
+metrics or algorithms), and is not geared towards real-world applications of
+truth discovery. Additionally, a web interface is reportedly available, which
+may improve accessibility for non-technical users, but is not operational at
+the time of writing.
+
+\footnotetext{\url{https://github.com/daqcri/DAFNA-EA}}
+
+Other truth discovery implementations are available on GitHub and
+elsewhere\footnotemark, but these are generally repositories containing code
+used in the production of a research paper rather than general purpose
+libraries.
+
+\footnotetext{
+    e.g.
+    \url{https://github.com/lvlingyu11/Truth-Discovery-for-Crowdsourcing-Data}
+    and \url{https://github.com/MengtingWan/KDEm}
+}
+
+To produce a software framework for truth discovery that achieves the goals
+stated above and which addresses the deficiencies of the existing frameworks,
+this project will implement a selection of algorithms from the literature in a
+uniform way with a focus on extendability, which will include comprehensive
+documentation of both the code and the user interface. Fine-tuned control of
+parameters for initialising and running algorithms will be available. It will
+also identify standard metrics for evaluating algorithms (including generation
+of synthetic datasets), and provide means of comparing algorithms with respect
+to those metrics.
+
 \subsubsection{Theoretical work}
-Theory\ldots
+
+Many of the truth discovery algorithms in the literature are supported by some
+form of theoretical analysis. For example, the survey in
+\cite{gupta_han_survey} analyses the time complexity of various algorithms, the
+convergence of \emph{semi-supervised truth finder} is proved in
+\cite{yin_supervised}, and the approach in \cite{xiao} is proven to converge to
+find the true facts under assumptions on the distributions of source
+reliability. In \cite{xiao_thesis}, a probabilistic framework termed
+\emph{Unified Truth Discovery} is developed, and theoretical properties of this
+framework are proved under certain mild assumptions.
+
+A limitation of this kind of theoretical analysis is that the results apply
+only to a single algorithm or class of algorithm. These results, whilst
+important in their own right, are not general enough to apply to truth
+discovery as a whole, and depend on the specific ideas and approaches in use.
+
+As far as I am aware, at the time of writing there is no general theoretical
+framework capable of modelling \emph{all} truth discovery algorithms, which
+allows general properties of such algorithms to be studied. Developing such a
+framework would allow algorithms to be compared with respect to their
+theoretical properties as opposed to purely practical ones, something which has
+not been done in the literature to date.
+
+A general theory of truth discovery would also facilitate deeper comparison
+between truth discovery and other areas in the literature. For example, it was
+noted above that truth discovery bears similarity to belief revision,
+argumentation theory and, in a more general sense, social choice. Each of these
+areas have rich formal foundations which have provided useful results for both
+theoretical and practical purposes; developing similar foundations for truth
+discovery may reveal deeper similarities and allow results in these areas to be
+applied to truth discovery.
+
+An approach that has seen great success in social choice is the \emph{axiomatic
+method}, where axioms (desirable properties) of voting rules are stated, and
+rules are compared with respect to these properties. Such analysis can provide
+deep results; for example, K. Arrow's famous impossibility theorem \cite{arrow}
+shows that it is impossible for a voting rule to simultaneously satisfy a few
+simple axioms that one would reasonably expect of a fair voting rule, thus
+proving a fundamental limitation of voting rules in general. The axiomatic
+approach has also been successfully applied in the related areas of ranking
+\cite{altman_foundations, altman_personalised}, recommendation \cite{andersen,
+lev}, collective annotation \cite{kruger} and belief revision \cite{agm}.
+
+This project will aim to define a theoretical framework for truth discovery
+that is general enough for any algorithm to be modelled, independent of the
+algorithms specific approach. Following the axiomatic method employed in social
+choice and related areas, axioms for truth discovery algorithms will be
+developed to encode desirable properties. To demonstrate the framework's
+suitability as a tool for analysing real-world truth discovery algorithms,
+\emph{Sums} \cite{pasternack} will be defined formally and analysed with
+respect to the developed axioms.
 
 \end{document}
