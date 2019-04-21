@@ -1,9 +1,19 @@
 \documentclass[../main.tex]{subfiles}
 \begin{document}
 
+This chapter presents and analyses a formal theoretical framework for truth
+discovery. First, the approach and methodology used is discussed and justified.
+
+\section{Approach and Methodology}
+\label{sec:theory_approach}
+
+\todo{write this section}
+
+\section{A Framework for Truth Discovery}
+
 In this section we present a formal graph-theoretic framework for truth
 discovery, and set out the central problem of truth discovery via the
-definition of a \emph{truth discovery operator}. We then develop axioms
+definition of a \emph{truth discovery operator}.  We then develop axioms
 (desirable properties) for such operators, and prove some basic properties
 regarding them. Finally, we consider how to represent real-world truth
 discovery algorithms in the developed framework, focussing specifically on
@@ -191,7 +201,7 @@ adapted to truth discovery, and we do so presently.
     \emph{weak} preferences for alternatives, where ties are allowed.
 }
 
-\subsubsection{Symmetry and dictatorship}
+\subsubsection*{Symmetry and dictatorship}
 
 \begin{definition}
 Two truth discovery networks $N$ and $N'$ are \emph{equivalent} if there is a
@@ -464,7 +474,7 @@ An operator $T$ should not be a binary generalised dictatorship.
 Non-dictatorship and non- binary generalised dictatorship are independent.
 \end{proposition}
 
-\subsubsection{Unanimity}
+\subsubsection*{Unanimity}
 
 The next axioms formalise the idea that if all sources are in agreement about
 the status of a fact, then a truth discovery operator should respect this in
@@ -524,7 +534,7 @@ others must have been claimed by at least one source (assuming $|\F|>1$).
 Unanimity and groundedness are independent.
 \end{proposition}
 
-\subsubsection{Independence}
+\subsubsection*{Independence}
 
 In social choice, the `Independence of Irrelevant Alternatives' (IIA) axiom
 \cite{arrow} requires that the relative ranking of two alternatives $A$ and $B$
@@ -612,7 +622,7 @@ $G$ and for any $s_1, s_2 \in G \cap S$ and $f_1, f_2 \in G \cap \F$:
 
 Clearly axiom \ref{axiom:indep} implies axiom \ref{axiom:weak_indep}.
 
-\subsubsection{Coherence}
+\subsubsection*{Coherence}
 
 A guiding principle of many truth discovery approaches is that facts claimed by
 trustworthy sources should receive high belief, and sources claiming high
@@ -639,7 +649,7 @@ f_1) \rightarrow \src(N, f_2)$ such that $s \sle_N^T \phi(s)$ for all $s \in
 
 \todo{Come up with an example of a coherent operator}
 
-\subsubsection{Monotonicity}
+\subsubsection*{Monotonicity}
 
 The axioms considered so far have largely dealt with the output of a truth
 discovery operator for one input network at a time, or for two networks which
@@ -799,7 +809,7 @@ f$ and $n$.
 \end{enumerate}
 \end{lemma}
 
-\subsubsection{Sums}
+\subsubsection*{Sums}
 
 Sums \cite{pasternack} is an iterative algorithm for truth discovery based on
 the Hubs and Authorities \cite{kleinberg} algorithm for the ranking of web
@@ -899,5 +909,14 @@ techniques from linear algebra. The difference in normalisation only amounts to
 using a different norm to measure convergence (namely $\|.\|_{\infty}$ in Sums
 instead of $\|.\|_2$), so it is hoped that the proof can be modified to work
 for Sums.
+
+\section{Evaluation}
+\todo{write this section}
+
+\section{Future Work}
+\todo{write this section}
+
+\section{Summary}
+\todo{write this section}
 
 \end{document}

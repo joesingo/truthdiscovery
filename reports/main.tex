@@ -1,5 +1,4 @@
-% TODO: maybe change to 'report' class
-\documentclass[12pt]{article}
+\documentclass[12pt]{report}
 
 \date{2019}
 \author{Joe Singleton}
@@ -10,12 +9,10 @@
 \usepackage{amsthm}
 \usepackage{amssymb}
 \usepackage{caption}
-\usepackage{cite}
-\usepackage[numbers,sort]{natbib}
-% \usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+\usepackage[sortcites]{biblatex}
+
 \usepackage{graphicx}
 \usepackage{hyperref}
-\usepackage{multicol}
 % \usepackage{charter}  % For cool font
 \usepackage{xcolor}
 \usepackage{subfiles}
@@ -23,6 +20,12 @@
 \graphicspath{
     {./images/}
     {../images/}  % For importing images from files in ./sections/ dir
+}
+
+% Set up references
+\addbibresource{references.bib}
+\DefineBibliographyStrings{english}{
+  bibliography = {References},
 }
 
 % Settings
@@ -73,32 +76,41 @@
 
 \begin{document}
 \maketitle
-% \begin{multicols}{2}
 
 \subfile{sections/abstract}
 
 \tableofcontents
 
-\section{Introduction}
+\chapter{Introduction}
 \subfile{sections/introduction}
 
-\section{Background}
+\chapter{Background}
 \subfile{sections/background}
 
-\section{Approach}
-\label{sec:approach}
+\chapter{Software Implementation}
+\section{Specification and Design}
+\todo{write this section}
+\section{Implementation}
+\todo{write this section}
+\section{Results and Evaluation}
+\todo{write this section}
+\section{Future Work}
+\todo{write this section}
+\section{Summary}
+\todo{write this section}
 
-% \subfile{sections/background-theory-notes}
-
-\section{Theory of truth discovery}
+\chapter{Theory of Truth Discovery}
 \subfile{sections/theory}
 
-% References
-\bibliography{references}{}
-\bibliographystyle{plain}
+\chapter{Conclusions}
+\todo{write this section}
+\chapter{Reflection on Learning}
+\todo{write this section}
+
+\printbibliography[heading=bibintoc]
 
 \appendix
+\chapter{Proofs}
 \subfile{sections/proofs-appendix}
 
-% \end{multicols}
 \end{document}
