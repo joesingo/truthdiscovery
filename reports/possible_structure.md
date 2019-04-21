@@ -286,21 +286,9 @@
 
   * Research questions:
 
-# Approach
-* Numerous models of TD in the literature. Practical and theoretical sides have
-  different goals and requirements for a model
-* Theoretical: At least two aspects to consider
-    * How to develop a useful formal framework compatible with existing
-      formalisations for related problems. This allows easy comparison (e.g to
-      see that TD is special case of voting, and easily compared with
-      collective annotation), and results from other areas can be translated to
-      TD (e.g. most social choice concepts)
-    * How to develop framework applicable to real world use cases and existing
-      algorithms (e.g. to compare real-world algorithms w.r.t their theoretical
-      properties). Such frameworks are provided in all TD literature, but are
-      not always compatible
-    * These are distinct goals: a framework easily comparable to voting theory,
-      say, may not represent real TD accurately
+# Specification and Design/Approach
+
+## Practical
 * Practical: need to find common ground so that many algorithms from the
   literature can be implemented. Finding a common model for input/output means
   users can run multiple algorithms on the same data, without having to
@@ -316,16 +304,141 @@
       basics (algorithm, dataset), and additional input is optional. For web,
       maybe talk about HCI concepts
     * Algorithms implemented
-* Theoretical:
-    * Aim to find formal framework to analyse TD and TD algorithms, and to
-      explore axioms
-    * Approach: study existing formalisations of similar subject areas in the
-      literature
+
+## Theoretical
+
+* Have mentioned in background section that a general framework for truth
+  discovery is sought after. To work towards this, we need to set out exactly
+  what this 'framework' will entail, and what requirements .
+
+* The main goal is to set out rigorous definitions for what truth discovery
+  is, which allows the current situation to be modelled. This includes:
+
+  * What is the 'input' to truth discovery? We have described the input in
+    terms of sources, facts, objects and conflicting claims, but this needs to
+    be formalised mathematically.
+
+  * What is the output? We have stated that the output is trust and belief
+    scores for sources and facts, according to the most common approach taken
+    in the literature. However our aims are to study truth discovery in full
+    generality, not just the algorithms already in existence. Therefore a more
+    general view could be taken, so long as it can still model existing
+    algorithms.
+
+* With these ideas formalised, a truth discovery algorithm is simply a mapping
+  from the space of inputs to outputs. This abstracts away the *process* of
+  performing truth discovery so that 'algorithm' is not the correct term to
+  use. We opt for *truth discovery operator* to describe a mapping from inputs
+  to outputs.
+
+* There are several criteria against which to judge the usefulness of the
+  developed framework:
+  * Ability to model existing approaches. We aim to find a unified framework to
+    allow as many algorithms in the literature to be compared with one another.
+
+  * Simplicity of the formulation: it should be easy to understand and easy to
+    relate to intuitive notions of truth discovery
+
+  * Flexibility: we wish to prove properties of operators, compare different
+    operators, and develop axioms, so the framework should be easy to work in
+
+  * Generality: needs to be general enough to support future work. Should also
+    be unopinionated, so as to be useful as a foundational theory rather than
+    an implementation of a specific approach. It should also be general in
+    order to be compared to other areas in the literature in a simple way. This
+    allows ideas from these areas to be applied to truth discovery, e.g. many
+    axioms from social choice have a counterpart in truth discovery.
+
+* Once the framework has been established, we aim to develop axioms for
+  operators. In line with axiomatic foundations for other problems, the axioms
+  should represent intuitively desirable properties that a 'reasonable'
+  operator should satisfy. The power of the axiomatic approach is to consider
+  multiple axioms together; the types of results attained include
+  *impossibility results*, where it is proved that no algorithm\footnotemark
+  can satisfy a set of axioms, and *representation theorems*, where a set of
+  sound and complete axioms are found for a particular algorithm. For example,
+  in Altman ranking the authors show that two seemingly complementary axioms
+  are in fact contradictory, which has implications when deciding which ranking
+  system to use in practise.
+
+* \footnotetext{We write algorithm as a blanket term to refer to social choice
+functions, ranking systems, annotation aggregators etc}
+
+* Requirements for axioms are therefore that they have simple interpretations,
+  are desirable properties in some way or another, and that they can be
+  considered in conjunction.
+
+### Existing formalisms
+
+* We start by reviewing the formalisms present in some popular approaches in
+  the truth discovery literature, and then in related areas already having
+  foundational frameworks and which the axiomatic method is well established.
+  This will provide useful context for developing a theory meeting the aims
+  described above.
+
+* (go through background notes, and for input and output, *roughly* explain the
+  existing formulations. Also explain how there are mostly compatible with each
+  other)
+
+* (go through social choice, judgment aggregation, ranking systems (+ personal
+  ranking systems), collective annotation. again, roughly explain the ideas)
+
+### Approach taken
+
+* This background allows us to make informed choices as to how to develop a
+  formal framework
+
+* For input, we choose a graph-theoretic representation
+  * Simple to interpret
+  * Concepts in graph theory can be usefully applied to describe properties of
+    the input network (e.g. connected component for independence axiom)
+  * Provides flexibility for future refinements: e.g. one may consider weighted
+    edges, annotated nodes etc to conveniently encode additional information
+    about the input data
+  * Also makes explicit the connection of truth discovery with ranking systems;
+    indeed, truth discovery can be seen as a sort of ranking on a bipartite
+    graph where only a subset of the nodes (the facts) are ranked
+  * Existing formalisms in truth discovery literature can be simply represented
+    as graphs
+
+* For output, the situation is more nuanced, as there are different forms of
+  output for different algorithms
+
+* Different approaches are largely in agreement with regards to the treatment
+  of sources: each source is assigned a *trust score* (usually a number in $[0,
+  1]$). Differences appear for the treatment of facts; the two main approaches
+  are to assign each fact a belief score, or to select a single 'true' fact for
+  each object.
+
+* Clearly the former approach provides more information; adopting the latter
+  for a general theory would unnecessarily ignore this extra information for a
+  large number of real-world algorithms.
+
+* Also, the latter can be seen as a special case of the former, where the
+  selected true facts receive scores of 1 and all others receive 0.
+
+* One may note that assigning a numeric score to each source and fact in
+  particular induces an *ordering* of the sources and facts. We argue that the
+  essence of truth discovery lies more in this induced ordering that the
+  particular numerical scores. Indeed, in applications of truth discovery for
+  finding true facts, one will often take the fact with highest score as the
+  true fact for a given object, i.e. the maximum element with respect to the
+  induced ordering on the set of facts for the object.
+
+* A similar view is taken in social choice (Arrow) and ranking systems (Altman
+  ranking, Altman PageRank). Taking the same approach also makes our framework
+  more easily comparable with these areas, and allows useful concepts to be
+  translated to truth discovery
+
+* Nevertheless, to model in their entirety the algorithms that produce numeric
+  scores, it will be possible to define such operators in the framework as more
+  general objects, but restrict our attention mainly to the ranking-output
+  operators.
 
 # Implementation
-# Results and Evaluation
+# Results, Evaluation, Future Work
 
-# Future work
+(maybe split up?)
 
 * Theoretical work:
   * General:
@@ -341,15 +454,12 @@
       considering it to rank the discovered true facts above all others, and
       ranking false facts equally.
 
-    * Some algorithms give most-believed values for facts that are *not claimed
-    by any sources*, e.g. if values are continuous could perform a weighted
-    average of claimed facts (I believe this is done in 'Conflicts to
-    Harmony' for continuous data types). Neither of the operator definitions
-    in the theory support this.
-
     * Objects do not really play a role for most of the work. Maybe they could
-    be removed from the framework if they do not play a significant role, or
-    more work could be done to actually use the concept of objects.
+      be removed from the framework if they do not play a significant role, or
+      more work could be done to actually use the concept of objects.
+
+    * One may wonder whether there is any meaning in comparing facts for
+      different objects, but this is defined in the framework
 
   * Potential framework extensions:
     * Support the numerous extensions to basic TD
@@ -364,3 +474,11 @@
     of such a network would need considering.
 
     * Maybe the stuff in Pasternack's thesis on 'groups' is relevant to this
+
+  * Results:
+    * Only considered one real-world algorithm, which is very simple as truth
+      discovery algorithms go
+    * Did not formulate many results with the developed axioms. In particular
+      it would be useful to consider the interplay between axioms, such as
+      determining whether it is possible for an operator to satisfy *all* the
+      stated axioms
