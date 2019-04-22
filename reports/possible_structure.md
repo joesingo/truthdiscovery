@@ -436,9 +436,101 @@ functions, ranking systems, annotation aggregators etc}
   operators.
 
 # Implementation
-# Results, Evaluation, Future Work
+# Results and Evaluation
 
-(maybe split up?)
+* Theoretical work:
+  * Discuss suitability along the criteria mentioned in approach section
+
+  * Ability to model existing approaches:
+    * As seen at the end of the section, Sums was defined in the framework as
+      an iterative operator. Due to time constraints, no other algorithms were
+      formally defined.
+
+    * However, the definition of an iterative operator is sufficient to cover
+      many more algorithms. This is immediately clear for algorithm very
+      similar to sums, such as Average.Log, Investment and PooledInvestment,
+      since the only difference in their definitions is the expression for the
+      recursive trust and belief update; their fundamental method of operation
+      is the same.
+
+    * Sums and its related algorithms are particularly easy to realise in the
+      framework since their output (trust and belief scores for each source and
+      fact) is the same as the output of a *numeric operator*
+
+    * That is not to say that other algorithm that do not operate in this way
+      cannot be modelled. For example, any algorithm which outputs an
+      identified true fact for an object can be considered as a numeric
+      iterative operator which assigns the identified truths a score of 1, and
+      all other facts 0.
+
+    * A more extreme case is where an algorithm predicts the true fact for an
+      object as one which was not proposed by any source (conflicts to
+      harmony). Fortunately this is not a problem in the framework, due to the
+      fact that we allow no-source facts to be present in a network. One may
+      simply take the set of facts for an object to be *all* permitted values
+      for the object (we make the assumption that the domain of possible values
+      is well-defined as a set)
+
+  * Simplicity
+    * This is naturally a subjective aim, and what appears simple to the author
+      may well not appear simple to others.
+
+    * Nonetheless, we argue that the framework achieves its aim of expressing
+      ideas as simply as possible
+
+    * For example, one of the key definitions is that of truth discovery
+      network. Adopting a graph-theoretic approach, the definition (including
+      the constraints on the graph) is easy to understand for those familiar
+      with the basics of graphs, and even lends itself to pictorial
+      representations of truth discovery networks.
+
+    * The next main definition is that of a truth discovery operator. This is
+      defined simply as a mapping from a space of inputs ($\N$) to a space of
+      outputs (pairs of rankings of sources and facts: $\orderings(\S) \times
+      \ordering(\F)$.
+
+    * Whilst the notation for the rankings for a particular operator and
+      particular network may appear crowded at first, it expresses all the
+      components of the ranking without having to introduce additional notation
+      prior to its use each time (it is inspired by the notation used by Altman
+      and Tennenholtz (foundations))
+
+    * The definition of an iterative operator extends the non-iterative one in
+      a natural way, by defining it simply as a sequence of non-iterative
+      operators
+
+    * We also believe that the axioms are expressed as simply as possible.
+      Where the formalities become tedious, plain-English explanations are
+      provided to give insight into the definitions.
+
+  * Flexibility:
+    * Again, this cannot be objectively verified. Nevertheless, many different
+      ideas were expressed in the framework, and the basic results shown have
+      relatively simple proofs.
+
+  * Generality:
+    * By and large, the framework is neutral with respect to any specific idea
+      or approach for truth discovery. An exception is perhaps the definition
+      of an iterative operator, which uses the numeric-score approach, which
+      not all iterative algorithms in practise do. As mentioned above, this
+      does not *prevent* such algorithms being represented, but it does hurt
+      the generality of the framework. The definition could instead be more
+      general and be a sequence of non-numeric operators. The definition as it
+      stands was chosen to improve the exposition of the work, since the only
+      iterative algorithm actually discussed does in fact use numeric scores.
+
+    * Another desirable aspect of the framework is to permit comparison between
+      truth discovery and related areas in the literature. Whilst clearly being
+      an incarnation of truth discovery, the framework is general enough for
+      this; one may easily see truth discovery networks and operators from the
+      perspective of other disciplines such as social choice and axiomatic
+      ranking. For example, it is easily seen that truth discovery networks are
+      a particular class of graphs, and a truth discovery operator is
+      essentially a pair of ranking systems that rank the sources and facts.
+      This is demonstrated empirically by the fact that many of the developed
+      axioms are directly inspired by axioms in these areas.
+
+# Future work
 
 * Theoretical work:
   * General:
@@ -448,12 +540,6 @@ functions, ranking systems, annotation aggregators etc}
     literature (?)
 
   * Framework limitations:
-    * Some real-world algorithms only give most believed values as output
-      (neither a ranking nor belief score for each fact) (e.g.  'Conflicts to
-      Harmony'). However we *can* view such an operator in the framework by
-      considering it to rank the discovered true facts above all others, and
-      ranking false facts equally.
-
     * Objects do not really play a role for most of the work. Maybe they could
       be removed from the framework if they do not play a significant role, or
       more work could be done to actually use the concept of objects.
@@ -468,17 +554,28 @@ functions, ranking systems, annotation aggregators etc}
       the source ranking should have, and an almost identical version for fact
       ranking. Similarly in the proofs, it is often the case that the argument
       for facts is identical to the one for sources.
+    *
+    * Most algorithms are not just iterative but *recursive*, updating trust
+      and belief scores from each other at each iteration. The recursion aspect
+      is not captured in any definition. Making such a definition could lead to
+      a simpler representation of recursively iterative algorithms in terms of
+      the update rules. One could then study the effects of making changes to
+      the update rules
 
     * Perhaps there is a more general problem or framework, where we have k
-    groups of nodes instead of just 2 (sources and facts). The interpretation
-    of such a network would need considering.
+      groups of nodes instead of just 2 (sources and facts). The interpretation
+      of such a network would need considering.
 
     * Maybe the stuff in Pasternack's thesis on 'groups' is relevant to this
 
   * Results:
-    * Only considered one real-world algorithm, which is very simple as truth
+    * Only considered one real-world algorithm, and a very simple one as truth
       discovery algorithms go
+    * Did not prove convergence or otherwise of Sums in all cases: can try to
+      extend our conjecture to a proof
+    * Could consider more algorithms and prove convergence of them
     * Did not formulate many results with the developed axioms. In particular
       it would be useful to consider the interplay between axioms, such as
       determining whether it is possible for an operator to satisfy *all* the
       stated axioms
+    *

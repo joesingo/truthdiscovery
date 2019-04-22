@@ -83,10 +83,14 @@ for full descriptions of each section.
 
 * Demonstrate the solution works
 * To what extent were goals achieved
-* Is code implemented correctly (unit test results in appendix)
-* **Data** that shows solution is good, not opinions
+* Described how it was demonstrated that the system works as intended
 * Strengths and weaknesses
 * Negative but well-evaluated results are fine
+
+* Practical:
+  * Is code implemented correctly (unit test results in appendix)
+  * **Data** that shows solution is good, not opinions
+  * Describe reasoning behind tests
 
 ## Future work
 
