@@ -309,7 +309,7 @@
 
 * Have mentioned in background section that a general framework for truth
   discovery is sought after. To work towards this, we need to set out exactly
-  what this 'framework' will entail, and what requirements .
+  what this 'framework' will entail, and what requirements it ought to satisfy.
 
 * The main goal is to set out rigorous definitions for what truth discovery
   is, which allows the current situation to be modelled. This includes:
