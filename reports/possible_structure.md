@@ -516,19 +516,47 @@ functions, ranking systems, annotation aggregators etc}
       does not *prevent* such algorithms being represented, but it does hurt
       the generality of the framework. The definition could instead be more
       general and be a sequence of non-numeric operators. The definition as it
-      stands was chosen to improve the exposition of the work, since the only
+      stands was chosen to improve the flow of the work, since the only
       iterative algorithm actually discussed does in fact use numeric scores.
 
     * Another desirable aspect of the framework is to permit comparison between
       truth discovery and related areas in the literature. Whilst clearly being
-      an incarnation of truth discovery, the framework is general enough for
-      this; one may easily see truth discovery networks and operators from the
-      perspective of other disciplines such as social choice and axiomatic
-      ranking. For example, it is easily seen that truth discovery networks are
-      a particular class of graphs, and a truth discovery operator is
-      essentially a pair of ranking systems that rank the sources and facts.
-      This is demonstrated empirically by the fact that many of the developed
-      axioms are directly inspired by axioms in these areas.
+      an theory of truth discovery, the framework is general enough for this;
+      one may easily see truth discovery networks and operators from the
+      perspective of social choice and ranking systems. For example, it is
+      easily seen that truth discovery networks are a particular class of
+      graphs, and a truth discovery operator is essentially a pair of ranking
+      systems that rank the sources and facts. The similarity is also
+      demonstrated empirically by the fact that many of the developed axioms
+      are directly inspired by axioms in these areas, but still have intuitive
+      interpretations in terms of truth discovery.
+
+  * Besides the framework itself, should evaluate the work done inside it
+    * Axioms
+      * Several axioms with intuitive backing, which cover a wide range of
+        ideas
+      * Little work on the interplay between axioms
+    * Analysis of operators wrt axioms
+      * Very simple representation theorem is given: symmetry and dictatorship
+        leads to the trivial ranking of sources
+      * Sound axioms were found for Sums, but these are not complete
+      * No impossibility results
+      * No comparison *between algorithms*. For example, one could find axioms
+        that distinguish between different algorithms. This could provide
+        insight into the meaningful differences between algorithms, which is
+        hard to obtain from the definitions in terms of trust and belief scores
+        -- especially since the final ranking depends on the convergence of
+        these mutually dependent scores
+    * Comparison to other areas
+      * Similarities can be seen at a basic level, in particular with social
+        choice (sources are voters, facts are alternatives, and sources rank
+        their claimed facts above all others) and ranking systems
+      * No real work has been done on similarities with other areas
+      * For example, could formulate social welfare functions or ranking
+        systems as truth discovery operators and vice versa
+      * Comparison is limited to social choice and derived areas: the
+        similarities with argumentation theory and belief revision are less
+        clear
 
 # Future work
 
@@ -578,4 +606,13 @@ functions, ranking systems, annotation aggregators etc}
       it would be useful to consider the interplay between axioms, such as
       determining whether it is possible for an operator to satisfy *all* the
       stated axioms
-    *
+
+    * As mentioned in the text preceding the monotonicity axiom (axiom
+      \ref{axiom:monotonicity}, most axioms deal with the properties of
+      rankings in a static network. Monotonicity however deals with
+      modifications to a network and the resulting effect on rankings. These
+      kind of axioms, where input is changed in some way, are used to great
+      effect in the axiomatisation of PageRank \cite{page_brin_et_al, altman}
+      for ranking systems, and in other areas related to social choice.
+      Developing more axioms of this type may therefore be useful in seeking
+      sound and complete axioms for truth discovery algorithms.
