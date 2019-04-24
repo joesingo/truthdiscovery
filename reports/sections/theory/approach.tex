@@ -1,0 +1,175 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+In the previous chapters, we have motivated the need for a general theoretical
+framework for truth discovery. To work towards actually constructing one, it is
+necessary to set out exactly what such a framework will consist of, and what
+features and properties are required for it to be useful.
+
+The main goal of developing the framework is to set out rigorous definitions
+for what truth discovery is, which allows the current situation to be modelled
+whilst also permitting a more general view. The key definitions will therefore
+be
+\begin{itemize}
+\item What is the `input' to truth discovery? The input has been described in
+terms of sources, facts, objects and conflicting claims, but this needs to be
+formulated mathematically.
+
+\item What is the `output'? We have stated that the output is trust and belief
+scores for sources and facts, according to the most common approach taken in
+the literature. However our aim is to study truth discovery in full generality,
+and not just the algorithms already in existence. Therefore a more general view
+could be taken if desired, so long as it can still model existing algorithms.
+
+\end{itemize}
+
+With these definitions in place, a truth discovery algorithm is simply a
+mapping from the space of inputs to outputs. This abstracts away the
+\emph{process} of performing truth discovery so that `algorithm' is not the
+correct term to use. We opt for \emph{truth discovery operator} to describe a
+mapping from inputs to outputs.
+
+There are several criteria against which to judge the usefulness of the
+developed framework.
+\begin{itemize}
+
+\item \textbf{Ability to model existing approaches}: We aim to find a unified
+framework that allow as many existing algorithms in the literature as possible
+to be represented.
+
+\item \textbf{Simplicity}: the key definitions should be easy to interpret, and
+should relate to intuitive notions of truth discovery in a clear way.
+
+\item \textbf{Flexibility}: we wish to prove properties of operators, compare
+different operators, and develop axioms, so the framework should be easy and
+flexible to work in.
+
+\item \textbf{Generality}: the framework should be general and `unopinionated'
+enough to be useful as foundations for future work, i.e. it should not rely on
+specific ideas and approaches to performing truth discovery. It should also be
+general in the sense of facilitating easy comparison between truth discovery
+and related areas in the literature. This will allow ideas in these areas to be
+applied to truth discovery, e.g. many axioms from social choice could be
+translated to truth discovery.
+
+\end{itemize}
+
+Once the framework has been established, we aim to develop axioms for
+operators. In line with axiomatic foundations for other problems, the axioms
+should represent intuitively desirable properties that a `reasonable' operator
+should satisfy. The power of the axiomatic approach is to then consider
+multiple axioms together; the types of results attained include
+\emph{impossibility results}, where it is proved that no operator\footnotemark
+can satisfy a set of axioms, and \emph{representation theorems}, where a set of
+sound and complete axioms are found for a particular operator. For example, in
+\cite{altman_foundations} the authors show that two seemingly complementary and
+desirable axioms cannot be satisfied simultaneously, which has implications
+when deciding which ranking system to use in practise.
+
+\footnotetext{
+    We write `operator' as a blanket term to refer to social choice functions,
+    ranking systems, annotation aggregators etc.
+}
+
+Requirements for `good' axioms include having simple interpretations and
+representing desirable properties in some way or another.
+
+To justify the decisions made in developing the framework, it is worth giving
+an overview of the existing formalisms for truth discovery.
+
+\subsection{Existing Formalisms}
+
+The definitions of input in the popular truth discovery literature
+\cite{li_survey, gupta_han_survey, pasternack, galland, zhang_qi_tang} are
+generally compatible with each other: we have a set of sources and facts and
+objects\footnotemark, and sources provide (or \emph{claim}) a set of facts for
+objects. Some definitions are not in exactly this form, but can clearly be
+restated in this form without changing the essence of the approach.
+
+\footnotetext{
+    Note that the terminology is not uniform across the literature; e.g. the
+    survey in \cite{gupta_han_survey} refers to sources as `providers', and the
+    facts in \cite{pasternack} are referred to as `claims' (i.e. the word
+    `claim' is used as a noun, whereas we use it as a verb).
+}
+
+For example, in \cite{pasternack} there is no concept of objects, but instead
+of \emph{mutual exclusion sets} of facts which cannot simultaneously be true.
+However the mutual exclusion sets themselves can be seen as the objects linking
+related facts together.
+
+In \cite{galland}, there is no concept of objects, and sources may make
+\emph{negative claims} where they state a fact is \emph{false}. However one may
+view the `facts' (in the sense of \cite{galland}) as objects, and `true' and
+`false' as the only two facts associated with each object.
+
+There is more variety in the definitions of output. The treatment of sources is
+generally the same: each source is assigned a \emph{trust score}, (usually a
+number in $[0, 1]$), but differences appear for the treatment of facts. The two
+main ideas are to assign each fact a \emph{belief score}, or to select a single
+`true' fact for each object. Another view, taken in \cite{li_conflicts} for
+example, is to produce a single value for each object to represent the true
+fact, but where the true value may not have been claimed by any sources (for
+example, a weighted average could be applied when facts are numeric values, and
+could lead to this situation).
+
+Selecting a single fact for each object can be seen as a special case of
+assigning each fact a score; e.g. the true facts receive a score of 1 and all
+others receive 0.
+
+\subsection{Overview of Approach}
+\label{sec:theory_approach_overview}
+
+With this background in mind, we give an overview and justification of the
+approach before the formal definitions are given in section
+\ref{sec:theory_framework}.
+
+For input, a graph-theoretic representation is chosen. Nodes will be sources,
+facts and objects. Edges between nodes represent the obvious relations: an edge
+from a source to a fact represents the source claiming that fact, and an edge
+from a fact to an object indicates the object the fact relates to. Setting this
+up in graph theory allows for simple interpretation, and allows concepts in
+graph theory to be usefully applied to describe properties of the input (for
+example, the notion of \emph{connected components} is key in axiom
+\ref{axiom:indep}).
+
+Using a well established tool such as graph theory is hoped to also provide
+flexibility for future refinements to consider more complex problems: notions
+such as weighted edges, annotated nodes etc. could be used to conveniently
+describe additional properties of the input.
+
+Finally, a graph representation is already used in the related area of ranking
+systems \cite{altman_foundations, altman_personalised}. Using a similar set up
+allows comparison between the two areas.
+
+For output, consider the two main ideas discussed above: assigning each fact a
+score and selecting a single true fact for each object. Since the latter is a
+special case of the former, the former is more suitable for a general theory of
+truth discovery.
+
+Note that assigning a numeric score to each source and fact in particular
+induces an \emph{ranking} of the sources and facts. We argue that the essence
+of truth discovery lies more in this induced ranking that the particular
+numerical scores, and will therefore define the output of truth discovery as a
+pair of rankings (precisely, total preorders) on the set of sources and facts.
+
+Indeed, when applying truth discovery methods to determine which sources to
+trust and which facts to believe, one is interested in which sources/facts are
+more believable than others, not in the particular numeric values produced by
+an algorithm. Additionally, the numeric values produced often do not have any
+semantic meaning \cite{pasternack}, which prevents inter-algorithm comparison.
+The induced rankings can therefore act as a bridge between results from
+different algorithms.
+
+A similar view is also taken in social choice and the axiomatic theory of
+ranking systems, where rankings instead of numeric scores are the main objects
+of interest. Taking the same approach for here highlights the similarities
+between truth discovery and these areas, and allows concepts in these areas to
+be carried over into truth discovery.
+
+Nevertheless, to model in their entirety the algorithms that produce numeric
+scores, it will be possible to define such operators in the framework as more
+general objects, but restrict our attention mainly to the ranking-output
+operators.
+
+\end{document}
