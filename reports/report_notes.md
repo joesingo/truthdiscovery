@@ -96,6 +96,8 @@ for full descriptions of each section.
 
 * ~ 1 page
 * Weaknesses of finished solution, including things that are missing
+* Express unrealised ideas
+* Show 'I have thought of this'
 * What could be done next, if more time were available
 * Should provide a starting point for someone else to continue with
 

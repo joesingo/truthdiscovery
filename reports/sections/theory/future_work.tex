@@ -1,0 +1,105 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+This section discusses possible future work for the theoretical part of the
+project.
+
+\subsection{Unfinished Business}
+
+Due to time constraints, there are some elements of the work left in a
+semi-finished state. The most obvious example is regarding the convergence of
+Sums. At the end of section \ref{sec:iterative}, we conjecture that the trust
+and belief scores of Sums convergence in \emph{any} input network. As mentioned
+there, a proof could be obtained by modifying the proof of the convergence of
+Hubs and Authorities, to which Sums is closely related.
+
+The lack of a proof of the convergence in all cases (or otherwise, as the case
+may be) leaves the analysis of Sums in the unsatisfactory state where it is
+unclear if Sums properly defines a truth discovery operator in the sense of
+definition \ref{def:truth_discovery_operator}. This also means that theorems
+\ref{theorem:sums_axioms} and \ref{theorem:sums_non_indep} must include the
+hypothesis that Sums is actually convergent.
+
+Another unfinished element of the Sums analysis is that we make no
+determination (or even conjecture) on whether is satisfies the Monotonicity and
+Coherence axioms. Monotonicity and Coherence are also not addressed in lemma
+\ref{lemma:iterative_axiom_suff_conds}.
+
+\subsection{Future Directions}
+
+In terms of future directions, two aspects to consider are \emph{problems} with
+the framework that could be fixed in future work, and \emph{new ideas} that
+could be explored. New ideas can be further split into ideas for the framework
+itself (i.e. new or modified definitions and concepts) and ideas for new
+results that one could attempt to prove.
+
+A first problem is in the role of \emph{objects}. Whilst objects are an
+important part of truth discovery in many approaches (particularly those which
+output an identified true fact for each object), they do not play much of a
+role in the framework of section \ref{sec:theory_framework}, beside the
+constraint that sources make at most one claim per object in definition
+\ref{def:truth_discovery_operator}.
+
+Future work could address this by developing axioms that consider objects
+directly. For example, one could consider what happens if two objects are
+`merged', i.e. facts from each combined under object in a new network. This
+would presumably have little or no effect in algorithms such as Sums and
+Average$\cdot$Log \cite{pasternack} which do not use objects in their
+calculations, but would affect algorithms such as Investment \cite{pasternack}
+and TruthFinder \cite{yin_han_yu} where the role of objects is
+important.\footnotemark{}
+
+\footnotetext{
+    Objects are termed \emph{mutual exclusion sets} in \cite{pasternack}.
+}
+
+Another questionable aspect of the work is that the object associated with a
+fact may depend on the input network; it would perhaps be more reasonable for a
+fact to be related to a \emph{fixed} object in all networks, so that the only
+difference between input networks is the claims made by sources. Future work
+could investigate this issue in more depth, and if necessary definition
+\ref{def:truth_discovery_operator} could be changed to consider the object
+affiliations fixed.
+
+In many of the definitions and axioms, there is redundancy where we state a
+property for source rankings, and then an almost identical one for fact
+rankings. Similarly, the proofs often prove a result for source rankings, and
+the result for facts follows by an identical argument. This may lead one to
+wonder whether truth discovery as defined here is just an instance of ranking
+$k$ groups of nodes in a $k + 1$-partite graph for the special case $k = 2$
+(plus one to account for the objects). A similar idea is considered in the PhD
+thesis of Pasternack (\cite{pasternack_thesis}, section 4.5.3) to represent
+`groups' of sources.
+
+Taking this more general view would highlight the symmetry between the groups
+(sources and facts in our case), where symmetry exists, and remove redundancy
+from definitions and proofs.  However, this new problem may no longer represent
+truth discovery in the same way, and would need careful interpretation. In
+particular, it is not clear how objects would fit into this approach.
+Nevertheless, it could be something to consider in future work.
+
+There are numerous possible extensions for the framework that could be made in
+future work. One example is the definition of an iterative truth discovery
+operator (definition \ref{def:iterative_operator}). Most real-world algorithms
+operate not only iteratively but \emph{recursively}, updating trust and belief
+scores based on the scores in the previous iteration. However, the recursion
+aspect is not captured in any definition in this work. Making such a definition
+could lead to a simpler representation of these algorithms in terms of the
+update rules. This would provide a more general set up for studying recursively
+iterative algorithms; for example one could consider the effects of making
+\emph{changes} to the update rules. It could also provide a method for
+comparing different algorithms, by comparing their update rules.
+
+More potential extensions to the framework come from the numerous extensions to
+the basic truth discovery model, some of which were listed in section
+\ref{sec:background_truth_discovery}. This would allow for consideration of
+more specific sub-problems in truth discovery and lead to a richer theory.
+
+Finally, the approach taken throughout the theoretical work was largely to
+apply ideas from social choice to truth discovery. Future work could explicitly
+incorporate ideas from other related areas such as argumentation theory and
+belief revision.
+
+\todo{axioms future work: see notes}
+
+\end{document}

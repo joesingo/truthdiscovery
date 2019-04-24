@@ -560,59 +560,46 @@ functions, ranking systems, annotation aggregators etc}
 
 # Future work
 
-* Theoretical work:
-  * General:
-    * Approach has been to follow social choice and closely related literature
+* Results:
+  * Could consider more algorithms and prove convergence of them
 
-    * Could instead look to other areas like argumentation and data mining
-    literature (?)
+  * come up with more examples for operators satsifying and violating various
+    axioms
 
-  * Framework limitations:
-    * Objects do not really play a role for most of the work. Maybe they could
-      be removed from the framework if they do not play a significant role, or
-      more work could be done to actually use the concept of objects.
+  * As mentioned in the evaluation of the preceding section, not many results
+    were formulated with the axioms. In particular, it would be interesting to
+    study how the axioms interact with each other, e.g. whether it is possible
+    to satisfy them at the same time, and any interesting properties entailed
+    by them in conjunction.
 
-    * One may wonder whether there is any meaning in comparing facts for
-      different objects, but this is defined in the framework
+  * Could weaken axioms to find more general properties of operators. For
+    example, one may note that unanimity and groundedness are special cases of
+    the following axiom
 
-  * Potential framework extensions:
-    * Support the numerous extensions to basic TD
+    \begin{axiom}
+    For any truth discovery network $N$ and facts $f_1, f_2 \in \F$, $\src(N,
+    f_1) \subseteq \src(N, f_2)$ implies $f_1 \fle_N^T f_2$.
+    If facts $f_1, f_2 \in \F$
+    \end{axiom}
 
-    * There is a lot of redundancy in the axioms where we state a property that
-      the source ranking should have, and an almost identical version for fact
-      ranking. Similarly in the proofs, it is often the case that the argument
-      for facts is identical to the one for sources.
-    *
-    * Most algorithms are not just iterative but *recursive*, updating trust
-      and belief scores from each other at each iteration. The recursion aspect
-      is not captured in any definition. Making such a definition could lead to
-      a simpler representation of recursively iterative algorithms in terms of
-      the update rules. One could then study the effects of making changes to
-      the update rules
+    That is, facts with more sources \footnotemark rank higher than those with
+    less.
 
-    * Perhaps there is a more general problem or framework, where we have k
-      groups of nodes instead of just 2 (sources and facts). The interpretation
-      of such a network would need considering.
+    \footnotetext{
+      'More' here is in the sense of set inclusion, not the \emph{number} of
+      sources
+    }
 
-    * Maybe the stuff in Pasternack's thesis on 'groups' is relevant to this
+    Future work could investigate this axiom in detail. For example, it would
+    be interesting to find operators that satisfy unanimity and/or groundness,
+    but \emph{not} this more general axiom.
 
-  * Results:
-    * Only considered one real-world algorithm, and a very simple one as truth
-      discovery algorithms go
-    * Did not prove convergence or otherwise of Sums in all cases: can try to
-      extend our conjecture to a proof
-    * Could consider more algorithms and prove convergence of them
-    * Did not formulate many results with the developed axioms. In particular
-      it would be useful to consider the interplay between axioms, such as
-      determining whether it is possible for an operator to satisfy *all* the
-      stated axioms
-
-    * As mentioned in the text preceding the monotonicity axiom (axiom
-      \ref{axiom:monotonicity}, most axioms deal with the properties of
-      rankings in a static network. Monotonicity however deals with
-      modifications to a network and the resulting effect on rankings. These
-      kind of axioms, where input is changed in some way, are used to great
-      effect in the axiomatisation of PageRank \cite{page_brin_et_al, altman}
-      for ranking systems, and in other areas related to social choice.
-      Developing more axioms of this type may therefore be useful in seeking
-      sound and complete axioms for truth discovery algorithms.
+  * As mentioned in the text preceding the monotonicity axiom (axiom
+    \ref{axiom:monotonicity}, most axioms deal with the properties of rankings
+    in a static network. Monotonicity however deals with modifications to a
+    network and the resulting effect on rankings. These kind of axioms, where
+    input is changed in some way, are used to great effect in the
+    axiomatisation of PageRank \cite{page_brin_et_al, altman} for ranking
+    systems, and in other areas related to social choice.  Developing more
+    axioms of this type may therefore be useful in seeking sound and complete
+    axioms for truth discovery algorithms.

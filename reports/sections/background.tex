@@ -104,6 +104,7 @@ From a theoretical point of view, Marsh \cite{marsh} provides a formal model
 for trust in multi-agent systems.
 
 \section{Truth Discovery Background}
+\label{sec:background_truth_discovery}
 
 In the preceding sections truth discovery has been discussed only informally.
 Here we outline more precisely the main concepts in the basic form of truth
@@ -116,7 +117,7 @@ about \emph{objects}. A source may provide only one fact for a single object.
 Different sources may provide different facts for the same object; a fact need
 not be `true'. It is often assumed that for each object there is a unique true
 fact. In the basic form of truth discovery, the nature of the facts is
-irrelevant, and they are treated as categorical values\footnotemark.
+irrelevant, and they are treated as categorical values\footnotemark{}.
 
 \footnotetext{
     Some approaches instead make use of the specific data types of the facts in
@@ -126,7 +127,7 @@ irrelevant, and they are treated as categorical values\footnotemark.
 A truth discovery algorithm takes the input of sources, facts, objects and the
 facts claimed by each source, and computes a \emph{trust score} for each source
 and a \emph{belief score} for each fact. Higher scores represent more
-trustworthy sources and more believable facts\footnotemark. For each object,
+trustworthy sources and more believable facts\footnotemark{}. For each object,
 the fact with the highest belief score is then taken as the true fact.
 
 \footnotetext{
@@ -249,8 +250,8 @@ data if required.
 
 Despite the wide interest in truth discovery in research papers, there are few
 open source software implementations. One such implementation is
-\emph{spectrum}\footnotemark, available on GitHub. This library implements some
-algorithms from the literature, but lacks proper documentation, does not
+\emph{spectrum}\footnotemark{}, available on GitHub. This library implements
+some algorithms from the literature, but lacks proper documentation, does not
 provide a uniform interface for getting results across algorithms, and does not
 support evaluating results for datasets for which some true values are already
 known. It also does not provide fine-tuned control for the running of
@@ -259,7 +260,7 @@ have converged.
 
 \footnotetext{\url{https://github.com/totucuong/spectrum}}
 
-Another open source library is DAFNA-EA\footnotemark, which is the
+Another open source library is DAFNA-EA\footnotemark{}, which is the
 implementation behind the comparative study in \cite{waguih}. Whilst extensive
 in the number of algorithms implemented, its capability for evaluating
 performance and generation of \emph{synthetic data}, it lacks documentation to
@@ -272,7 +273,7 @@ the time of writing.
 \footnotetext{\url{https://github.com/daqcri/DAFNA-EA}}
 
 Other truth discovery implementations are available on GitHub and
-elsewhere\footnotemark, but these are generally repositories containing code
+elsewhere\footnotemark{}, but these are generally repositories containing code
 used in the production of a research paper rather than general purpose
 libraries.
 
@@ -338,8 +339,8 @@ lev}, collective annotation \cite{kruger} and belief revision \cite{agm}.
 
 This project will aim to define a theoretical framework for truth discovery
 that is general enough for any algorithm to be modelled, independent of the
-algorithms specific approach. Following the axiomatic method employed in social
-choice and related areas, axioms for truth discovery algorithms will be
+algorithm's specific approach. Following the axiomatic method employed in
+social choice and related areas, axioms for truth discovery algorithms will be
 developed to encode desirable properties. To demonstrate the framework's
 suitability as a tool for analysing real-world truth discovery algorithms,
 \emph{Sums} \cite{pasternack} will be defined formally and analysed with

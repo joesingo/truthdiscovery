@@ -86,11 +86,19 @@
 \newcommand{\orderings}{\mathcal{L}}
 
 \begin{document}
+
+% Roman numerals for title, abstract and table of contents
+\pagenumbering{roman}
+
 \maketitle
 
 \subfile{sections/abstract}
 
 \tableofcontents
+\cleardoublepage
+
+% Usual numbering for body of report
+\pagenumbering{arabic}
 
 \chapter{Introduction}
 \subfile{sections/introduction}
@@ -110,7 +118,7 @@
 \section{Summary}
 \todo{write this section}
 
-\chapter{Theory of Truth Discovery}
+\chapter{Theoretical Analysis}
 \subfile{sections/theory/index}
 
 \chapter{Conclusions}

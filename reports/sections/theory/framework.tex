@@ -176,7 +176,7 @@ The fact-believability component of truth discovery can be seen as a special
 case of voting in the theory of social choice \cite{handbook_voting}, where
 agents are sources and alternatives are facts. Each source then ranks the facts
 it claims above all other facts, and ranks its claimed facts
-equally\footnotemark. Several axioms for voting rules from this theory can be
+equally\footnotemark{}. Several axioms for voting rules from this theory can be
 adapted to truth discovery, and we do so presently.
 
 
@@ -674,6 +674,7 @@ should not get worse.
 \todo{Analysis of majority voting: which axioms does it satisfy}
 
 \subsection{Iterative Truth Discovery Operators}
+\label{sec:iterative}
 
 Real-world algorithms for truth discovery generally compute numerical trust and
 belief scores, as per definition \ref{def:numerical}. Additionally, most
@@ -726,7 +727,7 @@ a fixed threshold. This is of course only a heuristic, since it is not possible
 to determine whether a sequence converges by considering only finitely many
 terms. Moreover even if the difference between subsequent trust/belief scores
 were to become \emph{arbitrarily} small (i.e. smaller than \emph{any}
-threshold), one still cannot guarantee convergence\footnotemark. This means
+threshold), one still cannot guarantee convergence\footnotemark{}. This means
 that it may not be trivial to define a real-world algorithm as a truth
 discovery operator, since it may not be clear whether the trust and belief
 scores converge in all cases. Nevertheless, in this work we will assume that
