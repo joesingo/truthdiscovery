@@ -1,7 +1,7 @@
 %=============================================================================%
 % TODO:
 %
-% * Mention somewhere that software implementation can be used for canonical
+% * Mention somewhere that software implementation can be used for empirical
 %   evidence of algorithms satisfying formal properties, for demonstration of
 %   theoretical concepts, and for finding examples and counterexamples
 %
@@ -9,7 +9,7 @@
 %   and use the facts as a means of discovering reliability rather than being
 %   of interest themselves
 %=============================================================================%
-\documentclass[12pt]{report}
+\documentclass[12pt, oneside]{memoir}
 
 \date{2019}
 \author{Joe Singleton}
@@ -19,7 +19,7 @@
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amssymb}
-\usepackage{caption}
+% \usepackage{caption}
 \usepackage[sortcites]{biblatex}
 
 \usepackage{graphicx}
@@ -46,6 +46,9 @@
 	urlcolor={blue!80!black},
 	linkcolor={blue!80!black}
 }
+\setsecnumdepth{subsubsection}
+\settocdepth{subsubsection}
+\chapterstyle{ger}
 
 % Maths environments
 \theoremstyle{definition} \newtheorem{definition}{Definition}
@@ -87,19 +90,16 @@
 
 \begin{document}
 
-% Roman numerals for title, abstract and table of contents
-\pagenumbering{roman}
-
+\frontmatter
 \maketitle
+
+\newpage
 
 \subfile{sections/abstract}
 
 \tableofcontents
-\cleardoublepage
 
-% Usual numbering for body of report
-\pagenumbering{arabic}
-
+\mainmatter
 \chapter{Introduction}
 \subfile{sections/introduction}
 
