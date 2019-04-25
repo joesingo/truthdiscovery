@@ -308,9 +308,13 @@
 * High level requirements
   * As per the background to software implementations, there are specific use
     cases in mind for this implementation for different types of users
+  * High-level overview of the types of users and activities they will be able
+    to perform
   * These use cases can be represented visually with UML diagrams (talk about
     what UML is)
-  * Use cases:
+  * (show UML use case diagram)
+  * Describe use cases in more detail
+  * Notes on use cases:
     * Running algorithms on real truth discovery datasets
       * Load read-world datasets
         * Often large
@@ -326,17 +330,68 @@
         * Time taken and asymptotic complexity
         * Convergence or otherwise
         * Memory usage and complexity
-  * Algorithm development:
-    * Infrastructure to write new algorithms without supporting framework
-    * Evaluate performance
-      * Goal is to compare to existing algorithms, or for empirical
-        demonstration of theoretical properties (e.g. asymptotic complexity)
-  * Tool for theoretical work:
-    * Create simple examples and run algorithms
-    * Produce diagrams
-    * See the effect of changes in the input
-    * Investigate axioms: empirical evidence of positive results, or production
-      of counter examples
+    * Algorithm development:
+      * Infrastructure to write new algorithms without supporting framework
+      * Evaluate performance
+        * Goal is to compare to existing algorithms, or for empirical
+          demonstration of theoretical properties (e.g. asymptotic complexity)
+    * Tool for theoretical work:
+      * Create simple examples and run algorithms
+      * Produce diagrams
+      * See the effect of changes in the input
+      * Investigate axioms: empirical evidence of positive results, or
+        production of counter examples
+
+* Discuss user interfaces most suitable for different use cases
+* Non-functional requirements such as testability, documentation, extendability
+
+* ACTUAL STRUCTURE
+* Identify different 'components' of the system
+    * datasets
+        * from CSV
+        * from custom file format
+        * from code
+        * from graphical interface (website)
+        * supervised data (from each of the above)
+        * synthetic data
+        * claim implications
+    * algorithms
+        * selection of algorithms
+        * stopping criterion
+        * parameters
+        * talk about *extendability*
+    * results and evaluation
+        * accuracy on supervised data
+        * time taken
+        * memory usage
+        * convergence speed
+        * difference between results
+        * user defined metrics
+    * drawing
+        * for creating examples visually
+        * for visualising results for small datasets
+        * animations: visualise convergence in addition to static behaviour
+* Briefly discuss each one
+* Will also discuss non-functional requirements
+    * testing
+    * documentation
+    * extendability
+    * simplicity
+    * performance
+* Dataset, algorithm and results requirements depend on the model adopted. Have
+  section explaining model choice
+* More detailed section on each component + non-functional requirements
+    * Discussion
+    * List of requirements
+* Describe user interfaces
+    * Consider user types
+    * Different goals for different user interfaces
+    * List of requirements
+
+* DESIGN
+* UML class diagram
+* Sequence or activity diagram for web interface? (only part complicated enough
+  to warrant it?)
 
 ## Theoretical
 

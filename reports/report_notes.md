@@ -53,8 +53,9 @@ for full descriptions of each section.
 
 ## Approach/Specification and design
 
-* Give picture of the 'system' in terms of what it is required to do
-* High-level details on how work is designed to meet these requirements
+* Specification: give picture of the 'system' in terms of what it is required
+  to do
+* Design: high-level details on how work is designed to meet these requirements
 * Constraints on the solution
 * Describe system from several perspectives:
   * use cases

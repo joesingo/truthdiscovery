@@ -1,0 +1,71 @@
+\documentclass[../main.tex]{subfiles}
+\begin{document}
+
+The broad goals and aims for the practical component of this project were
+outlined in section \ref{sec:background_software}. In this section, these ideas
+are developed and made into precise requirements for the software. This is
+followed by a high-level description of how the software is designed to meet
+these requirements.
+
+The primary use case for the system is applying truth discovery algorithms to
+real-world datasets to tackle a real-world truth discovery problem. For
+example, a user may have collected information from various websites and wishes
+to use truth discovery to determine, as far as possible, which information is
+true and the trustworthiness of the websites. To distinguish between other
+types of users, we shall call such users \emph{truth discovery practitioners}.
+To determine the best algorithm to use for their specific purpose, these users
+will also be interested in \emph{evaluating} algorithms in various ways, such
+as time and memory complexity. Due to the variety of diverse domains in which
+truth discovery can be applied, practitioners may also wish to define their own
+methods of evaluation.
+
+Another use case is algorithm development. Developing and testing a new truth
+discovery algorithm requires a lot of supporting infrastructure, such as
+methods for loading datasets and user interfaces. Additionally, one will often
+look to compare the new algorithm to existing ones, in order to determine in
+what sense the new algorithm is an improvement; this requires implementing
+existing algorithms and methods for evaluation.
+
+Algorithm developers would therefore benefit from a library for truth discovery
+that provides the necessary supporting code, allowing them to focus solely on
+the development of the algorithm itself. Evaluating the existing and new
+algorithms with the same library also ensures comparisons are fair.
+
+Both the `practitioner' and algorithm developer roles require evaluating
+algorithms in some sense. An important measure of an algorithm's performance is
+its \emph{accuracy}, defined as the proportion of cases where the algorithm
+predicts the true fact for an object \cite{pasternack,
+li_deep_web}.\footnotemark{} In much of the truth discovery literature, accuracy
+is calculated by running an algorithm on a dataset for which true values are
+already known for a (subset) of objects. We will refer to such datasets as
+\emph{supervised} datasets. Supervised datasets are often constructed
+\emph{synthetically}, where sources, facts and claims are generated randomly
+according to some statistical model, due to the difficulty in obtaining true
+facts for sufficiently many real-world datasets \cite{galland, pasternack,
+yin_han_yu, li_conflicts}.
+
+\footnotetext{
+    An algorithm's prediction for an object is taken to be the fact with the
+    highest belief score.
+}
+
+Accordingly, our system should provide methods for loading supervised
+datasets, both from real-world data and by synthesis, and for evaluating
+accuracy with respect to such datasets.
+
+The final major use for the system is to be a tool for theoretical work. Users
+considering theoretical aspects of truth discovery, who we shall refer to as
+\emph{theorists}, will often need to construct simple instances of truth
+discovery problems for examples and counterexamples, and run algorithms on
+these instances. They may also use a software library to empirically verify or
+disprove properties of certain algorithms.
+
+Having outlined the target audience for the software implementation, their
+goals and the tasks they wish to perform, we can identify distinct components
+of the system.
+
+% \begin{itemize}
+% \item \textbf{Dataset loading}: Datasets need to be loaded
+% \end{itemize}
+
+\end{document}
