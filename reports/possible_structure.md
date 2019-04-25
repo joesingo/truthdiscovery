@@ -305,6 +305,39 @@
       maybe talk about HCI concepts
     * Algorithms implemented
 
+* High level requirements
+  * As per the background to software implementations, there are specific use
+    cases in mind for this implementation for different types of users
+  * These use cases can be represented visually with UML diagrams (talk about
+    what UML is)
+  * Use cases:
+    * Running algorithms on real truth discovery datasets
+      * Load read-world datasets
+        * Often large
+        * Needs to be loaded from some suitable format
+      * Get results in a suitable form
+        * Raw trust and belief scores
+        * Identified truth for each object
+      * Evaluate performance of algorithms
+        * Goal is to help determine which algorithm to use in practise
+        * Accuracy on supervised data (see Pasternack and Roth, doubtless
+          others too... Also relate to precision in data mining)
+          * Supervised data could be real or synthetic
+        * Time taken and asymptotic complexity
+        * Convergence or otherwise
+        * Memory usage and complexity
+  * Algorithm development:
+    * Infrastructure to write new algorithms without supporting framework
+    * Evaluate performance
+      * Goal is to compare to existing algorithms, or for empirical
+        demonstration of theoretical properties (e.g. asymptotic complexity)
+  * Tool for theoretical work:
+    * Create simple examples and run algorithms
+    * Produce diagrams
+    * See the effect of changes in the input
+    * Investigate axioms: empirical evidence of positive results, or production
+      of counter examples
+
 ## Theoretical
 
 * Have mentioned in background section that a general framework for truth

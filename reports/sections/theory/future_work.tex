@@ -21,8 +21,8 @@ definition \ref{def:truth_discovery_operator}. This also means that theorems
 hypothesis that Sums is actually convergent.
 
 Another unfinished element of the Sums analysis is that we make no
-determination (or even conjecture) on whether is satisfies the Monotonicity and
-Coherence axioms. Monotonicity and Coherence are also not addressed in lemma
+determination (or even conjecture) on whether is satisfies the monotonicity and
+coherence axioms. Monotonicity and coherence are also not addressed in lemma
 \ref{lemma:iterative_axiom_suff_conds}.
 
 \subsection{Future Directions}
@@ -78,14 +78,14 @@ truth discovery in the same way, and would need careful interpretation. In
 particular, it is not clear how objects would fit into this approach.
 Nevertheless, it could be something to consider in future work.
 
-There are numerous possible extensions for the framework that could be made in
-future work. One example is the definition of an iterative truth discovery
-operator (definition \ref{def:iterative_operator}). Most real-world algorithms
-operate not only iteratively but \emph{recursively}, updating trust and belief
-scores based on the scores in the previous iteration. However, the recursion
-aspect is not captured in any definition in this work. Making such a definition
-could lead to a simpler representation of these algorithms in terms of the
-update rules. This would provide a more general set up for studying recursively
+There are numerous possible extensions to the framework that could be made.
+One example is the definition of an iterative truth discovery operator
+(definition \ref{def:iterative_operator}). Most real-world algorithms operate
+not only iteratively but \emph{recursively}, updating trust and belief scores
+based on the scores in the previous iteration. However, the recursion aspect is
+not captured in any definition in this work. Making such a definition could
+lead to a simpler representation of these algorithms in terms of the update
+rules. This would provide a more general set up for studying recursively
 iterative algorithms; for example one could consider the effects of making
 \emph{changes} to the update rules. It could also provide a method for
 comparing different algorithms, by comparing their update rules.
@@ -95,11 +95,50 @@ the basic truth discovery model, some of which were listed in section
 \ref{sec:background_truth_discovery}. This would allow for consideration of
 more specific sub-problems in truth discovery and lead to a richer theory.
 
+Future work on the axioms themselves could involve \emph{generalising} axioms
+where possible. For example, one may note that unanimity and groundedness
+(axioms \ref{axiom:unanimity} and \ref{axiom:groundedness}) are special cases
+of the following axiom.
+
+\begin{axiom}
+For any truth discovery network $N$ and facts $f_1, f_2 \in \F$, $\src(N,
+f_1) \subseteq \src(N, f_2)$ implies $f_1 \fle_N^T f_2$.
+\end{axiom}
+
+That is, facts with `more' sources rank higher than those with
+less.\footnotemark{} Unanimity is the case where $\src(N, f_2) = \S$, and
+groundedness is the case where $\src(N, f_1) = \emptyset$.
+
+\footnotetext{
+  `More' here is in the sense of set inclusion, not the \emph{number} of
+  sources
+}
+
+Future work could investigate this axiom in detail. For example, it would be
+interesting to find operators that satisfy unanimity and/or groundedness, but
+\emph{not} this more general axiom.
+
+Also relating to axioms, it was mentioned in the text preceding the
+monotonicity axiom (axiom \ref{axiom:monotonicity}) that most of the axioms
+deal with the properties of rankings in a static network. Monotonicity,
+however, deals with \emph{modifications} to a network and the resulting effect
+on rankings. These kind of axioms, where input is changed in some way, are
+used to great effect in social choice and related areas; a notable example is
+the axiomatisation of PageRank \cite{page_brin_et_al} in \cite{altman}.
+Developing more axioms of this type may therefore be useful in seeking sound
+and complete axioms for truth discovery algorithms.
+
 Finally, the approach taken throughout the theoretical work was largely to
 apply ideas from social choice to truth discovery. Future work could explicitly
 incorporate ideas from other related areas such as argumentation theory and
 belief revision.
 
-\todo{axioms future work: see notes}
+In terms of new results, a major aspect of future work will be to formulate
+more results involving the axioms. As alluded to in the evaluation in section
+\ref{sec:theory_evaluation}, this could include implications of the axioms
+(particularly the implications of an operator satisfying multiple axioms
+simultaneously), impossibility results, and finding sound and complete axioms
+for a particular algorithm or class of algorithms. More truth discovery
+operators could also be defined to provide examples of axioms failing to hold.
 
 \end{document}

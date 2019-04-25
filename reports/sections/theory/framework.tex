@@ -176,7 +176,7 @@ The fact-believability component of truth discovery can be seen as a special
 case of voting in the theory of social choice \cite{handbook_voting}, where
 agents are sources and alternatives are facts. Each source then ranks the facts
 it claims above all other facts, and ranks its claimed facts
-equally\footnotemark{}. Several axioms for voting rules from this theory can be
+equally.\footnotemark{} Several axioms for voting rules from this theory can be
 adapted to truth discovery, and we do so presently.
 
 
@@ -655,6 +655,7 @@ it no worse than it did before.
 }
 
 \begin{axiom}[Monotonicity]
+\label{axiom:monotonicity}
 Let $N = (V, E)$ be a truth discovery network, and $f \in \F$, $s \in \S$ such
 that $(s, f) \notin E$. Write $o = \obj(N, f)$. Consider the network $N'=(V,
 E')$ where $s$ claims $f$, i.e.
@@ -727,7 +728,7 @@ a fixed threshold. This is of course only a heuristic, since it is not possible
 to determine whether a sequence converges by considering only finitely many
 terms. Moreover even if the difference between subsequent trust/belief scores
 were to become \emph{arbitrarily} small (i.e. smaller than \emph{any}
-threshold), one still cannot guarantee convergence\footnotemark{}. This means
+threshold), one still cannot guarantee convergence.\footnotemark{} This means
 that it may not be trivial to define a real-world algorithm as a truth
 discovery operator, since it may not be clear whether the trust and belief
 scores converge in all cases. Nevertheless, in this work we will assume that
