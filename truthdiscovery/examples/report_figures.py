@@ -212,6 +212,7 @@ class ExampleFigureCreator:
         ctx.paint()
         surface.write_to_png(outfile)
 
+
 if __name__ == "__main__":
     outdir = None
     try:
