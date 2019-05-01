@@ -8,15 +8,23 @@ import sys
 
 import cairo
 
-from truthdiscovery import Dataset, GraphRenderer, PlainColourScheme
+from truthdiscovery import (
+    Dataset,
+    GraphRenderer,
+    PlainColourScheme,
+    Result,
+    ResultsGradientColourScheme
+)
 
 
 class ReportRenderer(GraphRenderer):
     def __init__(self, *args, var_labels=False, **kwargs):
+        # Set defaults: these may get overridden in super constructor from
+        # kwargs
+        kwargs.setdefault("colours", PlainColourScheme())
+        kwargs.setdefault("font_size", 30)
         super().__init__(*args, **kwargs)
         self.var_labels = var_labels
-        self.colours = PlainColourScheme()
-        self.font_size = 30
 
     def get_var_label(self, var_id):
         if self.var_labels:
@@ -121,6 +129,45 @@ class ExampleFigureCreator:
             ("V", "Q", "D")
         ))
         renderer = ReportRenderer(var_labels=True)
+        renderer.render(dataset, outfile)
+
+    @example
+    def visualisation_example(self, outfile):
+        dataset = Dataset((
+            ("source 1", "var 1", "7"),
+            ("source 2", "var 1", "7"),
+            ("source 3", "var 1", "8"),
+            ("source 4", "var 1", "7"),
+            ("source 5", "var 1", "43"),
+
+            ("source 1", "var 2", "dark red"),
+            ("source 2", "var 2", "green"),
+            ("source 3", "var 2", "red"),
+            ("source 4", "var 2", "dark red"),
+            ("source 5", "var 2", "green")
+        ))
+        results = Result(
+            trust={
+                "source 1": 1.0,
+                "source 2": 0.5,
+                "source 3": 0.5,
+                "source 4": 0.75,
+                "source 5": 0.1
+            },
+            belief={
+                "var 1": {
+                    "7": 0.9, "8": 0.3, "43": 0.01
+                },
+                "var 2": {
+                    "green": 0.7, "red": 0.9, "dark red": 0.93
+                }
+            },
+            time_taken=None
+        )
+        colours = ResultsGradientColourScheme(results)
+        renderer = ReportRenderer(
+            var_labels=True, colours=colours, font_size=18
+        )
         renderer.render(dataset, outfile)
 
     @example
