@@ -141,9 +141,10 @@ class TrustDistExperiment(Experiment):
             )
 
         ax.set_title(
-            "Source trust distribution experiment ({} sources, {} variables, "
-            "{} domain values)"
+            "Source trust distribution experiment\n({} sources, {} variables, "
+            "{} claim probability, {} domain values)"
             .format(cls.num_sources, cls.synth_params["num_variables"],
+                    cls.synth_params["claim_probability"],
                     cls.synth_params["domain_size"])
         )
         ax.set_xlabel("Algorithm")
@@ -180,7 +181,7 @@ class ClaimDensityExperiment(Experiment):
             ax.plot(xs, ys, "x-", label=alg, linewidth=3)
 
         ax.set_title(
-            "Claim probability experiment ({} sources, {} variables, {} "
+            "Claim probability experiment\n({} sources, {} variables, {} "
             "domain values)"
             .format(100, cls.synth_params["num_variables"],
                     cls.synth_params["domain_size"])
@@ -215,7 +216,7 @@ class DomainSizeExperiment(Experiment):
             ax.plot(xs, ys, "x-", label=alg, linewidth=3)
 
         ax.set_title(
-            "Domain size experiment ({} sources, {} variables, {} "
+            "Domain size experiment\n({} sources, {} variables, {} "
             "claim probability)"
             .format(100, cls.synth_params["num_variables"],
                     cls.synth_params["claim_probability"])
