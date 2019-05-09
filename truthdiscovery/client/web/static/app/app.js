@@ -185,7 +185,7 @@ angular.
                     "entries": [
                         [1, null, 3, 4],
                         [2, 2, null, null],
-                        [null, null, 7, null],
+                        [null, null, 5, 2],
                         [1, 2, 5, null]
                     ],
                     "description": "A typical dataset with a mixture of " +
