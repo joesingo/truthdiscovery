@@ -97,18 +97,15 @@ def plot_results(timings):
     vary_sources_ax, vary_vars_ax = axes
 
     # Set titles and axis labels
-    fig.suptitle(
-        "Run time of algorithms on synthetic datasets of increasing size"
-    )
     vary_sources_ax.set_title(
-        "Run time as number of sources increases (number of variables fixed "
-        "at {})".format(timings["fixed_size"])
+        "Increasing number of sources\n(number of variables fixed at {})"
+        .format(timings["fixed_size"])
     )
     vary_sources_ax.set_xlabel("Number of sources")
     vary_sources_ax.set_ylabel("Run time (seconds)")
     vary_vars_ax.set_title(
-        "Run time as number of variables increases (number of sources fixed "
-        "at {})".format(timings["fixed_size"])
+        "Increasing number of variables\n(number of sources fixed at {})"
+        .format(timings["fixed_size"])
     )
     vary_vars_ax.set_xlabel("Number of variables")
     vary_vars_ax.set_ylabel("Run time (seconds)")

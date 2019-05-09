@@ -43,7 +43,7 @@ def main(csv_file):
         "variables)".format(d=sup.data)
     )
     ax.set_xlabel("Iteration number")
-    ax.set_ylabel("$\ell_2$ distance between old and new trust (log scale)")
+    ax.set_ylabel(r"$\ell_2$ distance between old and new trust (log scale)")
 
     # map algorithm names to list of distances over time
     distances = {}
