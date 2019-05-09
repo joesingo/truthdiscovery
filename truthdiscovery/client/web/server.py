@@ -223,8 +223,10 @@ def get_flask_app():
 
 
 def run_debug_server():  # pragma: no cover
-    app = get_flask_app()
     app.run(host="0.0.0.0", debug=True)
+
+
+app = get_flask_app()
 
 
 if __name__ == "__main__":  # pragma: no cover
