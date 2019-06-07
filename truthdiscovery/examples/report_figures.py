@@ -259,6 +259,19 @@ class ExampleFigureCreator:
         ctx.paint()
         surface.write_to_png(outfile)
 
+    @example
+    def viva_network_example(self, outfile):
+        dataset = Dataset((
+            ("S", "O", "A"),
+            ("T", "O", "B"),
+            ("U", "O", "B"),
+            ("T", "P", "C"),
+            ("U", "P", "D"),
+            ("V", "P", "D")
+        ))
+        renderer = ReportRenderer(var_labels=True)
+        renderer.render(dataset, outfile)
+
 
 if __name__ == "__main__":
     outdir = None
