@@ -240,12 +240,12 @@ class ExampleFigureCreator:
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
         ctx = cairo.Context(surface)
         # Fill surface with background colour
-        ctx.set_source_rgb(*renderer.colours.get_background_colour())
+        ctx.set_source_rgba(*renderer.colours.get_background_colour())
         ctx.rectangle(0, 0, w, h)
         ctx.fill()
 
         # Draw vertical line separating the networks
-        ctx.set_source_rgb(0.5, 0.5, 0.5)
+        ctx.set_source_rgba(0.5, 0.5, 0.5)
         ctx.set_line_width(3)
         ctx.move_to(w / 2, 0)
         ctx.line_to(w / 2, h)

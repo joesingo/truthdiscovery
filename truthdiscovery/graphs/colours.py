@@ -110,8 +110,11 @@ class ResultsGradientColourScheme(GraphColourScheme):
 
 class PlainColourScheme(GraphColourScheme):
     """
-    Plain black and white colour scheme
+    Plain black and white colour scheme with transparent background
     """
+    def get_background_colour(self):
+        return (1, 1, 1, 0)
+
     def get_node_colour(self, *args):
         return (1, 1, 1), (0, 0, 0), (0, 0, 0)
 

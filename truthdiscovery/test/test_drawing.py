@@ -440,9 +440,9 @@ class TestColourSchemes:
         # Edges should be the same colour as node borders
         edge = cs.get_edge_colour()
         assert edge == source[2]
-        # Background should be the same as node interiors
+        # Background should be transparent
         background = cs.get_background_colour()
-        assert background == source[0]
+        assert background[3] == 0
 
     def test_results_based_colours(self):
         results = Result(

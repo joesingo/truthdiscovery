@@ -18,7 +18,7 @@ class PngBackend(BaseBackend):
         ctx = cairo.Context(surface)
 
         for ent in entities:
-            ctx.set_source_rgb(*ent.colour)
+            ctx.set_source_rgba(*ent.colour)
             if isinstance(ent, Rectangle):
                 ctx.rectangle(ent.x, ent.y, ent.width, ent.height)
                 ctx.fill()
@@ -48,7 +48,7 @@ class PngBackend(BaseBackend):
         # will go, so that the label does not clash with background/node border
         if ext.width > max_width:
             r, g, b = label.overflow_background
-            ctx.set_source_rgb(*label.overflow_background)
+            ctx.set_source_rgba(*label.overflow_background)
             # Try and have label an 'opposite' colour for label to avoid
             # clashing
             label.colour = (1 - r, 1 - g, 1 - b)
@@ -62,6 +62,6 @@ class PngBackend(BaseBackend):
             )
             ctx.fill()
 
-        ctx.set_source_rgb(*label.colour)
+        ctx.set_source_rgba(*label.colour)
         ctx.move_to(label_lhs, label.y - ext.y_bearing / 2)
         ctx.show_text(label.text)
