@@ -74,6 +74,24 @@ class TestDataset:
         err_msg = "Source 's1' claimed more than one value for variable 'x'"
         assert err_msg in str(excinfo.value)
 
+    def test_num_connected_components(self):
+        ds1 = Dataset([
+            ("s1", "x", "a"),
+            ("s2", "x", "b"),
+            ("s3", "x", "a"),
+        ])
+        assert ds1.num_connected_components() == 1
+
+        ds2 = Dataset([
+            ("s1", "x", "a"),
+            ("s2", "x", "b"),
+            ("s3", "x", "a"),
+            ("s4", "y", "a"),
+            ("s5", "z", "a"),
+            ("s6", "z", "a")
+        ])
+        assert ds2.num_connected_components() == 3
+
 
 class TestIDMapping:
     def test_insert(self):

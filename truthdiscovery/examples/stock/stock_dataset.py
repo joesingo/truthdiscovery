@@ -115,6 +115,14 @@ def main():
         dataset.num_sources, dataset.num_claims, dataset.num_variables
     ))
 
+    start = time.time()
+    print("calculating connected components...")
+    components = dataset.num_connected_components()
+    end = time.time()
+    print("  calculated in {:.3f} seconds: {} components".format(
+        end - start, components
+    ))
+
     algorithms = [
         MajorityVoting(), Sums(), AverageLog(), Investment(),
         PooledInvestment(), TruthFinder()

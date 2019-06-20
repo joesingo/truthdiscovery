@@ -1,6 +1,7 @@
 import itertools
 
 from bidict import bidict
+import numpy as np
 import scipy.sparse
 
 
@@ -191,3 +192,32 @@ class Dataset:
             self.source_ids.inverse[i]: trust_val
             for i, trust_val in enumerate(trust)
         }
+
+    def num_connected_components(self):
+        """
+        :return: the number of connected components in the graph representation
+                 of the dataset; that is, where sources, variables and claims
+                 are nodes, and edges connect sources to their claims and
+                 claims to their associated variables
+        """
+        # In this implementation claims must be connected to at least one
+        # source, and variables to at least one claim (and in turn to a
+        # source), so each connected components contains at least one source.
+        # Therefore we may consider which sources are connected to each other,
+        # and count the number of partitions.
+        #
+        # Also note that connected sources are always connected via variables,
+        # so we can iterate over sources and keep track of which variables have
+        # been seen to determine whether sources are connected
+        seen_vars = set([])
+        comps = 0
+        for row in self.sc:
+            # Work out set of variable IDs for which this source makes a claim
+            var_ids = {self.claim_ids.inverse[j][0] for j in row.nonzero()[1]}
+            # If var_ids does not intersect with the variables seen so far,
+            # there is no path in the graph from this sources to a source we
+            # have already considered, so we are in a new component
+            if not seen_vars.intersection(var_ids):
+                comps += 1
+            seen_vars.update(var_ids)
+        return comps
