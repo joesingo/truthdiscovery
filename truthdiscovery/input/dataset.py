@@ -47,10 +47,14 @@ class Dataset:
     claim_ids = None
     val_hashes = None
 
-    def __init__(self, triples, implication_function=None):
+    def __init__(self, triples, allow_multiple=False,
+                 implication_function=None):
         """
-        :param triples: iterable of ``(source_label, var_label, value)`` as
-                        described above
+        :param triples:        iterable of ``(source_label, var_label, value)``
+                               as described above
+        :param allow_multiple: if a source makes multiple claims for the same
+                               variable, use the first value instead of raising
+                               ValueError
         :param implication_function: (optional) function to compute implication
                                      values between claims (see above). This
                                      should take ``(var, val1, val2)`` as
@@ -83,13 +87,16 @@ class Dataset:
             var_id = self.var_ids.get_id(var_label)
             val_hash = self.val_hashes.get_id(val)
 
-            if (s_id, var_id) in source_var_pairs:
+            if (s_id, var_id) not in source_var_pairs:
+                source_var_pairs[(s_id, var_id)] = True
+            elif allow_multiple:
+                continue
+            else:
                 raise ValueError(
                     "Source '{}' claimed more than one value for variable '{}'"
                     .format(self.source_ids.inverse[s_id],
                             self.var_ids.inverse[var_id])
                 )
-            source_var_pairs[(s_id, var_id)] = True
 
             claim = (var_id, val_hash)
             claim_id = self.claim_ids.get_id(claim)
@@ -212,7 +219,7 @@ class Dataset:
         seen_vars = set([])
         comps = 0
         for row in self.sc:
-            # Work out set of variable IDs for which this source makes a claim
+            # Work out set of IDs for variables this source claims on
             var_ids = {self.claim_ids.inverse[j][0] for j in row.nonzero()[1]}
             # If var_ids does not intersect with the variables seen so far,
             # there is no path in the graph from this sources to a source we

@@ -74,6 +74,20 @@ class TestDataset:
         err_msg = "Source 's1' claimed more than one value for variable 'x'"
         assert err_msg in str(excinfo.value)
 
+        # Allow multiple claims; first one should be used
+        data = Dataset((
+            ("s1", "x", 5),
+            ("s2", "x", 6),
+            ("s3", "x", 5),
+            ("s3", "x", 6),
+        ), allow_multiple=True)
+        exp_sc = np.array([
+            [1, 0],
+            [0, 1],
+            [1, 0]
+        ])
+        assert np.array_equal(data.sc.toarray(), exp_sc)
+
     def test_num_connected_components(self):
         ds1 = Dataset([
             ("s1", "x", "a"),
