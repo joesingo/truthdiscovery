@@ -64,6 +64,14 @@ class TestBaseClient(ClientTestsBase):
         assert l2_with_limit.threshold == 0.234
         assert l2_with_limit.limit == 9
 
+        # Should be too many iterations
+        with pytest.raises(ValueError):
+            fixed_2000 = BaseClient().get_iterator("fixed-2000", max_limit=1999)
+        with pytest.raises(ValueError):
+            conv_2000 = BaseClient().get_iterator(
+                "l2-convergence-1-limit-2000", max_limit=1999
+            )
+
         invalid_it_strings = (
             "fixed",
             "fixed-",
@@ -845,4 +853,15 @@ class TestWebClient(ClientTestsBase):
         resp = test_client.get("/run/", query_string=data)
         assert resp.status_code == 500
         err_msg = "Did not converge in 25 iterations"
+        assert resp.json == {"ok": False, "error": err_msg}
+
+    def test_too_many_iterations(self, test_client):
+        data = {
+            "algorithm": "sums",
+            "matrix": "1,2,3\n4,5,6",
+            "parameters": "iterator=fixed-1000"
+        }
+        resp = test_client.get("/run/", query_string=data)
+        assert resp.status_code == 400
+        err_msg = "Cannot perform more than 200 iterations"
         assert resp.json == {"ok": False, "error": err_msg}

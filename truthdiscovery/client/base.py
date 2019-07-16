@@ -83,7 +83,7 @@ class BaseClient:
         type_convertor = type_mapping.get(param, float)
         return (param, type_convertor(value))
 
-    def get_iterator(self, it_string):
+    def get_iterator(self, it_string, max_limit=200):
         """
         Parse an :any:`Iterator` object from a string representation
         """
@@ -94,7 +94,12 @@ class BaseClient:
         )
         fixed_match = fixed_regex.match(it_string)
         if fixed_match:
-            return FixedIterator(limit=int(fixed_match.group("limit")))
+            limit = int(fixed_match.group("limit"))
+            if limit > max_limit:
+                raise ValueError(
+                    "Cannot perform more than {} iterations".format(max_limit)
+                )
+            return FixedIterator(limit=limit)
 
         convergence_match = convergence_regex.match(it_string)
         if convergence_match:
@@ -106,9 +111,14 @@ class BaseClient:
                     "invalid distance measure '{}'".format(measure_str)
                 )
             threshold = float(convergence_match.group("threshold"))
-            limit = None
+            limit = max_limit
             if convergence_match.group("limit") is not None:
                 limit = int(convergence_match.group("limit"))
+                if limit > max_limit:
+                    raise ValueError(
+                        "Upper iteration limit cannot exceed {}"
+                        .format(max_limit)
+                    )
             return ConvergenceIterator(measure, threshold, limit)
 
         raise ValueError(
