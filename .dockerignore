@@ -1,6 +1,9 @@
+.git
 venv
 .coverage
 doc
 htmlcov
 **/*.pdf
 **/*.zip
+**/*.pyc
+truthdiscovery/examples/real-world-datasets
