@@ -31,7 +31,8 @@ to work in a [virtualenv](https://docs.python.org/3/tutorial/venv.html) to
 avoid conflicts with globally-installed packages:
 
 ```
-$ cd <repo root>
+$ git clone <this repo>
+$ cd truthdiscovery
 $ python3 -m venv venv
 $ source venv/bin/activate
 $ pip install -e .
