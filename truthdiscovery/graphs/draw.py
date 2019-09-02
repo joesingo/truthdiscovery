@@ -18,15 +18,13 @@ class GraphRenderer:
     Create an image that shows a graph representation of a truth discovery
     dataset
     """
-    def __init__(self, width=800, height=600, node_size=0.8, line_width=3,
-                 node_border_width=3, font_size=15, colours=None,
-                 backend=None):
+    def __init__(self, width=800, node_radius=50, spacing=20, line_width=3,
+                 node_border_width=3, font_size=15, colours=None, backend=None):
         """
-        :param width:             width of image in pixels
-        :param height:            height of image in pixels
-        :param node_size:         number in [0, 1] to control node size. 1 is
-                                  maximum size -- nodes will be touching in
-                                  this case
+        :param width:             width of the image in pixels
+        :param node_radius:       node radius in pixels
+        :param spacing:           minimum vertical spacing between nodes in
+                                  pixels
         :param node_border_width: width in pixels of node border (use None or 0
                                   for no border)
         :param line_width:        with in pixels for edges between nodes
@@ -36,39 +34,32 @@ class GraphRenderer:
         :param backend:           a :any:`BaseBackend` object (default is PNG)
         """
         self.width = width
-        self.height = height
-        self.node_size = node_size
+        # Height is calculated based on the number of nodes, so is set later
+        self.height = None
+
+        self.node_radius = node_radius
+        self.spacing = spacing
         self.node_border_width = node_border_width or 0
         self.line_width = line_width
         self.font_size = font_size
         self.colours = colours or GraphColourScheme()
         self.backend = backend or PngBackend()
-        if self.node_size <= 0 or self.node_size > 1:
-            raise ValueError("Node size must be in (0, 1]")
 
         self.dataset = None
-        # Radius is set when dataset is given, since it depends on the number
-        # of nodes
-        self.node_radius = None
-
-        # Distance between image corners and centres of corner nodes. It is
-        # calculated such that nodes will meet the corners exactly when
-        # node_size is 1. Depends on radius, so not set here
-        self.offset = None
 
     def _get_y_coord(self, index, num_nodes):
         if num_nodes > 1:
-            available_height = self.height - 2 * self.offset
-            return self.offset + available_height * index / (num_nodes - 1)
+            available_height = self.height - 2 * self.node_radius
+            return self.node_radius + available_height * index / (num_nodes - 1)
         return self.height / 2
 
     def get_source_coords(self, index):
         y = self._get_y_coord(index, self.dataset.num_sources)
-        return (self.offset, y)
+        return (self.node_radius, y)
 
     def get_var_coords(self, index):
         y = self._get_y_coord(index, self.dataset.num_variables)
-        return (self.width - self.offset, y)
+        return (self.width - self.node_radius, y)
 
     def get_claim_coords(self, index):
         y = self._get_y_coord(index, self.dataset.num_claims)
@@ -86,6 +77,16 @@ class GraphRenderer:
             val=self.dataset.val_hashes.inverse[val_hash]
         )
 
+    def get_height(self, dataset):
+        max_vertical_nodes = max(
+            dataset.num_sources,
+            dataset.num_claims,
+            dataset.num_variables
+        )
+        nodes_px = max_vertical_nodes * 2 * self.node_radius
+        spacing_px = (max_vertical_nodes - 1) * self.spacing
+        return int(nodes_px + spacing_px)
+
     def render(self, dataset, outfile, animation_progress=None):
         """
         :param dataset:            a :any:`Dataset` object
@@ -94,6 +95,7 @@ class GraphRenderer:
                                    display how far through an animation we are
                                    (None if not animating)
         """
+        self.height = self.get_height(dataset)
         entities = self.compile(dataset, animation_progress=animation_progress)
         self.backend.draw_entities(entities, outfile, self.width, self.height)
 
@@ -104,22 +106,6 @@ class GraphRenderer:
         """
         yield from self.compile_background()
         self.dataset = dataset
-
-        # Set node radius: work out maximum pixels that can be allocated to
-        # each node without vertical or horizontal overlapping - radius is a
-        # proportion of this maximum size
-        max_vertical_nodes = max(
-            self.dataset.num_sources,
-            self.dataset.num_claims,
-            self.dataset.num_variables
-        )
-        max_px_per_node = min(
-            self.height / max_vertical_nodes,
-            self.width / 3  # there are 3 columns: sources, claims, variables
-        )
-        self.node_radius = max_px_per_node * self.node_size / 2
-        # Set offset, which depends on radius
-        self.offset = max_px_per_node / 2
 
         # Get labels for nodes
         source_labels = {}
