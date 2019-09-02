@@ -57,8 +57,8 @@ class GraphRenderer:
         y = self._get_y_coord(index, self.dataset.num_sources)
         return (self.node_radius, y)
 
-    def get_var_coords(self, index):
-        y = self._get_y_coord(index, self.dataset.num_variables)
+    def get_var_coords(self, index, claim_y_coords):
+        y = np.mean(claim_y_coords)
         return (self.width - self.node_radius, y)
 
     def get_claim_coords(self, index):
@@ -126,8 +126,6 @@ class GraphRenderer:
         claim_coords = {}
         for i, s_id in enumerate(_sort_keys_by_value(source_labels)):
             source_coords[s_id] = self.get_source_coords(i)
-        for i, var_id in enumerate(_sort_keys_by_value(var_labels)):
-            var_coords[var_id] = self.get_var_coords(i)
         # For claims, we sort first by variable label and then by claim label:
         # this ensures that claims for the same variable are all next to each
         # other
@@ -137,6 +135,14 @@ class GraphRenderer:
             claim_sort_keys[claim_id] = sort_key
         for i, claim_id in enumerate(_sort_keys_by_value(claim_sort_keys)):
             claim_coords[claim_id] = self.get_claim_coords(i)
+        # For variables, average use y-coords of the associated claims
+        for i, var_id in enumerate(_sort_keys_by_value(var_labels)):
+            claim_ys = [
+                claim_coords[c_id][1]
+                for (v_id, _), c_id in self.dataset.claim_ids.items()
+                if v_id == var_id
+            ]
+            var_coords[var_id] = self.get_var_coords(i, claim_ys)
 
         # Draw edges between sources and claims
         for s_id, claim_id in np.transpose(np.nonzero(self.dataset.sc)):
