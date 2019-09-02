@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 
 from truthdiscovery.graphs.backends import PngBackend
@@ -234,6 +236,28 @@ class GraphRenderer:
             x=start_x, y=start_y, colour=colour, end_x=end_x, end_y=end_y,
             width=self.line_width
         )
+        # Yield lines for arrow head
+        arrow_size = 15
+        arrow_angle = math.pi / 7
+        edge_inclination = math.atan2(end_y - start_y, end_x - start_x)
+        # Calculate the point where edge crosses the node circle
+        vec = np.array([-self.node_radius, 0])
+        vec = self.rotation_matrix(edge_inclination) @ vec
+        node_crossing = np.array(end) + vec
+
+        for s in (-1, 1):
+            # Here we consider the vector that starts at `node_crossing` and
+            # takes us along the top/bottom arrow head. Start by imagining
+            # arrow head is horizontal, then rotate to get the desired angle
+            # wrt the edge
+            displacement = np.array([-arrow_size, 0])
+            angle = s * arrow_angle + edge_inclination
+            displacement = self.rotation_matrix(angle) @ displacement
+            arrow_end = node_crossing + displacement
+            yield Line(
+                x=node_crossing[0], y=node_crossing[1], end_x=arrow_end[0],
+                end_y=arrow_end[1], width=self.line_width, colour=colour
+            )
 
     def compile_animation_progress_rect(self, progress):
         """
@@ -252,6 +276,13 @@ class GraphRenderer:
             width=self.width * progress,
             height=size
         )
+
+    @classmethod
+    def rotation_matrix(cls, angle):
+        return np.array([
+            [np.cos(angle), -np.sin(angle)],
+            [np.sin(angle), np.cos(angle)],
+        ])
 
 
 class MatrixDatasetGraphRenderer(GraphRenderer):
