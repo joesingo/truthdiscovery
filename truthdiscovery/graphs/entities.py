@@ -23,11 +23,13 @@ class Circle(Entity):
 
 
 class Line(Entity):
-    def __init__(self, end_x=None, end_y=None, width=None, **kwargs):
+    def __init__(self, end_x=None, end_y=None, width=None, dashed=False,
+                 **kwargs):
         super().__init__(**kwargs)
         self.end_x = end_x
         self.end_y = end_y
         self.width = width
+        self.dashed = dashed
 
 
 class Label(Entity):

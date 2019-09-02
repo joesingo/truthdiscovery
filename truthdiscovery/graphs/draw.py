@@ -148,15 +148,24 @@ class GraphRenderer:
 
         # Draw edges between sources and claims
         for s_id, claim_id in np.transpose(np.nonzero(self.dataset.sc)):
+            _, val_hash = self.dataset.claim_ids.inverse[claim_id]
+            hint = (
+                self.dataset.source_ids.inverse[s_id],     # source label
+                self.dataset.val_hashes.inverse[val_hash]  # value
+            )
             yield from self.compile_edge(
-                source_coords[s_id], claim_coords[claim_id]
+                source_coords[s_id], claim_coords[claim_id], hint
             )
 
         # Draw claims, variables and sources
         for (var_id, val_hash), claim_id in self.dataset.claim_ids.items():
             # Draw edge from claim to variable
+            hint = (
+                self.dataset.val_hashes.inverse[val_hash],  # value
+                self.dataset.var_ids.inverse[var_id]        # variable name
+            )
             yield from self.compile_edge(
-                claim_coords[claim_id], var_coords[var_id]
+                claim_coords[claim_id], var_coords[var_id], hint
             )
 
             # Draw claim
@@ -228,13 +237,13 @@ class GraphRenderer:
             label=label
         )
 
-    def compile_edge(self, start, end):
+    def compile_edge(self, start, end, edge_hints):
         start_x, start_y = start
         end_x, end_y = end
         colour = self.colours.get_edge_colour()
         yield Line(
             x=start_x, y=start_y, colour=colour, end_x=end_x, end_y=end_y,
-            width=self.line_width
+            width=self.line_width, dashed=self.is_dashed(edge_hints)
         )
         # Yield lines for arrow head
         arrow_size = 15
@@ -276,6 +285,14 @@ class GraphRenderer:
             width=self.width * progress,
             height=size
         )
+
+    def is_dashed(self, edge_hints):
+        """
+        Return a bool indicating whether a given edge should be dashed
+
+        :param edge_hints: forwarded hints about an edge
+        """
+        return False
 
     @classmethod
     def rotation_matrix(cls, angle):

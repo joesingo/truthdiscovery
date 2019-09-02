@@ -30,6 +30,10 @@ class PngBackend(BaseBackend):
                     self.draw_label(ctx, ent.label, 2 * ent.radius, width)
 
             elif isinstance(ent, Line):
+                if ent.dashed:
+                    ctx.set_dash([10])  # TODO: configure dash size somehow
+                else:
+                    ctx.set_dash([])
                 ctx.set_line_width(ent.width)
                 ctx.move_to(ent.x, ent.y)
                 ctx.line_to(ent.end_x, ent.end_y)
