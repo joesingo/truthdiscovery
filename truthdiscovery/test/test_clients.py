@@ -194,7 +194,7 @@ class TestCommandLineClient(ClientTestsBase):
         self.run(
             "run", "-a", "average_log", "-f", csv_dataset
         )
-        got_results = yaml.load(capsys.readouterr().out)
+        got_results = yaml.safe_load(capsys.readouterr().out)
         assert "average_log" in got_results
         alg_results = got_results["average_log"]
         assert isinstance(alg_results, dict)
@@ -216,7 +216,7 @@ class TestCommandLineClient(ClientTestsBase):
             "-p", "iterator=fixed-11", "g=1.16"
         )
         outerr = capsys.readouterr()
-        got_results = yaml.load(outerr.out)
+        got_results = yaml.safe_load(outerr.out)
 
         assert set(got_results.keys()) == {"investment", "sums", "voting"}
         assert got_results["investment"]["iterations"] == 11
@@ -283,7 +283,7 @@ class TestCommandLineClient(ClientTestsBase):
         assert isinstance(alg1.iterator, FixedIterator)
         assert alg1.iterator.limit == 123
         self.run(*raw_args1)
-        results = yaml.load(capsys.readouterr().out)["sums"]
+        results = yaml.safe_load(capsys.readouterr().out)["sums"]
         assert results["iterations"] == 123
 
         # Convergence iterator
@@ -347,7 +347,7 @@ class TestCommandLineClient(ClientTestsBase):
         self.run(
             "run", "-a", "sums", "-f", csv_dataset, "--sources", "0", "3",
         )
-        results1 = yaml.load(capsys.readouterr().out)["sums"]
+        results1 = yaml.safe_load(capsys.readouterr().out)["sums"]
         assert set(results1["trust"].keys()) == {0, 3}
         assert set(results1["belief"].keys()) == {0, 1, 2, 3}
 
@@ -356,7 +356,7 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "-a", "sums", "-f", csv_dataset, "--sources", "0", "3",
             "--variables", "1", "2"
         )
-        results2 = yaml.load(capsys.readouterr().out)["sums"]
+        results2 = yaml.safe_load(capsys.readouterr().out)["sums"]
         assert set(results2["trust"].keys()) == {0, 3}
         assert set(results2["belief"].keys()) == {1, 2}
 
@@ -365,7 +365,7 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "-a", "sums", "-f", csv_dataset, "--sources", "1",
             "--variables", "0"
         )
-        results3 = yaml.load(capsys.readouterr().out)["sums"]
+        results3 = yaml.safe_load(capsys.readouterr().out)["sums"]
         assert set(results3["trust"].keys()) == {1}
         assert set(results3["belief"].keys()) == {0}
 
@@ -374,14 +374,14 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "-a", "sums", "-f", csv_dataset, "--sources", "3", "1000",
             "--variables", "499", "666"
         )
-        results3 = yaml.load(capsys.readouterr().out)["sums"]
+        results3 = yaml.safe_load(capsys.readouterr().out)["sums"]
         assert set(results3["trust"].keys()) == {3}
         # We didn't give any valid variables: belief should be empty
         assert results3["belief"] == {}
 
     def test_default_output(self, csv_dataset, capsys):
         self.run("run", "-a", "voting", "-f", csv_dataset)
-        results = yaml.load(capsys.readouterr().out)["voting"]
+        results = yaml.safe_load(capsys.readouterr().out)["voting"]
         assert set(results.keys()) == {
             "time", "iterations", "trust", "belief"
         }
@@ -389,21 +389,21 @@ class TestCommandLineClient(ClientTestsBase):
 
     def test_custom_output(self, csv_fileobj, csv_dataset, capsys):
         self.run("run", "-a", "sums", "-f", csv_dataset, "-o", "time")
-        results = yaml.load(capsys.readouterr().out)["sums"]
+        results = yaml.safe_load(capsys.readouterr().out)["sums"]
         assert set(results.keys()) == {"time"}
 
         self.run(
             "run", "-a", "sums", "-f", csv_dataset, "-o", "time",
             "iterations"
         )
-        results = yaml.load(capsys.readouterr().out)["sums"]
+        results = yaml.safe_load(capsys.readouterr().out)["sums"]
         assert set(results.keys()) == {"time", "iterations"}
 
         self.run(
             "run", "-a", "sums", "-f", csv_dataset, "-o", "trust",
             "trust_stats"
         )
-        results = yaml.load(capsys.readouterr().out)["sums"]
+        results = yaml.safe_load(capsys.readouterr().out)["sums"]
         assert set(results.keys()) == {"trust", "trust_stats"}
         exp_mean, exp_stddev = (Sums().run(MatrixDataset.from_csv(csv_fileobj))
                                 .get_trust_stats())
@@ -416,7 +416,7 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "-a", "voting", "-f", csv_dataset, "--output",
             "most_believed_values"
         )
-        results = yaml.load(capsys.readouterr().out)["voting"]
+        results = yaml.safe_load(capsys.readouterr().out)["voting"]
         assert results == {
             "most_believed_values": {0: [1, 2, 3], 1: [2], 2: [1, 3], 3: [2]}
         }
@@ -425,7 +425,7 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "-a", "voting", "-f", csv_dataset, "-o",
             "most_believed_values", "--variables", "0", "3"
         )
-        results = yaml.load(capsys.readouterr().out)["voting"]
+        results = yaml.safe_load(capsys.readouterr().out)["voting"]
         assert "belief" not in results
         assert "most_believed_values" in results
         assert results["most_believed_values"] == {
@@ -435,7 +435,7 @@ class TestCommandLineClient(ClientTestsBase):
 
     def test_belief_stats(self, csv_dataset, csv_fileobj, capsys):
         self.run("run", "-a", "sums", "-f", csv_dataset, "-o", "belief_stats")
-        results = yaml.load(capsys.readouterr().out)["sums"]
+        results = yaml.safe_load(capsys.readouterr().out)["sums"]
         assert set(results.keys()) == {"belief_stats"}
         exp_belief_stats = (Sums().run(MatrixDataset.from_csv(csv_fileobj))
                             .get_belief_stats())
@@ -490,7 +490,7 @@ class TestCommandLineClient(ClientTestsBase):
             "run", "-a", "voting", "-f", csv_dataset, "--supervised", "-o",
             "trust", "belief", "accuracy"
         )
-        results = yaml.load(capsys.readouterr().out)["voting"]
+        results = yaml.safe_load(capsys.readouterr().out)["voting"]
         assert results["trust"] == {0: 1, 1: 1, 2: 1}
         assert results["belief"] == {
             0: {2: 1, 3: 1},
@@ -517,7 +517,7 @@ class TestCommandLineClient(ClientTestsBase):
             "1,2,3,4",
         )))
         self.run("run", "-a", "voting", "-f", str(ds), "-s", "-o", "accuracy")
-        results = yaml.load(capsys.readouterr().out)["voting"]
+        results = yaml.safe_load(capsys.readouterr().out)["voting"]
         assert results["accuracy"] is None
 
     def test_graph_generation(self, client, csv_dataset, capsys, tmpdir):
