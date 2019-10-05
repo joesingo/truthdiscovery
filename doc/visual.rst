@@ -46,10 +46,12 @@ belief scores. This is done with the :any:`ResultsGradientColourScheme` colour
 scheme: ::
 
     from truthdiscovery import Sums, GraphRenderer, ResultsGradientColourScheme
-
+    # create `mydata` as above...
     results = Sums().run(mydata)
     colour_scheme = ResultsGradientColourScheme(results)
     renderer = GraphRenderer(colours=colour_scheme)
+    with open("/tmp/my-dataset-with-results.png", "wb") as imgfile:
+        renderer.render(mydata, imgfile)
 
 .. figure:: images/example_graph_dataset_results_based.png
 

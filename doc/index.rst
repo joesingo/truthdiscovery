@@ -1,5 +1,5 @@
-Welcome to truthdiscovery's documentation!
-==========================================
+truthdiscovery
+==============
 
 .. toctree::
    :maxdepth: 2
