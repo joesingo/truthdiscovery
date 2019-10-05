@@ -63,7 +63,7 @@ REQUIREMENTS = [
 
 setup(
     name="truthdiscovery",
-    version="1.0.2",
+    version="1.0.3",
     description=("Python3 library implementing a selection of truth discovery "
                  "algorithms"),
     long_description=LONG_DESCRIPTION,
