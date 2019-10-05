@@ -246,7 +246,7 @@ class GraphRenderer:
             width=self.line_width, dashed=self.is_dashed(edge_hints)
         )
         # Yield lines for arrow head
-        arrow_size = 15
+        arrow_size = 10
         arrow_angle = math.pi / 7
         edge_inclination = math.atan2(end_y - start_y, end_x - start_x)
         # Calculate the point where edge crosses the node circle
