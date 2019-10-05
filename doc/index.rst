@@ -1,5 +1,11 @@
 truthdiscovery
 ==============
+.. image:: https://travis-ci.com/joesingo/truthdiscovery.svg?branch=master
+    :target: https://travis-ci.com/joesingo/truthdiscovery
+
+.. image:: https://readthedocs.org/projects/truthdiscovery/badge/?version=latest
+    :target: https://truthdiscovery.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 .. toctree::
    :maxdepth: 2

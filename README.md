@@ -1,5 +1,8 @@
 # truthdiscovery
 
+[![Build Status](https://travis-ci.com/joesingo/truthdiscovery.svg?branch=master)](https://travis-ci.com/joesingo/truthdiscovery)
+[![Documentation Status](https://readthedocs.org/projects/truthdiscovery/badge/?version=latest)](https://truthdiscovery.readthedocs.io/en/latest/?badge=latest)
+
 `truthdiscovery` is a Python3 library that implements various truth discovery
 algorithms.
 
