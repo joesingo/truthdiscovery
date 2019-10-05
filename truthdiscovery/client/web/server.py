@@ -98,7 +98,7 @@ class WebClient(BaseClient):
         :return: a :any:`GraphRenderer` instance for graphs and animations
         """
         return MatrixDatasetGraphRenderer(
-            width=800, height=600, zero_indexed=False, colours=colours,
+            width=800, node_radius=40, zero_indexed=False, colours=colours,
             font_size=20, backend=JsonBackend()
         )
 

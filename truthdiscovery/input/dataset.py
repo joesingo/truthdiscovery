@@ -1,7 +1,6 @@
 import itertools
 
 from bidict import bidict
-import numpy as np
 import scipy.sparse
 
 

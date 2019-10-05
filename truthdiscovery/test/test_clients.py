@@ -66,7 +66,9 @@ class TestBaseClient(ClientTestsBase):
 
         # Should be too many iterations
         with pytest.raises(ValueError):
-            fixed_2000 = BaseClient().get_iterator("fixed-2000", max_limit=1999)
+            fixed_2000 = BaseClient().get_iterator(
+                "fixed-2000", max_limit=1999
+            )
         with pytest.raises(ValueError):
             conv_2000 = BaseClient().get_iterator(
                 "l2-convergence-1-limit-2000", max_limit=1999
@@ -538,13 +540,14 @@ class TestCommandLineClient(ClientTestsBase):
         rend1 = client.get_graph_renderer(
             self.get_parsed_args(
                 "graph", "-f", csv_dataset, "-o", str(outfile), "--width",
-                "200", "--height", "2500", "--font-size", "14", "--node-size",
-                "0.4", "--line-width", "9", "--node-border-width", "34",
+                "200", "--node-radius", "25", "--font-size", "14", "--spacing",
+                "4", "--line-width", "9", "--node-border-width", "34",
                 "--one-indexed"
             )
         )
         assert rend1.width == 200
-        assert rend1.height == 2500
+        assert rend1.node_radius == 25
+        assert rend1.spacing == 4
         assert rend1.font_size == 14
         assert rend1.line_width == 9
         assert rend1.node_border_width == 34
@@ -559,16 +562,8 @@ class TestCommandLineClient(ClientTestsBase):
             )
         )
         assert rend2.width == 200
-        assert rend2.height == 600
+        assert rend2.node_radius == 50
         assert rend2.zero_indexed
-
-        # Check we get an error with invalid params
-        with pytest.raises(SystemExit):
-            self.run(
-                "graph", "-f", csv_dataset, "-o", str(outfile), "--node-size",
-                "1.1"
-            )
-        assert "must be in (0, 1]" in capsys.readouterr().err
 
 
 class TestWebClient(ClientTestsBase):

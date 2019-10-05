@@ -68,16 +68,17 @@ class BaseTest:
 class TestRendering(BaseTest):
     def test_entity_positioning(self, dataset):
         cs = ExampleColourScheme()
-        rend = GraphRenderer(width=100, height=50, colours=cs)
+        rend = GraphRenderer(width=100, node_radius=10, spacing=14, colours=cs)
         ents = list(rend.compile(dataset))
 
         assert len(ents) == (
-            1        # background
-            + 4 * 2  # sources
-            + 6      # edges from sources to claims
-            + 4 * 2  # claims
-            + 4      # edges from claims to variables
-            + 3 * 2  # variables
+            1              # background
+            + 4 * 2        # sources
+            + 6            # edges from sources to claims
+            + 4 * 2        # claims
+            + 4            # edges from claims to variables
+            + 3 * 2        # variables
+            + 2 * (6 + 4)  # arrow heads
         )
 
         colours = ExampleColourScheme.colours
@@ -87,7 +88,10 @@ class TestRendering(BaseTest):
         assert bgs[0].x == 0
         assert bgs[0].y == 0
         assert bgs[0].width == 100
-        assert bgs[0].height == 50
+
+        # The max number of verical nodes is 4, so height should be
+        # 2*radius*4 + spacing*3
+        assert bgs[0].height == 2 * 10 * 4 + 14 * 3
 
         # Should be 4 sources, 4 claims, and 3 variables
         source_ents = [e for e in ents if e.colour == colours[NodeType.SOURCE]]
@@ -108,9 +112,10 @@ class TestRendering(BaseTest):
             assert isinstance(e, Circle)
 
         # There should be 6 edges from sources to claims, and 4 from claims to
-        # variables
+        # variables. For each edge there should be two lines for the arrow
+        # heads
         edge_ents = [e for e in ents if e.colour == colours["edge"]]
-        assert len(edge_ents) == 6 + 4
+        assert len(edge_ents) == (6 + 4) * 3
         for e in edge_ents:
             assert isinstance(e, Line)
 
@@ -119,7 +124,7 @@ class TestRendering(BaseTest):
         assert len(set(x for x, y in source_coords)) == 1
         # Check y positioning
         y_coords = sorted(y for x, y in source_coords)
-        assert y_coords == [6.25, 18.75, 31.25, 43.75]
+        assert y_coords == [10, 44, 78, 112]
 
     def test_node_ordering(self):
         # Construct a dataset where claim tuples are not sorted by source,
@@ -183,36 +188,18 @@ class TestRendering(BaseTest):
             ("source 1", "x", 1),
             ("source 2", "x", 1)
         ))
-        rend = GraphRenderer(colours=ExampleColourScheme())
+        rend = GraphRenderer(
+            node_radius=66, spacing=13, colours=ExampleColourScheme()
+        )
         # Check the positioning of nodes for the one-source dataset
         ents = list(rend.compile(one_source_dataset))
         colours = ExampleColourScheme.colours
         sources = [e for e in ents if e.colour == colours[NodeType.SOURCE]]
         assert len(sources) == 1
-        assert sources[0].y == rend.height / 2
+        assert sources[0].y == (2 * 66 * 2 + 13) / 2
         # Check the other two don't raise any exceptions
         list(rend.compile(one_var_dataset))
         list(rend.compile(one_claim_dataset))
-
-    def test_invalid_node_size(self, dataset):
-        invalid_sizes = (-1, -0.00001, 0, 1.00001, 10)
-        for size in invalid_sizes:
-            with pytest.raises(ValueError):
-                GraphRenderer(dataset, node_size=size)
-
-    def test_no_horizontal_overlapping(self):
-        dataset = Dataset([("source 1", "x", 100)])
-        size = 30
-        rend = GraphRenderer(
-            colours=ExampleColourScheme(), width=size, height=size, node_size=1
-        )
-        ents = list(rend.compile(dataset))
-        colours = ExampleColourScheme.colours
-        nodes = [e for e in ents if e.colour == colours["border"]]
-        assert len(nodes) == 3
-        radii = {e.radius for e in nodes}
-        assert len(radii) == 1
-        assert list(radii)[0] == size / 6
 
     def test_png_is_default(self, dataset, tmpdir):
         out = tmpdir.join("mygraph.png")
@@ -231,7 +218,7 @@ class TestRendering(BaseTest):
         assert len(ents) == (
             1 +      # background
             6 * 2 +  # 6 nodes, each represented by two circles
-            4        # 4 edges
+            4 * 3    # 4 edges and arrowheads
         )
 
     def test_matrix_renderer(self):
@@ -261,8 +248,18 @@ class TestRendering(BaseTest):
     def test_image_size(self, dataset):
         buf = BytesIO()
         w = 142
-        h = 512
-        rend = GraphRenderer(width=w, height=h, backend=PngBackend())
+
+        nr = 13
+        sp = 15
+        h = 2 * nr * 4 + sp * 3
+
+        print(dataset.num_sources)
+        print(dataset.num_claims)
+        print(dataset.num_variables)
+
+        rend = GraphRenderer(
+            width=w, node_radius=nr, spacing=sp, backend=PngBackend()
+        )
         rend.render(dataset, buf)
         buf.seek(0)
         img_data = imageio.imread(buf)
@@ -271,14 +268,13 @@ class TestRendering(BaseTest):
 
     def test_progress_bar(self, dataset):
         w = 200
-        h = 512
         anim_colour = (0.34, 0.99, 0.34)
 
         class MyColourScheme(GraphColourScheme):
             def get_animation_progress_colour(self):
                 return anim_colour
 
-        rend = GraphRenderer(width=w, height=h, colours=MyColourScheme())
+        rend = GraphRenderer(width=w, colours=MyColourScheme())
         ents = list(rend.compile(dataset, animation_progress=0.25))
         rects = [e for e in ents if e.colour == anim_colour]
         assert len(rects) == 1
@@ -290,12 +286,28 @@ class TestRendering(BaseTest):
         rects2 = [e for e in ents2 if e.colour == anim_colour]
         assert not len(rects2)
 
+    def test_dashed_lines(self, dataset):
+        class DashedRenderer(GraphRenderer):
+            def is_dashed(rself, edge_hints):
+                assert edge_hints is not None
+                return True
+        ents = (DashedRenderer().compile(dataset))
+        lines = [e for e in ents if isinstance(e, Line)]
+        dashed = [line for line in lines if line.dashed]
+
+        num_dashed = len(dashed)
+        num_non_dashed = len(lines) - num_dashed
+
+        # Edges between nodes should be dashed, but arrow heads shouldn't be
+        assert num_dashed == 10
+        assert num_non_dashed == 20
+
 
 class TestBackends(BaseTest):
     def test_base_backend(self, dataset, tmpdir):
         out = tmpdir.join("mygraph.png")
         with pytest.raises(NotImplementedError):
-            GraphRenderer(backend=BaseBackend()).render(out, dataset)
+            GraphRenderer(backend=BaseBackend()).render(dataset, out)
 
     def test_valid_png(self, dataset, tmpdir):
         out = tmpdir.join("mygraph.png")
@@ -312,8 +324,10 @@ class TestBackends(BaseTest):
 
     def test_json_backend(self):
         w = 123
-        h = 456
-        rend = GraphRenderer(width=w, height=h, backend=JsonBackend())
+        h = 2 * 10 * 2 + 5
+        rend = GraphRenderer(
+            width=w, node_radius=10, spacing=5, backend=JsonBackend()
+        )
         buf = StringIO()
 
         data = Dataset((
@@ -333,11 +347,13 @@ class TestBackends(BaseTest):
 
         ents = obj["entities"]
         assert isinstance(ents, list)
-        assert len(ents) == (
-            1        # background
-            + 6 * 2  # 6 nodes
-            + 4      # 4 edges
-        )
+        # Background
+        assert len([e for e in ents if e["type"] == "rectangle"]) == 1
+        # Nodes and borders
+        assert len([e for e in ents if e["type"] == "circle"]) == 6 * 2
+        # Edges and arrow heads
+        assert len([e for e in ents if e["type"] == "line"]) == 3 * 4
+
         assert ents[0] == {
             "type": "rectangle",
             "x": 0,
@@ -376,7 +392,8 @@ class TestBackends(BaseTest):
             "colour": (0.5, 0.6, 0.7),
             "end_x": 10,
             "end_y": 100,
-            "width": 202
+            "width": 202,
+            "dashed": False
         }
         label = Label(
             x=1, y=2, colour=(0.1, 0.4, 0.9), text="hello", size=123,
@@ -481,8 +498,8 @@ class TestAnimations(BaseTest):
             MyAnimator().animate(BytesIO(), Sums(), dataset)
 
     def test_gif_animation(self, dataset):
-        w, h = 123, 78
-        renderer = GraphRenderer(width=w, height=h)
+        w, h = 123, 95
+        renderer = GraphRenderer(width=w, node_radius=10, spacing=5)
         animator = GifAnimator(renderer=renderer)
         alg = Sums()
         buf = BytesIO()
@@ -497,8 +514,10 @@ class TestAnimations(BaseTest):
         assert (got_h, got_w) == (w, h)
 
     def test_json_animation(self, dataset):
-        w, h = 123, 78
-        renderer = GraphRenderer(width=w, height=h, backend=JsonBackend())
+        w, h = 123, 95
+        renderer = GraphRenderer(
+            width=w, node_radius=10, spacing=5, backend=JsonBackend()
+        )
         animator = JsonAnimator(renderer=renderer, frame_duration=1 / 9)
         alg = Sums(iterator=FixedIterator(4))
         buf = StringIO()
@@ -552,8 +571,7 @@ class TestAnimations(BaseTest):
 
     def test_progress_bar(self, dataset):
         w = 200
-        h = 200
-        rend = GraphRenderer(width=w, height=h, backend=JsonBackend())
+        rend = GraphRenderer(width=w, backend=JsonBackend())
         anim = JsonAnimator(renderer=rend)
 
         buf = StringIO()

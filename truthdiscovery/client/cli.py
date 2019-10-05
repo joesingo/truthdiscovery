@@ -200,8 +200,13 @@ class CommandLineClient(BaseClient):
             type=int
         )
         graph_parser.add_argument(
-            "--height",
-            help="Height in pixels",
+            "--node-radius",
+            help="Radius of each node in pixels",
+            type=int
+        )
+        graph_parser.add_argument(
+            "--spacing",
+            help="(minimum) vertical spacing between nodes in pixels",
             type=int
         )
         graph_parser.add_argument(
@@ -209,13 +214,6 @@ class CommandLineClient(BaseClient):
             dest="font_size",
             help="Font size for node labels",
             type=int
-        )
-        graph_parser.add_argument(
-            "--node-size",
-            dest="node_size",
-            help=("A number in [0, 1] to determine the size of node (1 is "
-                  "maximum size)"),
-            type=float
         )
         graph_parser.add_argument(
             "--line-width",
@@ -319,9 +317,9 @@ class CommandLineClient(BaseClient):
         """
         kwargs = {
             "width": args.width,
-            "height": args.height,
+            "node_radius": args.node_radius,
+            "spacing": args.spacing,
             "font_size": args.font_size,
-            "node_size": args.node_size,
             "line_width": args.line_width,
             "node_border_width": args.node_border_width,
             "zero_indexed": not args.one_indexed
@@ -333,7 +331,7 @@ class CommandLineClient(BaseClient):
         try:
             renderer = self.get_graph_renderer(args)
             dataset = MatrixDataset.from_csv(args.dataset)
-        except ValueError as ex:
+        except ValueError as ex:  # pragma: no cover
             parser.error(ex)
         renderer.render(dataset, args.outfile)
 

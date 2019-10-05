@@ -21,7 +21,8 @@ class GraphRenderer:
     dataset
     """
     def __init__(self, width=800, node_radius=50, spacing=20, line_width=3,
-                 node_border_width=3, font_size=15, colours=None, backend=None):
+                 node_border_width=3, font_size=15, colours=None,
+                 backend=None):
         """
         :param width:             width of the image in pixels
         :param node_radius:       node radius in pixels
@@ -52,7 +53,8 @@ class GraphRenderer:
     def _get_y_coord(self, index, num_nodes):
         if num_nodes > 1:
             available_height = self.height - 2 * self.node_radius
-            return self.node_radius + available_height * index / (num_nodes - 1)
+            return (self.node_radius
+                    + available_height * index / (num_nodes - 1))
         return self.height / 2
 
     def get_source_coords(self, index):
@@ -106,6 +108,10 @@ class GraphRenderer:
         A generator of :any:`Entity` objects describing what to draw and in
         which order
         """
+        if not self.height:
+            # This allows `compile` to be called directly in tests...
+            self.height = self.get_height(dataset)
+
         yield from self.compile_background()
         self.dataset = dataset
 

@@ -42,7 +42,7 @@ if __name__ == "__main__":
         PlainColourScheme() if plain else ResultsGradientColourScheme(results)
     )
     renderer = GraphRenderer(
-        width=1000, height=700, colours=colour_scheme
+        width=1000, colours=colour_scheme
     )
     with open(outpath, "wb") as imgfile:
         renderer.render(mydata, imgfile)
