@@ -40,5 +40,4 @@ $ pip install -e .
 
 ## Usage and documentation
 
-See the full documentation at [some-web-page](#) (**TODO**: host documentation
-somewhere: until then see the `doc/` directory)
+See the [full documentation on readthedocs](https://truthdiscovery.readthedocs.io/en/latest/index.html)

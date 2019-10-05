@@ -15,7 +15,7 @@ with open(path.join(HERE, "requirements.txt"), encoding="utf-8") as f:
 
 setup(
     name="truthdiscovery",
-    version="0.0.1",
+    version="1.0.0",
     description=("Python3 library implementing a selection of truth discovery"
                  "algorithms"),
     long_description=LONG_DESCRIPTION,
@@ -23,7 +23,7 @@ setup(
     url="https://github.com/joesingo/truthdiscovery",
     author="Joe Singleton",
     author_email="joesingo@gmail.com",
-    packages=find_packages(exclude=["contrib", "docs", "tests"]),
+    packages=find_packages(exclude=["contrib", "doc", "tests"]),
     python_requires=">=3.5",
     # Note: this includes test and code style packages and requirements, which
     # should really go in extras_require...
