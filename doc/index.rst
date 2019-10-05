@@ -54,14 +54,14 @@ interface.
 Installation
 ------------
 
-This package should be installed with ``pip`` (using Python 3). It is recommended
-to work in a `virtualenv <https://docs.python.org/3/tutorial/venv.html>`_ to
-avoid conflicts with globally-installed packages::
+This package can be installed from PyPi with ``pip`` (using Python 3). It is
+recommended to work in a `virtualenv
+<https://docs.python.org/3/tutorial/venv.html>`_ to avoid conflicts with
+globally-installed packages::
 
-    $ cd <repo root>
     $ python3 -m venv venv
     $ source venv/bin/activate
-    $ pip install -e .
+    $ pip install truthdiscovery
 
 Usage
 -----

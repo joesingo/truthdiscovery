@@ -29,18 +29,17 @@ for the trustworthiness of sources etc.
 
 ## Installation
 
-This package should be installed with `pip` (using Python 3). It is recommended
-to work in a [virtualenv](https://docs.python.org/3/tutorial/venv.html) to
-avoid conflicts with globally-installed packages:
+This package can be installed from PyPi with `pip` (using Python 3). It is
+recommended to work in a
+[virtualenv](https://docs.python.org/3/tutorial/venv.html) to avoid conflicts
+with globally-installed packages:
 
 ```
-$ git clone <this repo>
-$ cd truthdiscovery
 $ python3 -m venv venv
 $ source venv/bin/activate
-$ pip install -e .
+$ pip install truthdiscovery
 ```
 
 ## Usage and documentation
 
-See the [full documentation on readthedocs](https://truthdiscovery.readthedocs.io/en/latest/index.html)
+See the [full documentation on readthedocs](https://truthdiscovery.readthedocs.io/en/latest/index.html).

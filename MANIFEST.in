@@ -1,5 +1,10 @@
 include README.md
-include requirements.txt
-recursive-include doc
+
+recursive-include doc *
+prune doc/_build
+prune doc/_static
+
 recursive-include truthdiscovery/client/web/templates *
 recursive-include truthdiscovery/client/web/static *
+
+prune truthdiscovery/examples
