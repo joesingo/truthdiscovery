@@ -18,3 +18,4 @@ truthdiscovery/examples/stock/data/*.tsv
 truthdiscovery/examples/stock/truth/*.tsv
 reports/papers
 *.toc
+dist/*

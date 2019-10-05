@@ -44,6 +44,5 @@ snowballstemmer==1.2.1
 Sphinx==1.8.4
 sphinxcontrib-websupport==1.1.0
 typed-ast==1.3.0
-urllib3==1.25.6
 Werkzeug==0.16.0
 wrapt==1.11.1
