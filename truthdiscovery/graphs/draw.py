@@ -67,7 +67,7 @@ class GraphRenderer:
 
     def get_claim_coords(self, index):
         y = self._get_y_coord(index, self.dataset.num_claims)
-        return (self.width / 2, y)
+        return (self.width - self.node_radius, y)
 
     def get_source_label(self, source_id):
         return self.dataset.source_ids.inverse[source_id]
@@ -162,17 +162,32 @@ class GraphRenderer:
             yield from self.compile_edge(
                 source_coords[s_id], claim_coords[claim_id], hint
             )
+            yield from self.compile_edge(
+                claim_coords[claim_id], source_coords[s_id], hint
+            )
+
+        # Amsterdam slides hack: draw edges between claims for the same object
+        for (var1, _), cid1 in self.dataset.claim_ids.items():
+            for (var2, _), cid2 in self.dataset.claim_ids.items():
+                if cid1 == cid2 or var1 != var2:
+                    continue
+                yield from self.compile_edge(
+                    claim_coords[cid1], claim_coords[cid2], ("", "")
+                )
+                yield from self.compile_edge(
+                    claim_coords[cid2], claim_coords[cid1], ("", "")
+                )
 
         # Draw claims, variables and sources
         for (var_id, val_hash), claim_id in self.dataset.claim_ids.items():
-            # Draw edge from claim to variable
-            hint = (
-                self.dataset.val_hashes.inverse[val_hash],  # value
-                self.dataset.var_ids.inverse[var_id]        # variable name
-            )
-            yield from self.compile_edge(
-                claim_coords[claim_id], var_coords[var_id], hint
-            )
+            # # Draw edge from claim to variable
+            # hint = (
+            #     self.dataset.val_hashes.inverse[val_hash],  # value
+            #     self.dataset.var_ids.inverse[var_id]        # variable name
+            # )
+            # yield from self.compile_edge(
+            #     claim_coords[claim_id], var_coords[var_id], hint
+            # )
 
             # Draw claim
             hint = (
@@ -184,11 +199,11 @@ class GraphRenderer:
                 hint
             )
 
-        # Variables
-        for var, var_id in self.dataset.var_ids.items():
-            coords = var_coords[var_id]
-            label = var_labels[var_id]
-            yield from self.compile_node(NodeType.VARIABLE, label, coords, var)
+        # # Variables
+        # for var, var_id in self.dataset.var_ids.items():
+        #     coords = var_coords[var_id]
+        #     label = var_labels[var_id]
+        #     yield from self.compile_node(NodeType.VARIABLE, label, coords, var)
 
         # Sources
         for source, s_id in self.dataset.source_ids.items():
@@ -247,6 +262,13 @@ class GraphRenderer:
         start_x, start_y = start
         end_x, end_y = end
         colour = self.colours.get_edge_colour()
+
+        src, dest = edge_hints
+        if src in ("s", "t", "u", "v"):
+            colour = (0.09, 0.64, 0.09)
+        else:
+            colour = (1, 0.25, 0.25)
+
         yield Line(
             x=start_x, y=start_y, colour=colour, end_x=end_x, end_y=end_y,
             width=self.line_width, dashed=self.is_dashed(edge_hints)
