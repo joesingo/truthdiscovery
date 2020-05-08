@@ -51,7 +51,13 @@ class PngBackend(BaseBackend):
         # If label exceeds the node, draw a background-coloured box where text
         # will go, so that the label does not clash with background/node border
         if ext.width > max_width:
-            r, g, b = label.overflow_background
+            colour = label.overflow_background
+            if len(colour) == 3:
+                r, g, b = colour
+                a = 0
+            else:
+                r, g, b, a = colour
+
             ctx.set_source_rgba(*label.overflow_background)
             # Try and have label an 'opposite' colour for label to avoid
             # clashing
