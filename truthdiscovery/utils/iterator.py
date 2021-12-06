@@ -151,3 +151,52 @@ class ConvergenceIterator(Iterator):
         raise ValueError(
             "Invalid distance measure: '{}'".format(distance_measure)
         )
+
+
+class OrdinalConvergenceIterator(Iterator):
+    """
+    Iterator that runs until the ranking associated with a vector remains
+    unchanged for a specified number of iterations
+    """
+    threshold = 20
+    current_count = 0
+
+    def __init__(self, threshold=None):
+        super().__init__()
+        if threshold is not None:
+            self.threshold = threshold
+
+    def compare(self, obj1, obj2):
+        super().compare(obj1, obj2)
+        r1 = self.get_ranking_vector(obj1)
+        r2 = self.get_ranking_vector(obj2)
+        if np.all(r1 == r2):
+            self.current_count += 1
+            # print(f"ranking is the same; count is now {self.current_count}")
+        else:
+            self.current_count = 0
+            # print("ranking changed")
+
+    def finished(self):
+        return self.current_count >= self.threshold
+
+    @classmethod
+    def get_ranking_vector(cls, v):
+        """
+        Return the ranking associated with a vector
+        """
+        sorted_scores = v[np.argsort(v)]
+        rank = 0
+        rank_mapping = {}
+        for i, sc in enumerate(sorted_scores):
+            if i > 0 and sc > sorted_scores[i - 1]:
+                rank += 1
+            rank_mapping[sc] = rank
+        rv = np.zeros(v.shape)
+        for i, sc in enumerate(v):
+            rv[i] = rank_mapping[sc]
+        return rv
+
+    def reset(self):
+        super().reset()
+        self.current_count = 0

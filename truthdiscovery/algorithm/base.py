@@ -18,6 +18,7 @@ class PriorBelief(Enum):
     """
     FIXED = "fixed"
     VOTED = "voted"
+    COUNT = "count"
     UNIFORM = "uniform"
 
 
@@ -98,6 +99,10 @@ class BaseIterativeAlgorithm(BaseAlgorithm):
         if self.priors == PriorBelief.VOTED:
             source_counts = data.sc.T @ np.ones((data.num_sources,))
             return source_counts / (data.mut_ex @ source_counts)
+
+        if self.priors == PriorBelief.COUNT:
+            source_counts = data.sc.T @ np.ones((data.num_sources,))
+            return source_counts
 
         if self.priors == PriorBelief.UNIFORM:
             return 1 / (data.mut_ex @ np.ones((data.num_claims,)))

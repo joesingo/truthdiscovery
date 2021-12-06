@@ -10,6 +10,7 @@ from truthdiscovery.algorithm import (
     PooledInvestment,
     PriorBelief,
     Sums,
+    UnboundedSums,
     TruthFinder
 )
 from truthdiscovery.utils import (
@@ -43,6 +44,7 @@ class BaseClient:
         "investment": Investment,
         "pooled_investment": PooledInvestment,
         "sums": Sums,
+        "usums": UnboundedSums,
         "truthfinder": TruthFinder,
         "voting": MajorityVoting
     })

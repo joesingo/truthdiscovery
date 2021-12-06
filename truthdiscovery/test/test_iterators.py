@@ -6,7 +6,8 @@ from truthdiscovery.utils import (
     ConvergenceIterator,
     DistanceMeasures,
     FixedIterator,
-    Iterator
+    Iterator,
+    OrdinalConvergenceIterator
 )
 from truthdiscovery.exceptions import ConvergenceError
 
@@ -149,3 +150,11 @@ class TestDistanceMeasures:
             [0, 0, 0, 0],
             1
         )
+
+
+class TestOrdinalConvergenceIterator:
+    def test_basic(self):
+        v = np.array([100, 200, 150, 100])
+        exp = np.array([0, 2, 1, 0])
+        got = OrdinalConvergenceIterator.get_ranking_vector(v)
+        assert np.all(got == exp)
