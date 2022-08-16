@@ -11,6 +11,7 @@ from truthdiscovery.algorithm import (
     PriorBelief,
     Sums,
     UnboundedSums,
+    CRH,
     TruthFinder
 )
 from truthdiscovery.utils import (
@@ -46,6 +47,7 @@ class BaseClient:
         "sums": Sums,
         "usums": UnboundedSums,
         "truthfinder": TruthFinder,
+        "crh": CRH,
         "voting": MajorityVoting
     })
 
