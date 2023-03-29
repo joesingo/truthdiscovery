@@ -2,7 +2,7 @@ from io import BytesIO, StringIO
 import json
 from operator import attrgetter
 
-import imageio
+import imageio.v2 as imageio
 import pytest
 
 from truthdiscovery.algorithm import Sums
@@ -161,9 +161,9 @@ class TestRendering(BaseTest):
         var_ls.sort(key=attrgetter("y"))
         claim_ls.sort(key=attrgetter("y"))
 
-        sorted_sources = [l.text for l in source_ls]
-        sorted_vars = [l.text for l in var_ls]
-        sorted_claims = [l.text for l in claim_ls]
+        sorted_sources = [lab.text for lab in source_ls]
+        sorted_vars = [lab.text for lab in var_ls]
+        sorted_claims = [lab.text for lab in claim_ls]
 
         assert sorted_sources == [
             "source 1", "source 2", "source 3", "source 4"

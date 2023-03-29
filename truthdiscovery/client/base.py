@@ -155,8 +155,8 @@ class BaseClient:
         :param names: iterable of parameter names
         :return: a message as a string
         """
-        return("Ignored parameters for '{}': {}"
-               .format(cls.__name__, ", ".join(sorted(names))))
+        return ("Ignored parameters for '{}': {}"
+                .format(cls.__name__, ", ".join(sorted(names))))
 
     def get_output_obj(self, results, output_fields=None, sup_data=None):
         """

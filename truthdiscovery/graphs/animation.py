@@ -1,7 +1,7 @@
 from io import BytesIO, StringIO
 import json
 
-import imageio
+import imageio.v2 as imageio
 
 from truthdiscovery.graphs.backends import JsonBackend, PngBackend
 from truthdiscovery.graphs.colours import ResultsGradientColourScheme
